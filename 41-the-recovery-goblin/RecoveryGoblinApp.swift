@@ -194,6 +194,8 @@ struct RecoveryGoblinView: View {
         soreness = 6
         result = "The goblin is hiding behind the foam roller."
         healthWorkoutMinutes = nil
+        healthConnected = false
+        manualMode = false
         healthStatus = "Apple Health is optional. The goblin cannot measure recovery."
         dailyNudgeEnabled = false
         DumbLocalNotifications.cancel(identifier: Self.notificationIdentifier)
