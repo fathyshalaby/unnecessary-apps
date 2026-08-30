@@ -60,13 +60,20 @@ struct SnackRouletteView: View {
                 }
             }
             DumbAction(
-                title: "Spin the snack",
+                title: snackChoices.isEmpty ? "Add snacks to spin" : "Spin the snack",
                 accent: accent,
                 systemImage: "shuffle",
                 action: spin
             )
             .disabled(snackChoices.isEmpty)
             .accessibilityIdentifier("spinSnackButton")
+
+            if snackChoices.isEmpty {
+                Text("Enter at least one snack above to unlock the wheel.")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
             DumbResult(
                 text: result,

@@ -194,6 +194,14 @@ struct DoNotTextThemView: View {
                         .font(.headline.weight(.black))
                         .foregroundStyle(CorpPalette.ink)
                         .contentTransition(.opacity)
+                    Button(action: abortIntervention) {
+                        Label("Abort cool-off", systemImage: "xmark.circle.fill")
+                            .font(.caption.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                    }
+                    .foregroundStyle(CorpPalette.emergencyRed)
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("abortInterventionButton")
                 }
             }
         }
@@ -273,6 +281,18 @@ struct DoNotTextThemView: View {
             default:
                 status = "Step 3: Your future self has entered the room."
             }
+        }
+    }
+
+    private func abortIntervention() {
+        cancelCompletionNotification()
+        countdownTask?.cancel()
+        countdownTask = nil
+        deadline = nil
+        withAnimation(reduceMotion ? nil : DumbMotion.playful) {
+            remaining = 0
+            status = "Cool-off aborted. The draft remains yours—use wisely."
+            interventionRevision += 1
         }
     }
 

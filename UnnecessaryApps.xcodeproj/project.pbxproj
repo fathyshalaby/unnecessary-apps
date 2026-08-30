@@ -712,6 +712,13 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 		path = Assets.xcassets;
 		sourceTree = "<group>";
 	};
+		28F1EFF913C253C251750BDC = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = VisionSupport.swift;
+		sourceTree = "<group>";
+	};
 		298AFBDBCBF9682D500AF533 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = AD05E0B5C04306739026E7CE; remoteInfo = DumbKit; };
 		299741C3D0BA93C938645D1F = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (7EDC72EF45A10159B094DB80, 8738FA7AB5CC53CA55D84A9A,); runOnlyForDeploymentPostprocessing = 0; };
 		2BAE6D2BFE74D3BDF0C80AD8 = {
@@ -832,7 +839,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		isa = PBXSourcesBuildPhase;
 		buildActionMask = 2147483647;
 		files = (
-			AD51A7D93F0B5C7A0C55C433, 0644CDC51A0F28596C5BB2A1, F75077DE9E5D0465A41803D5,
+			AD51A7D93F0B5C7A0C55C433, 0644CDC51A0F28596C5BB2A1, EA6C83A1EEFEC3D31FDFDC42, F75077DE9E5D0465A41803D5, 87A6D89C52F314096FF4FC9A,
 		);
 		runOnlyForDeploymentPostprocessing = 0;
 	};
@@ -1644,6 +1651,13 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		sourceTree = "<group>";
 	};
 		6010C4F69DCF3FDC0B567072 = { isa = PBXBuildFile; fileRef = 9AECD47B090310EC22C3C02E; };
+		60CACF7104F96521DED4AC0C = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = MapJournalRegion.swift;
+		sourceTree = "<group>";
+	};
 		61FD8E53B4B8CE060A6EDC9C = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (39771D1C0755205C75CAF079, E600C64932A17FBCA6CF675B,); runOnlyForDeploymentPostprocessing = 0; };
 		62E0AE45A4AB6DCCEDA3B50C = {
 		isa = PBXGroup;
@@ -2046,7 +2060,9 @@ INFOPLIST_KEY_NSSupportsLiveActivities = YES; }; name = Release; };
 		children = (
 			5F7100B908FD23CB672B9BAF,
 			20BA6D65118D7BCC7D94E19B,
+			60CACF7104F96521DED4AC0C,
 			9FD8DC0F9C4A35A2AE0FB2C5,
+			28F1EFF913C253C251750BDC,
 		);
 		path = shared;
 		sourceTree = "<group>";
@@ -2196,6 +2212,10 @@ INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workout Excuse Detector requests
 		lastKnownFileType = sourcecode.swift;
 		path = ContentView.swift;
 		sourceTree = "<group>";
+	};
+		87A6D89C52F314096FF4FC9A = {
+		isa = PBXBuildFile;
+		fileRef = 28F1EFF913C253C251750BDC;
 	};
 		87DD2E3A3A87DF50F8318260 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = AD05E0B5C04306739026E7CE; remoteInfo = DumbKit; };
 		8918AE38237651DFCFAB86E7 = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -4154,6 +4174,10 @@ TARGETED_DEVICE_FAMILY = "1,2";
 INFOPLIST_KEY_NSCameraUsageDescription = "Tiny Personal Museum uses the camera only when you ask it to photograph an exhibit for your collection."; }; name = Release; };
 		EA037186B3D163B57BAD1289 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (5A83E4BE15E2D3E928E561CC, 1C7A1FA2F9369F62B6004334,); runOnlyForDeploymentPostprocessing = 0; };
 		EA62DA265BF6B0C5D7C39F67 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B81E2DC0F1CCABE4D347619D,); runOnlyForDeploymentPostprocessing = 0; };
+		EA6C83A1EEFEC3D31FDFDC42 = {
+		isa = PBXBuildFile;
+		fileRef = 60CACF7104F96521DED4AC0C;
+	};
 		EADA7BE5ACB63933F4AD093B = { isa = PBXBuildFile; fileRef = E6DF5002358146576B2D77BE; };
 		EAE64A79F385161D96543EF6 = {
 		isa = PBXFileReference;

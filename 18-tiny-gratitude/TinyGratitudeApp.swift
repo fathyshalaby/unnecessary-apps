@@ -79,6 +79,16 @@ struct TinyGratitudeView: View {
 
             archiveCard
 
+            Button(action: resurfaceEntry) {
+                Label("Resurface one tiny win", systemImage: "sparkles")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(entries.isEmpty)
+            .accessibilityIdentifier("resurfaceGratitudeButton")
+
             Button {
                 showArchiveActions = true
             } label: {

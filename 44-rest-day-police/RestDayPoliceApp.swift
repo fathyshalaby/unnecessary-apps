@@ -163,6 +163,10 @@ struct RestDayPoliceView: View {
                     Text(effectiveStreak > 5 ? "The paperwork is becoming suspicious." : "No excessive-consistency citation yet.")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(CorpPalette.mutedInk)
+                    Text("Streak counts consecutive calendar days with a logged workout, counting back from today or yesterday if today is empty. Fictional citation only.")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)
             }

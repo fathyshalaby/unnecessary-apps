@@ -58,7 +58,8 @@ struct SocialBatteryReceiptView: View {
             title: "Thank you for socializing.",
             subtitle: "A receipt for the social energy you actually felt—not a personality prediction.",
             accent: accent,
-            personality: .dramatic
+            personality: .dramatic,
+            experience: .receipt
         ) {
             boundaryCard
             summaryCard
@@ -72,13 +73,8 @@ struct SocialBatteryReceiptView: View {
             )
             .accessibilityIdentifier("printReceiptButton")
 
-            DumbResult(
-                text: receipt,
-                accent: accent,
-                systemImage: batterySymbol,
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("socialBatteryResult")
+            socialReceiptPaper
+                .accessibilityIdentifier("socialBatteryResult")
 
             Button(action: resetCurrentReceipt) {
                 Label("Void current receipt", systemImage: "arrow.counterclockwise")
@@ -272,6 +268,45 @@ struct SocialBatteryReceiptView: View {
         case 6...8: return "battery.75percent"
         default: return "battery.100percent"
         }
+    }
+
+    private var socialReceiptPaper: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("SOCIAL BATTERY RECEIPT")
+                        .font(.caption.weight(.black).monospaced())
+                        .tracking(1.2)
+                    Text("FILED FOR THIS EVENT ONLY")
+                        .font(.caption2.weight(.bold).monospaced())
+                        .foregroundStyle(CorpPalette.mutedInk)
+                }
+                Spacer()
+                Image(systemName: batterySymbol)
+                    .font(.title2.weight(.black))
+                    .foregroundStyle(accent)
+                    .accessibilityHidden(true)
+            }
+            Rectangle()
+                .fill(accent)
+                .frame(height: 2)
+            Text(receipt)
+                .font(.system(.subheadline, design: .monospaced).weight(.bold))
+                .foregroundStyle(CorpPalette.ink)
+                .fixedSize(horizontal: false, vertical: true)
+                .contentTransition(.opacity)
+        }
+        .padding(DumbSpacing.md)
+        .background(CorpPalette.receiptCream, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .stroke(CorpPalette.ink.opacity(0.08), lineWidth: 1)
+        )
+        .rotationEffect(.degrees(receipt == Self.emptyReceipt ? 0 : -0.6))
+        .shadow(color: .black.opacity(0.06), radius: 2, y: 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Social battery receipt")
+        .accessibilityValue(receipt)
     }
 
     private var hasCurrentReceipt: Bool {
