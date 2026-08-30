@@ -4,7 +4,7 @@ import DumbKit
 @main
 struct MeetingBingoApp: App {
     var body: some Scene {
-        WindowGroup { MeetingBingoView() }
+        WindowGroup { MeetingBingoView().dumbNativeEntry(scheme: "app17meetingbingo") { _, _ in } }
     }
 }
 

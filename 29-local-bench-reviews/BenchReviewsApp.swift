@@ -7,9 +7,7 @@ import DumbKit
 @main
 struct BenchReviewsApp: App {
     var body: some Scene {
-        WindowGroup {
-            BenchReviewsView()
-        }
+        WindowGroup { BenchReviewsView().dumbNativeEntry(scheme: "app29benchreviews") { _, _ in } }
     }
 }
 

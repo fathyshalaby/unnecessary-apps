@@ -30,7 +30,7 @@ private struct GratitudeEntry: Codable, Identifiable {
 @main
 struct TinyGratitudeApp: App {
     var body: some Scene {
-        WindowGroup { TinyGratitudeView() }
+        WindowGroup { TinyGratitudeView().dumbNativeEntry(scheme: "app18tinygratitude") { _, _ in } }
     }
 }
 

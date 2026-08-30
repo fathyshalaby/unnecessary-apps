@@ -16,7 +16,7 @@ private struct SnackPick: Codable, Identifiable {
 @main
 struct SnackRouletteApp: App {
     var body: some Scene {
-        WindowGroup { SnackRouletteView() }
+        WindowGroup { SnackRouletteView().dumbNativeEntry(scheme: "app22snackroulette") { _, _ in } }
     }
 }
 

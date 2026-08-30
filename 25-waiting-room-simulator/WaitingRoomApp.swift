@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct WaitingRoomApp: App {
-    var body: some Scene { WindowGroup { WaitingRoomView() } }
+    var body: some Scene { WindowGroup { WaitingRoomView().dumbNativeEntry(scheme: "app25waitingroom") { _, _ in } } }
 }
 
 struct WaitingRoomView: View {

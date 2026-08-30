@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct VibeMeterApp: App {
-    var body: some Scene { WindowGroup { VibeMeterView() } }
+    var body: some Scene { WindowGroup { VibeMeterView().dumbNativeEntry(scheme: "app21vibemeter") { _, _ in } } }
 }
 
 struct VibeMeterView: View {

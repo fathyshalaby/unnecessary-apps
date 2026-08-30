@@ -120,6 +120,7 @@ struct DoNotTextThemView: View {
         }
         .onAppear {
             resumeIntervention()
+            syncWidgetSnapshot()
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
@@ -242,6 +243,13 @@ struct DoNotTextThemView: View {
         }
     }
 
+    private func syncWidgetSnapshot() {
+        DumbWidgetSync.publish(.doNotTextThem, values: [
+            "remaining": "\(remaining)",
+            "active": remaining > 0 ? "1" : "0",
+        ])
+    }
+
     private func handleNativeRoute(_ action: String, _ payload: String) {
         switch action {
         case "start":
@@ -267,6 +275,7 @@ struct DoNotTextThemView: View {
             status = "Step 1: You do not miss them. You miss being perceived."
             interventionRevision += 1
         }
+        syncWidgetSnapshot()
         notificationTask?.cancel()
         notificationTask = Task { @MainActor in
             await scheduleCompletionNotification(id: notificationID, fireDate: expiration)
@@ -313,6 +322,7 @@ struct DoNotTextThemView: View {
                 status = "Step 3: Your future self has entered the room."
             }
         }
+        syncWidgetSnapshot()
     }
 
     private func abortIntervention() {
@@ -325,6 +335,7 @@ struct DoNotTextThemView: View {
             status = "Cool-off aborted. The draft remains yours—use wisely."
             interventionRevision += 1
         }
+        syncWidgetSnapshot()
     }
 
     private func completeIntervention() {
@@ -338,6 +349,7 @@ struct DoNotTextThemView: View {
             status = "Intervention complete. Delete it. Be mysterious."
             interventionRevision += 1
         }
+        syncWidgetSnapshot()
     }
 
     private func deleteEvidence() {

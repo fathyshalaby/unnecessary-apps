@@ -19,7 +19,7 @@ private struct ArrivalRecord: Codable, Identifiable {
 
 @main
 struct AmIEarlyApp: App {
-    var body: some Scene { WindowGroup { AmIEarlyView() } }
+    var body: some Scene { WindowGroup { AmIEarlyView().dumbNativeEntry(scheme: "app11amiearly") { _, _ in } } }
 }
 
 struct AmIEarlyView: View {

@@ -260,7 +260,11 @@ struct StepDebtView: View {
                 manualEditorVisible = true
                 healthStatus = "Manual estimate active. Apple Health remains optional."
             }
+            syncWidgetSnapshot()
         }
+        .onChange(of: actual) { _, _ in syncWidgetSnapshot() }
+        .onChange(of: goal) { _, _ in syncWidgetSnapshot() }
+        .onChange(of: healthSteps) { _, _ in syncWidgetSnapshot() }
         .onChange(of: locationService.lastCoordinate) { _, coordinate in
             guard isWaitingForLocation, let coordinate else { return }
             isWaitingForLocation = false
@@ -581,6 +585,13 @@ struct StepDebtView: View {
             .foregroundStyle(CorpPalette.ink)
         }
         .accessibilityElement(children: .contain)
+    }
+
+    private func syncWidgetSnapshot() {
+        DumbWidgetSync.publish(.stepDebt, values: [
+            "steps": "\(Int(effectiveSteps.rounded()))",
+            "goal": "\(Int(goal.rounded()))",
+        ])
     }
 
     private func calculateDebt() {

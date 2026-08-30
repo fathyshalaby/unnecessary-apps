@@ -1,9 +1,12 @@
 import SwiftUI
 import DumbKit
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 @main
 struct WalkingMeetingApp: App {
-    var body: some Scene { WindowGroup { WalkingMeetingView() } }
+    var body: some Scene { WindowGroup { WalkingMeetingView().dumbNativeEntry(scheme: "app42walkingmeeting") { _, _ in } } }
 }
 
 private enum WalkCheckpoint: String, Codable, CaseIterable, Identifiable {
@@ -412,6 +415,9 @@ struct WalkingMeetingView: View {
         persistActive()
         if meeting.reminderEnabled { scheduleEndReminder(for: meeting) }
         clearDraft(keepBrief: true)
+        #if canImport(ActivityKit)
+        Task { await WalkingLivePresentation.begin(meeting: meeting) }
+        #endif
     }
 
     private func toggle(_ checkpoint: WalkCheckpoint) {
@@ -446,6 +452,9 @@ struct WalkingMeetingView: View {
             ? "WALK COMPLETE — \(record.title): \(record.completedCheckpoints.count)/3 checkpoints and \(record.notes.count) field notes."
             : "WALK ENDED EARLY — \(record.title) after \(formatDuration(record.actualSeconds)). Progress was preserved without pretending it finished."
         persistActive(); persistHistory()
+        #if canImport(ActivityKit)
+        Task { await WalkingLivePresentation.finish(sessionID: meeting.id) }
+        #endif
     }
 
     private func delete(_ record: WalkingMeetingRecord) {
@@ -514,6 +523,27 @@ struct WalkingMeetingView: View {
         storedHistory = encoded
     }
 }
+
+#if canImport(ActivityKit)
+private enum WalkingLivePresentation {
+    static func begin(meeting: ActiveWalkingMeeting) async {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let attributes = WalkingMeetingActivityAttributes(meetingTitle: meeting.title, sessionID: meeting.id)
+        let state = WalkingMeetingActivityAttributes.ContentState(elapsedMinutes: 0, status: meeting.objective)
+        _ = try? Activity.request(
+            attributes: attributes,
+            content: ActivityContent(state: state, staleDate: nil),
+            pushType: nil
+        )
+    }
+
+    static func finish(sessionID: UUID) async {
+        for activity in Activity<WalkingMeetingActivityAttributes>.activities where activity.attributes.sessionID == sessionID {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
+    }
+}
+#endif
 
 #if canImport(PreviewsMacros)
 #Preview { WalkingMeetingView() }

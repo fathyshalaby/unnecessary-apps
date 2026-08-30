@@ -128,8 +128,11 @@ struct HydrationNarcView: View {
             loadAndRollDay()
             loadNudgeDate()
             if healthConnected { importHealthWater() }
+            syncWidgetSnapshot()
         }
+        .onChange(of: servings) { _, _ in syncWidgetSnapshot() }
         .onChange(of: goal) { _, _ in
+            syncWidgetSnapshot()
             reportToBottle()
         }
         .onChange(of: dailyNudgeEnabled) { _, enabled in
@@ -326,6 +329,13 @@ struct HydrationNarcView: View {
 
     private var progress: CGFloat {
         CGFloat(min(max(servings / max(goal, 1), 0), 1))
+    }
+
+    private func syncWidgetSnapshot() {
+        DumbWidgetSync.publish(.hydration, values: [
+            "servings": "\(Int(servings.rounded()))",
+            "goal": "\(Int(goal.rounded()))",
+        ])
     }
 
     private func logOneServing() {

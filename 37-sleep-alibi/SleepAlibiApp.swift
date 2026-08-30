@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct SleepAlibiApp: App {
     var body: some Scene {
-        WindowGroup { SleepAlibiView() }
+        WindowGroup { SleepAlibiView().dumbNativeEntry(scheme: "app37sleepalibi") { _, _ in } }
     }
 }
 

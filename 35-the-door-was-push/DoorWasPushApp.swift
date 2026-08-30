@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct DoorWasPushApp: App {
-    var body: some Scene { WindowGroup { DoorWasPushView() } }
+    var body: some Scene { WindowGroup { DoorWasPushView().dumbNativeEntry(scheme: "app35doorwaspush") { _, _ in } } }
 }
 
 private enum DoorMistake: String, Codable, CaseIterable, Identifiable {

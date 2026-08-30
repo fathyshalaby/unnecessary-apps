@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct RestDayPoliceApp: App {
     var body: some Scene {
-        WindowGroup { RestDayPoliceView() }
+        WindowGroup { RestDayPoliceView().dumbNativeEntry(scheme: "app44restdaypolice") { _, _ in } }
     }
 }
 

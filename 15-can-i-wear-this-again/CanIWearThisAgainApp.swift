@@ -35,7 +35,7 @@ private struct ClosetRuling: Codable, Identifiable {
 
 @main
 struct CanIWearThisAgainApp: App {
-    var body: some Scene { WindowGroup { OutfitView() } }
+    var body: some Scene { WindowGroup { OutfitView().dumbNativeEntry(scheme: "app15caniwearthisagain") { _, _ in } } }
 }
 
 struct OutfitView: View {

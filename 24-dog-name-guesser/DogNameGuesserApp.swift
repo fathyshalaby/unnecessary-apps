@@ -5,7 +5,7 @@ import ImageIO
 import UIKit
 import DumbKit
 
-@main struct DogNameGuesserApp: App { var body: some Scene { WindowGroup { DogNameGuesserView() } } }
+@main struct DogNameGuesserApp: App { var body: some Scene { WindowGroup { DogNameGuesserView().dumbNativeEntry(scheme: "app24dognameguesser") { _, _ in } } } }
 struct DogNameGuesserView: View {
     @AppStorage("dogName.fluff") private var fluff = 5.0
     @AppStorage("dogName.seriousness") private var seriousness = 5.0

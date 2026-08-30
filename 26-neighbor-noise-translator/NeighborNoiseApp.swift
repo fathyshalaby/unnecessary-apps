@@ -2,7 +2,7 @@ import SwiftUI
 import AVFoundation
 import DumbKit
 
-@main struct NeighborNoiseApp: App { var body: some Scene { WindowGroup { NeighborNoiseView() } } }
+@main struct NeighborNoiseApp: App { var body: some Scene { WindowGroup { NeighborNoiseView().dumbNativeEntry(scheme: "app26neighbornoise") { _, _ in } } } }
 
 private final class LocalNoiseSampler {
     private let engine = AVAudioEngine()

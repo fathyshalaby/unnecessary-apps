@@ -17,7 +17,7 @@ private struct DramaEntry: Codable, Identifiable {
     }
 }
 
-@main struct HeartRateEmailApp: App { var body: some Scene { WindowGroup { HeartRateEmailView() } } }
+@main struct HeartRateEmailApp: App { var body: some Scene { WindowGroup { HeartRateEmailView().dumbNativeEntry(scheme: "app38heartrateemail") { _, _ in } } } }
 struct HeartRateEmailView: View {
     private static let emptyResult = "The inbox is calm for now."
 
@@ -82,8 +82,20 @@ struct HeartRateEmailView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty)
             .accessibilityIdentifier("eraseHeartRateHistoryButton")
+
+            DumbNativeTip(
+                "Share from Mail",
+                detail: "Share an email subject from Mail to log inbox drama faster.",
+                systemImage: "square.and.arrow.down",
+                accent: accent
+            )
         }
-        .onAppear(perform: restoreHistory)
+        .onAppear {
+            restoreHistory()
+            if let shared = DumbSharedPayload.consume(for: .heartRate) {
+                subject = String(shared.prefix(120))
+            }
+        }
         .confirmationDialog(
             "Erase every filed drama entry?",
             isPresented: $showEraseConfirmation,

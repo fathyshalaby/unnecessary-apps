@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct RecoveryGoblinApp: App {
     var body: some Scene {
-        WindowGroup { RecoveryGoblinView() }
+        WindowGroup { RecoveryGoblinView().dumbNativeEntry(scheme: "app41recoverygoblin") { _, _ in } }
     }
 }
 
