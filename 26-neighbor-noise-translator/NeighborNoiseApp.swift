@@ -69,6 +69,8 @@ struct NeighborNoiseView: View {
     @State private var noiseLevel = 0.0
     @State private var microphoneStatus = "No wall testimony yet."
     @State private var sampler: LocalNoiseSampler?
+    @State private var listenRemaining = 0
+    @State private var listenTimer: Timer?
 
     private let accent = CorpPalette.sky
 
@@ -93,6 +95,14 @@ struct NeighborNoiseView: View {
                     .buttonStyle(DumbPressStyle())
                     .disabled(isListening)
                     .accessibilityIdentifier("listenNeighborNoiseButton")
+
+                    if isListening {
+                        Text("\(listenRemaining)s remaining")
+                            .font(.caption.weight(.black))
+                            .foregroundStyle(accent)
+                            .monospacedDigit()
+                            .accessibilityIdentifier("listenRemainingLabel")
+                    }
 
                     ProgressView(value: noiseLevel)
                         .tint(accent)
@@ -136,7 +146,7 @@ struct NeighborNoiseView: View {
             ? "Translation: drilling. Retreat from the wall."
             : lower.contains("music")
                 ? "Translation: someone has chosen a bass line."
-                : "Translation: furniture, plumbing, or a small diplomatic incident."
+                : translation(for: lower)
     }
 
     private func listenToWall() {
@@ -171,7 +181,16 @@ struct NeighborNoiseView: View {
             sampler = newSampler
             isListening = true
             noiseLevel = 0
+            listenRemaining = 2
             microphoneStatus = "Listening… the wall has two seconds to testify."
+            listenTimer?.invalidate()
+            listenTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                listenRemaining -= 1
+                if listenRemaining <= 0 {
+                    timer.invalidate()
+                    listenTimer = nil
+                }
+            }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 finishListening()
@@ -184,20 +203,41 @@ struct NeighborNoiseView: View {
     }
 
     private func finishListening() {
+        listenTimer?.invalidate()
+        listenTimer = nil
+        listenRemaining = 0
         guard let sampler else { return }
         let level = sampler.stop()
         self.sampler = nil
         isListening = false
         noiseLevel = level
+        let description = noiseDescription(for: level)
+        noise = description
         microphoneStatus = "Testimony recorded: two seconds of suspicious wall activity."
-        result = level > 0.72
-            ? "Translation: a serious thud. The wall requests a respectful distance."
-            : level > 0.35
-                ? "Translation: furniture, plumbing, or a small diplomatic incident."
-                : "Translation: suspiciously peaceful. The wall may be asleep."
+        result = translation(for: description)
+    }
+
+    private func noiseDescription(for level: Double) -> String {
+        if level > 0.72 { return "A serious thud from the wall" }
+        if level > 0.35 { return "Furniture, plumbing, or diplomatic incident sounds" }
+        return "Suspiciously peaceful wall activity"
+    }
+
+    private func translation(for description: String) -> String {
+        let lower = description.lowercased()
+        if lower.contains("thud") || lower.contains("serious") {
+            return "Translation: a serious thud. The wall requests a respectful distance."
+        }
+        if lower.contains("peaceful") || lower.contains("asleep") {
+            return "Translation: suspiciously peaceful. The wall may be asleep."
+        }
+        return "Translation: furniture, plumbing, or a small diplomatic incident."
     }
 
     private func reset() {
+        listenTimer?.invalidate()
+        listenTimer = nil
+        listenRemaining = 0
         noise = ""
         result = "The wall is listening."
         isListening = false

@@ -61,8 +61,8 @@ struct QueuePersonalityView: View {
     var body: some View {
         DumbShell(
             eyebrow: "QUEUE OBSERVATORY",
-            title: "How long is this line?",
-            subtitle: "Track a real wait. Keep the personality diagnosis deeply unserious.",
+            title: "Queue wait tracker",
+            subtitle: "Time a real line, log what moves, and collect an official queue archetype.",
             accent: accent,
             personality: .chaotic
         ) {
@@ -186,6 +186,13 @@ struct QueuePersonalityView: View {
                         Text(formatClock(elapsed)).font(.title2.weight(.black).monospacedDigit()).foregroundStyle(accent)
                     }
 
+                    DumbStatusPill(
+                        liveArchetype(for: queue, elapsed: elapsed),
+                        systemImage: "person.fill.questionmark",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("liveQueueArchetype")
+
                     HStack(spacing: 8) {
                         activeMetric("\(queue.peopleAhead)", "ahead")
                         Divider()
@@ -247,12 +254,12 @@ struct QueuePersonalityView: View {
 
     private func activeButton(_ title: String, image: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Label(title, systemImage: image).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 36)
+            Label(title, systemImage: image).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
         }.buttonStyle(.bordered).tint(accent)
     }
 
     private func outcomeButton(_ title: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) { Text(title).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 38) }
+        Button(action: action) { Text(title).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget) }
             .buttonStyle(.borderedProminent).tint(color)
     }
 
@@ -402,6 +409,16 @@ struct QueuePersonalityView: View {
     }
 
     private func elapsedSeconds(_ queue: ActiveQueue, at date: Date) -> Int { max(0, Int(date.timeIntervalSince(queue.startedAt))) }
+
+    private func liveArchetype(for queue: ActiveQueue, elapsed: Int) -> String {
+        if queue.peopleAhead == 0 { return "THE FRONT-ROW REALIST" }
+        if queue.peopleAhead > queue.initialPeopleAhead { return "THE DEFENSIVE PESSIMIST" }
+        if queue.peopleServed >= 3 { return "THE PACE ANALYST" }
+        if queue.peopleServed > 0 { return "THE EVIDENCE-BASED OPTIMIST" }
+        if elapsed > 300 { return "THE STOIC WAITER" }
+        return "THE LINE ANTHROPOLOGIST"
+    }
+
     private func etaSeconds(_ queue: ActiveQueue, elapsed: Int) -> Int {
         guard queue.peopleAhead > 0 else { return 0 }
         if queue.peopleServed > 0 { return Int((Double(elapsed) / Double(queue.peopleServed) * Double(queue.peopleAhead)).rounded()) }

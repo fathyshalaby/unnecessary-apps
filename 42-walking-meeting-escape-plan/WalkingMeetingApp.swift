@@ -273,7 +273,7 @@ struct WalkingMeetingView: View {
                         Image(systemName: completed ? "checkmark.circle.fill" : "circle")
                     }
                     .foregroundStyle(completed ? CorpPalette.actionInk : CorpPalette.ink)
-                    .padding(.horizontal, 13).frame(minHeight: 42)
+                    .padding(.horizontal, 13).frame(minHeight: DumbMetrics.minimumTapTarget)
                     .background(completed ? green : accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .buttonStyle(DumbPressStyle())
@@ -288,7 +288,7 @@ struct WalkingMeetingView: View {
         VStack(alignment: .leading, spacing: 8) {
             DumbField("Decision or note", maxLength: 240, text: $noteDraft)
             Button { addNote() } label: {
-                Label("Add timestamped note", systemImage: "plus.circle.fill").font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 38)
+                Label("Add timestamped note", systemImage: "plus.circle.fill").font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
             }
             .buttonStyle(.bordered).tint(accent).disabled(cleanNoteDraft.isEmpty)
             .accessibilityIdentifier("addWalkingNoteButton")
@@ -302,7 +302,7 @@ struct WalkingMeetingView: View {
     }
 
     private func outcomeButton(_ title: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) { Text(title).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 40) }
+        Button(action: action) { Text(title).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget) }
             .buttonStyle(.borderedProminent).tint(color)
     }
 

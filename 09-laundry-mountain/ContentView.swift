@@ -308,7 +308,7 @@ struct LaundryMountainView: View {
 
     private func rowButton(_ title: String, image: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Label(title, systemImage: image).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 36)
+            Label(title, systemImage: image).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
         }
         .buttonStyle(.bordered).tint(accent)
     }

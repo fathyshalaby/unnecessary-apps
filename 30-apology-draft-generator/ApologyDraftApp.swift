@@ -43,6 +43,12 @@ struct ApologyDraftView: View {
                     )
 
                     tonePicker
+
+                    if crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Describe the tiny crime before the department can draft.")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(CorpPalette.mutedInk)
+                    }
                 }
             }
             .accessibilityIdentifier("crimeEditor")
@@ -53,6 +59,7 @@ struct ApologyDraftView: View {
                 systemImage: "pencil.and.scribble",
                 action: generateDraft
             )
+            .disabled(isGenerating || crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .accessibilityIdentifier("generateApologyButton")
 
             DumbResult(

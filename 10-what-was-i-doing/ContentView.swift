@@ -51,9 +51,9 @@ struct WhatWasIDoingView: View {
             personality: .chaotic
         ) {
             counterCard
-            incidentEditor
+
             DumbAction(
-                title: "Log forgotten mission",
+                title: "I forgot why",
                 accent: accent,
                 systemImage: "questionmark.diamond.fill",
                 action: recordIncident
@@ -67,6 +67,8 @@ struct WhatWasIDoingView: View {
                 reactionStyle: .bounce
             )
             .accessibilityIdentifier("memoryLogResult")
+
+            incidentEditor
 
             incidentLog
 

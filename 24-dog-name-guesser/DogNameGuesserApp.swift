@@ -27,6 +27,16 @@ struct DogNameGuesserView: View {
             accent: accent,
             personality: .dramatic
         ) {
+            if let banner = VisionSupport.deviceBannerMessage {
+                Text(banner)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityIdentifier("visionDeviceBanner")
+            }
+
             cameraStage
 
             DumbCard(accent: accent, isSelected: !guess.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
@@ -254,6 +264,13 @@ struct DogNameGuesserView: View {
                 photo = image
                 photoFinding = finding
                 suggestedName = dogDetected ? proposedName : nil
+                if guess.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, dogDetected {
+                    guess = proposedName
+                }
+                if dogDetected {
+                    let name = guess.trimmingCharacters(in: .whitespacesAndNewlines)
+                    result = name.isEmpty ? finding : "Preview: \(name). \(finding)"
+                }
             }
         } catch {
             await MainActor.run {

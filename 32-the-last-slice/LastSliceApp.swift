@@ -254,7 +254,7 @@ struct LastSliceView: View {
             Button { candidatePassed() } label: {
                 Label("They passed", systemImage: "hand.raised.fill")
                     .font(.caption.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
             }
             .buttonStyle(.bordered)
             .tint(accent)
@@ -263,7 +263,7 @@ struct LastSliceView: View {
             Button { awardCandidate() } label: {
                 Label("Award it", systemImage: "checkmark.seal.fill")
                     .font(.caption.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
             }
             .buttonStyle(.borderedProminent)
             .tint(accent)

@@ -24,6 +24,7 @@ struct MeetingBingoView: View {
 
     @State private var board: [String] = []
     @State private var marked = Set<Int>()
+    @State private var winningLineIndices: [Int] = []
     @State private var gameRevision = 0
     @State private var showEraseConfirmation = false
     @AppStorage("meetingBingo.completed") private var completedGames = 0
@@ -35,7 +36,8 @@ struct MeetingBingoView: View {
             title: "Meeting bingo",
             subtitle: "For meetings where the agenda is mostly weather and vibes.",
             accent: CorpPalette.courtroomNavy,
-            personality: .office
+            personality: .office,
+            experience: .game
         ) {
             gameHeader
 
@@ -163,6 +165,10 @@ struct MeetingBingoView: View {
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(CorpPalette.courtroomNavy.opacity(isMarked ? 0 : 0.15), lineWidth: 2)
+                if hasBingo && winningLineIndices.contains(index) {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(CorpPalette.sunshine, lineWidth: 4)
+                }
             }
         }
         .buttonStyle(DumbPressStyle())
@@ -172,12 +178,17 @@ struct MeetingBingoView: View {
     }
 
     private var hasBingo: Bool {
-        let lines = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-        ]
-        return lines.contains { $0.allSatisfy(marked.contains) }
+        !winningLineIndices.isEmpty
+    }
+
+    private let bingoLines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ]
+
+    private func updateWinningLine() {
+        winningLineIndices = bingoLines.first { $0.allSatisfy(marked.contains) } ?? []
     }
 
     private var resultText: String {
@@ -198,6 +209,7 @@ struct MeetingBingoView: View {
         {
             board = savedBoard
             marked = Set(savedMarked)
+            updateWinningLine()
             if hasBingo {
                 currentBoardWon = true
             }
@@ -210,6 +222,7 @@ struct MeetingBingoView: View {
         let selected = Array(phrasePool.shuffled().prefix(8))
         board = Array(selected.prefix(4)) + ["FREE SPACE"] + Array(selected.dropFirst(4))
         marked = [4]
+        winningLineIndices = []
         currentBoardWon = false
         gameRevision += 1
         persistGame()
@@ -226,6 +239,7 @@ struct MeetingBingoView: View {
                 completedGames += 1
                 currentBoardWon = true
             }
+            updateWinningLine()
             persistGame()
         }
     }

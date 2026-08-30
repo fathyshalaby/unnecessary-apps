@@ -13,6 +13,7 @@ struct MedievalAdviceView: View {
     @State private var isGenerating = false
     @State private var modelStatus = "The village is ready."
     @State private var activeGenerationID: UUID?
+    @State private var fallbackTask: Task<Void, Never>?
 
     private let accent = CorpPalette.courtroomNavy
 
@@ -36,6 +37,7 @@ struct MedievalAdviceView: View {
                 systemImage: "person.fill.questionmark",
                 action: seekWisdom
             )
+            .disabled(isGenerating)
             .accessibilityIdentifier("seekWisdomButton")
 
             DumbResult(text: answer, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
@@ -59,6 +61,8 @@ struct MedievalAdviceView: View {
                 answer = "The peasant is sharpening a stick."
                 isGenerating = false
                 activeGenerationID = nil
+                fallbackTask?.cancel()
+                fallbackTask = nil
                 modelStatus = "The village is ready."
             } label: {
                 Label("Send the peasant home", systemImage: "arrow.counterclockwise")
@@ -122,6 +126,7 @@ struct MedievalAdviceView: View {
         isGenerating = true
         let generationID = UUID()
         activeGenerationID = generationID
+        fallbackTask?.cancel()
         modelStatus = "Sending a runner to the village…"
         Task {
             let generated: String?
@@ -134,6 +139,8 @@ struct MedievalAdviceView: View {
             }
             await MainActor.run {
                 guard activeGenerationID == generationID else { return }
+                fallbackTask?.cancel()
+                fallbackTask = nil
                 if let generated {
                     answer = generated
                     modelStatus = "The village has spoken."
@@ -145,13 +152,15 @@ struct MedievalAdviceView: View {
                 activeGenerationID = nil
             }
         }
-        Task {
+        fallbackTask = Task {
             try? await Task.sleep(for: .seconds(12))
+            guard !Task.isCancelled else { return }
             await MainActor.run {
                 guard activeGenerationID == generationID, isGenerating else { return }
                 answer = fallbackAdvice(for: cleanQuestion)
                 isGenerating = false
                 activeGenerationID = nil
+                fallbackTask = nil
                 modelStatus = "The backup peasant took the case."
             }
         }

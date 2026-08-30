@@ -9,6 +9,7 @@ import DumbKit
 struct PigeonView: View {
     @AppStorage("birdGuess.nearWater") private var nearWater = false
     @AppStorage("birdGuess.looksAngry") private var looksAngry = true
+    @AppStorage("birdGuess.wingsOperational") private var wingsOperational = false
     @AppStorage("birdGuess.result") private var result = "The bird is withholding evidence."
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var photo: UIImage?
@@ -26,9 +27,19 @@ struct PigeonView: View {
             accent: accent,
             personality: .chaotic
         ) {
+            if let banner = VisionSupport.deviceBannerMessage {
+                Text(banner)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityIdentifier("visionDeviceBanner")
+            }
+
             scannerStage
 
-            DumbCard(accent: accent, isSelected: nearWater || looksAngry) {
+            DumbCard(accent: accent, isSelected: nearWater || looksAngry || wingsOperational) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         DumbStatusPill("FIELD SCANNER", systemImage: "scope", accent: accent)
@@ -39,6 +50,7 @@ struct PigeonView: View {
                     }
                     Toggle("Near a body of water", isOn: $nearWater)
                     Toggle("Looks like it owes you money", isOn: $looksAngry)
+                    Toggle("Wings look aggressively operational", isOn: $wingsOperational)
                     Text("Use the checklist only when the bird refuses to pose.")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(CorpPalette.mutedInk)
@@ -64,6 +76,9 @@ struct PigeonView: View {
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
             Task { await analyze(item) }
+        }
+        .onChange(of: visionRuling) { _, ruling in
+            if let ruling { result = ruling }
         }
         .sheet(isPresented: $showingCamera) {
             DumbCameraPicker(
@@ -169,11 +184,11 @@ struct PigeonView: View {
             return
         }
 
-        result = nearWater && looksAngry
+        result = nearWater && (looksAngry || wingsOperational)
             ? "Seagull. It has a plan and your lunch is in it."
             : nearWater
                 ? "Probably seagull. Water is a strong clue."
-                : looksAngry
+                : (looksAngry || wingsOperational)
                     ? "Pigeon. An urban professional."
                     : "Pigeon. Congratulations, it is simply shaped like that."
     }
@@ -181,6 +196,7 @@ struct PigeonView: View {
     private func reset() {
         nearWater = false
         looksAngry = true
+        wingsOperational = false
         result = "The bird is withholding evidence."
         selectedPhoto = nil
         photo = nil
@@ -245,6 +261,7 @@ struct PigeonView: View {
                 photo = image
                 photoFinding = "Bureau notes: \(joinedLabels)."
                 visionRuling = ruling
+                result = ruling
             }
         } catch {
             await MainActor.run {

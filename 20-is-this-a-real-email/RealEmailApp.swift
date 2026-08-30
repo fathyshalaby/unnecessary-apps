@@ -93,11 +93,19 @@ struct RealEmailView: View {
     var body: some View {
         DumbShell(
             eyebrow: "INBOX FORENSICS",
-            title: "Is this a real email?",
-            subtitle: "Detecting paragraphs that could have been one sentence.",
+            title: "Corporate fog detector",
+            subtitle: "A clarity estimate for bloated paragraphs—not truth detection or inbox verification.",
             accent: accent,
             personality: .office
         ) {
+            Text("Analysis stays on this device and clears when you leave.")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .accessibilityIdentifier("emailSessionBanner")
+
             editorCard
 
             DumbAction(
@@ -134,6 +142,9 @@ struct RealEmailView: View {
             .disabled(email.isEmpty && analysis == nil)
             .accessibilityIdentifier("clearEmailButton")
             .accessibilityHint("Removes the pasted email from this screen.")
+        }
+        .onDisappear {
+            clearEvidence()
         }
     }
 

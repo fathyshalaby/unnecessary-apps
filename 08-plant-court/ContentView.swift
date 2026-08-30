@@ -351,7 +351,7 @@ struct PlantCourtView: View {
         Button(action: action) {
             Label(title, systemImage: image)
                 .font(.caption.weight(.black))
-                .frame(maxWidth: .infinity, minHeight: 36)
+                .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
         }
         .buttonStyle(.bordered)
         .tint(accent)
