@@ -100,6 +100,7 @@ struct TinyMuseumView: View {
     @State private var validationMessage = ""
     @State private var showClearConfirmation = false
     @State private var curatorRevision = 0
+    @State private var selectedExhibit: MuseumExhibit?
 
     private let accent = CorpPalette.violet
 
@@ -205,6 +206,59 @@ struct TinyMuseumView: View {
             )
             .ignoresSafeArea()
         }
+        .sheet(item: $selectedExhibit) { exhibit in
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if let photo = MuseumArchive.image(named: exhibit.photoFilename) {
+                            Image(uiImage: photo)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 220)
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                                .accessibilityLabel("Photo for \(exhibit.title)")
+                        }
+                        Text(exhibit.placard)
+                            .font(.system(.subheadline, design: .serif).weight(.semibold))
+                            .foregroundStyle(CorpPalette.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(18)
+                }
+                .background(CorpPalette.canvas.ignoresSafeArea())
+                .navigationTitle(exhibit.title)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Close") { selectedExhibit = nil }
+                    }
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if canOpenExhibition {
+                DumbAction(
+                    title: exhibits.count >= MuseumArchive.limit ? "Museum at capacity" : "Open this exhibition",
+                    accent: accent,
+                    systemImage: "building.columns.fill",
+                    action: openExhibition
+                )
+                .disabled(exhibitsAtCapacity)
+                .accessibilityIdentifier("openTinyExhibitionButton")
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.vertical, DumbSpacing.sm)
+                .background(CorpPalette.canvas.opacity(0.96))
+            }
+        }
+    }
+
+    private var canOpenExhibition: Bool {
+        !objectTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var exhibitsAtCapacity: Bool {
+        exhibits.count >= MuseumArchive.limit
     }
 
     private var curatorDesk: some View {
@@ -287,15 +341,6 @@ struct TinyMuseumView: View {
                         .foregroundStyle(CorpPalette.warningRed)
                         .accessibilityIdentifier("museumValidationMessage")
                 }
-
-                DumbAction(
-                    title: exhibits.count >= MuseumArchive.limit ? "Museum at capacity" : "Open this exhibition",
-                    accent: accent,
-                    systemImage: "building.columns.fill",
-                    action: openExhibition
-                )
-                .disabled(exhibits.count >= MuseumArchive.limit)
-                .accessibilityIdentifier("openTinyExhibitionButton")
             }
         }
     }
@@ -362,6 +407,17 @@ struct TinyMuseumView: View {
                         .foregroundStyle(accent)
                         .accessibilityHidden(true)
                 }
+
+                Button {
+                    selectedExhibit = exhibit
+                    result = exhibit.placard
+                } label: {
+                    Label("View placard", systemImage: "doc.text.fill")
+                        .font(.caption.weight(.black))
+                }
+                .foregroundStyle(accent)
+                .buttonStyle(DumbPressStyle())
+                .accessibilityIdentifier("viewExhibitPlacardButton")
 
                 Button(role: .destructive) {
                     delete(exhibit)

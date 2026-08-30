@@ -70,15 +70,6 @@ struct ChairFinderView: View {
             accent: accent,
             personality: .optimistic
         ) {
-            DumbCharacterStage(
-                assetName: "ChairInspector",
-                accent: accent,
-                title: "Licensed seating inspector",
-                caption: inspectorCaption,
-                reactionTrigger: inspectionRevision,
-                reactionStyle: .bounce
-            )
-
             HStack {
                 DumbStatusPill("OFFICIAL CHAIR FILE", systemImage: "doc.text.fill", accent: accent)
                 Spacer()
@@ -100,6 +91,28 @@ struct ChairFinderView: View {
             )
             .disabled(candidates.isEmpty)
             .accessibilityIdentifier("inspectChairButton")
+
+            if let winner = candidates.first(where: { $0.id == winningChairID }) {
+                DumbCard(accent: accent, isSelected: true) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "crown.fill")
+                            .font(.title2.weight(.black))
+                            .foregroundStyle(CorpPalette.verdictGold)
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("CURRENT WINNER")
+                                .font(.caption2.weight(.black))
+                                .tracking(1.1)
+                                .foregroundStyle(accent)
+                            Text("\(winner.name) · SIT \(winner.score)")
+                                .font(.headline.weight(.black))
+                                .foregroundStyle(CorpPalette.ink)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+                .accessibilityIdentifier("chairCurrentWinner")
+            }
 
             DumbResult(
                 text: verdict,
@@ -283,15 +296,6 @@ struct ChairFinderView: View {
         .accessibilityIdentifier("chairCandidateCard")
     }
 
-    private var inspectorCaption: String {
-        guard let winner = candidates.first(where: { $0.id == winningChairID }) else {
-            return candidates.isEmpty
-                ? "Clipboard ready. Please locate actual furniture."
-                : "\(candidates.count) chair\(candidates.count == 1 ? "" : "s") await municipal judgment."
-        }
-        return "\(winner.name) has passed the official bum test."
-    }
-
     private func addCandidate() {
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -321,7 +325,10 @@ struct ChairFinderView: View {
         shade = 5
         pigeonRisk = 2
         validationMessage = ""
-        resetRanking()
+        if !storedWinnerID.isEmpty {
+            storedWinnerID = ""
+            verdict = "Shortlist updated. Tap rank again for a fresh verdict."
+        }
         inspectionRevision += 1
     }
 

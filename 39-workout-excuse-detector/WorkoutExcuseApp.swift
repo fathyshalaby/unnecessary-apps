@@ -259,13 +259,34 @@ struct WorkoutExcuseView: View {
     }
 
     private func runDetector() {
-        guard !excuse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        let cleanExcuse = excuse.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanExcuse.isEmpty else {
             result = "No excuse submitted. The detector cannot cross-examine an empty sentence."
             return
         }
-        result = effectiveMinutes > 10
-            ? "The evidence shows \(Int(effectiveMinutes.rounded())) minutes of movement. Your excuse is downgraded to ‘technically true.’"
-            : "The evidence is weak. The excuse has been admitted into the record."
+        let lower = cleanExcuse.lowercased()
+        let movement = Int(effectiveMinutes.rounded())
+
+        if movement > 10 {
+            if lower.contains("tired") || lower.contains("exhaust") {
+                result = "The evidence shows \(movement) minutes of movement despite ‘tired.’ The excuse is downgraded to ‘dramatic but technically possible.’"
+            } else if lower.contains("injur") || lower.contains("hurt") || lower.contains("sore") {
+                result = "Movement was logged, but the injury story stays on file. The detector recommends gentle honesty, not a lecture."
+            } else if lower.contains("busy") || lower.contains("meeting") || lower.contains("work") {
+                result = "\(movement) minutes of movement suggest the calendar and the excuse are negotiating. Verdict: partially compatible."
+            } else {
+                result = "The evidence shows \(movement) minutes of movement. Your excuse is downgraded to ‘technically true.’"
+            }
+            return
+        }
+
+        if lower.contains("rain") || lower.contains("weather") {
+            result = "Weather defense noted with only \(movement) minutes of movement. The sky cannot be cross-examined, but the record stands."
+        } else if lower.contains("later") || lower.contains("tomorrow") {
+            result = "A future-workout promise with \(movement) minutes today. The detector files this under ‘pending fiction.’"
+        } else {
+            result = "The evidence is weak (\(movement) min). The excuse has been admitted into the record without endorsement."
+        }
     }
 
     private func reset() {

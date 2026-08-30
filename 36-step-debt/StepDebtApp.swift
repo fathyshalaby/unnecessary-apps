@@ -176,7 +176,6 @@ struct StepDebtView: View {
             personality: .office,
             experience: .wellness
         ) {
-            healthConnectionCard
             progressCard
 
             DumbAction(
@@ -196,9 +195,36 @@ struct StepDebtView: View {
             .accessibilityIdentifier("stepDebtResult")
 
             modelStatusView
-            routeCard
-            notificationCard
-            manualFallbackCard
+
+            DisclosureGroup {
+                healthConnectionCard
+                    .padding(.top, 8)
+            } label: {
+                Label("Apple Health connection", systemImage: "heart.text.square.fill")
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+            }
+
+            DisclosureGroup {
+                routeCard
+                    .padding(.top, 8)
+            } label: {
+                Label("Optional closing walk", systemImage: "map.fill")
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+            }
+
+            DisclosureGroup {
+                VStack(spacing: 12) {
+                    notificationCard
+                    manualFallbackCard
+                }
+                .padding(.top, 8)
+            } label: {
+                Label("Reminders and manual entry", systemImage: "slider.horizontal.3")
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+            }
 
             Button(action: reset) {
                 Label("Reset the ledger", systemImage: "arrow.counterclockwise")
@@ -709,8 +735,11 @@ struct StepDebtView: View {
                 baselineSteps = baseline
                 healthConnected = true
                 if baseline != nil, !goalWasEdited {
+                    let previousGoal = goal
                     goal = computedGoal
-                    goalSource = "Smart target: 5% above your recent Apple Health baseline (editable)."
+                    goalSource = baseline.map { baselineValue in
+                        "Smart target: 5% above your recent median of \(Int(baselineValue.rounded())) steps (was \(Int(previousGoal.rounded())))."
+                    } ?? goalSource
                 } else if baseline == nil, !goalWasEdited {
                     goal = 8000
                     goalSource = "Starter target: Apple Health has no recent baseline yet (editable)."
@@ -796,7 +825,7 @@ struct StepDebtView: View {
                 routeDuration = route.expectedTravelTime
                 routeEstimatedSteps = max(Int((route.distance / 0.75).rounded()), 1)
                 routeDestination = StepDebtCoordinate(item.placemark.coordinate)
-                routeStatus = "Route found. Apple Maps will handle the real directions."
+                routeStatus = "Route found. Step estimate uses ~0.75 m per step — a rough fiction, not a guarantee."
                 isRouting = false
             } catch RouteLookupError.noDestination {
                 isRouting = false

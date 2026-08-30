@@ -52,8 +52,10 @@ struct OverthinkingBoardView: View {
     @State private var hasLoaded = false
     @State private var showAllCases = false
     @State private var showArchiveActions = false
+    @State private var evidenceSectionsExpanded = false
 
-    private let accent = CorpPalette.emergencyRed
+    private let accent = CorpPalette.evidenceMint
+    private let warningAccent = CorpPalette.emergencyRed
 
     var body: some View {
         DumbShell(
@@ -127,12 +129,12 @@ struct OverthinkingBoardView: View {
     }
 
     private var safetyCard: some View {
-        DumbCard(accent: accent) {
+        DumbCard(accent: warningAccent) {
             VStack(alignment: .leading, spacing: 7) {
                 DumbStatusPill(
                     "EVERYDAY WORRIES ONLY",
                     systemImage: "exclamationmark.shield.fill",
-                    accent: accent
+                    accent: warningAccent
                 )
                 Text("This board sorts the evidence you enter. It is a thinking tool, not a truth machine or crisis service.")
                     .font(.subheadline.weight(.bold))
@@ -151,10 +153,29 @@ struct OverthinkingBoardView: View {
                     .foregroundStyle(CorpPalette.mutedInk)
 
                 DumbField("The worry", axis: .vertical, maxLength: 240, text: $worry)
-                DumbField("Evidence supporting it", axis: .vertical, maxLength: 240, text: $evidenceFor)
-                DumbField("Evidence against it", axis: .vertical, maxLength: 240, text: $evidenceAgainst)
-                DumbField("A less dramatic explanation", axis: .vertical, maxLength: 240, text: $alternative)
-                DumbField("One small next step", axis: .vertical, maxLength: 160, text: $nextStep)
+
+                if !cleanWorry.isEmpty {
+                    DisclosureGroup(isExpanded: $evidenceSectionsExpanded) {
+                        VStack(alignment: .leading, spacing: 13) {
+                            DumbField("Evidence supporting it", axis: .vertical, maxLength: 240, text: $evidenceFor)
+                            DumbField("Evidence against it", axis: .vertical, maxLength: 240, text: $evidenceAgainst)
+                            DumbField("A less dramatic explanation", axis: .vertical, maxLength: 240, text: $alternative)
+                            DumbField("One small next step", axis: .vertical, maxLength: 160, text: $nextStep)
+                        }
+                        .padding(.top, 8)
+                    } label: {
+                        Label(
+                            evidenceSectionsExpanded ? "Hide evidence sections" : "Add supporting and counter evidence",
+                            systemImage: "pin.fill"
+                        )
+                        .font(.subheadline.weight(.black))
+                        .foregroundStyle(CorpPalette.ink)
+                    }
+                } else {
+                    Text("Start with the worry. The evidence corkboard opens once you name it.")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                }
 
                 Text("Drafts stay on the board until you file or erase them.")
                     .font(.caption.weight(.bold))
@@ -334,6 +355,7 @@ struct OverthinkingBoardView: View {
         alternative = ""
         nextStep = ""
         result = Self.emptyResult
+        evidenceSectionsExpanded = false
     }
 
     private func delete(_ savedCase: ReflectionCase) {

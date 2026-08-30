@@ -47,6 +47,7 @@ struct MicrowaveView: View {
     @AppStorage("microwaveSommelier.wattage") private var microwaveWattage = 800.0
     @AppStorage("microwaveSommelier.result") private var result = Self.emptyResult
     @AppStorage("microwaveSommelier.history") private var storedHistory = "[]"
+    @State private var packageTimeEntry = "4:00"
 
     @State private var history: [HeatConversion] = []
     @State private var hasLoaded = false
@@ -107,7 +108,10 @@ struct MicrowaveView: View {
             .disabled(history.isEmpty && !hasCurrentConversion)
             .accessibilityIdentifier("eraseMicrowaveDataButton")
         }
-        .onAppear(perform: restoreHistory)
+        .onAppear {
+            restoreHistory()
+            syncPackageTimeEntryFromSliders()
+        }
         .onChange(of: food) { _, _ in invalidateConversion() }
         .onChange(of: packageMinutes) { _, _ in invalidateConversion() }
         .onChange(of: packageSeconds) { _, _ in invalidateConversion() }
@@ -150,6 +154,23 @@ struct MicrowaveView: View {
                     .foregroundStyle(CorpPalette.mutedInk)
 
                 DumbField("What are you heating (optional)", maxLength: 100, text: $food)
+
+                DumbField("Package time (mm:ss)", maxLength: 8, text: $packageTimeEntry)
+                    .accessibilityIdentifier("microwavePackageTimeField")
+                    .onChange(of: packageTimeEntry) { _, value in
+                        applyPackageTimeEntry(value)
+                    }
+
+                if totalPackageSeconds > 0, microwaveWattage > 0 {
+                    let preview = roundedToFive(
+                        Double(totalPackageSeconds) * packageWattage / microwaveWattage
+                    )
+                    Text("Live preview: \(clockTime(totalPackageSeconds)) at \(Int(packageWattage)) W → \(clockTime(preview)) at \(Int(microwaveWattage)) W (rounded to 5 sec)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(accent)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 DumbSlider(
                     title: "Package minutes",
                     value: $packageMinutes,
@@ -157,6 +178,7 @@ struct MicrowaveView: View {
                     step: 1,
                     accent: accent
                 )
+                .onChange(of: packageMinutes) { _, _ in syncPackageTimeEntryFromSliders() }
                 DumbSlider(
                     title: "Package extra seconds",
                     value: $packageSeconds,
@@ -164,6 +186,7 @@ struct MicrowaveView: View {
                     step: 15,
                     accent: accent
                 )
+                .onChange(of: packageSeconds) { _, _ in syncPackageTimeEntryFromSliders() }
                 DumbSlider(
                     title: "Package instruction wattage",
                     value: $packageWattage,
@@ -305,6 +328,27 @@ struct MicrowaveView: View {
         String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 
+    private func syncPackageTimeEntryFromSliders() {
+        packageTimeEntry = clockTime(totalPackageSeconds)
+    }
+
+    private func applyPackageTimeEntry(_ value: String) {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if trimmed.contains(":") {
+            let parts = trimmed.split(separator: ":", maxSplits: 1)
+            guard parts.count == 2,
+                  let minutes = Int(parts[0]),
+                  let seconds = Int(parts[1]),
+                  minutes >= 0, seconds >= 0, seconds < 60 else { return }
+            packageMinutes = Double(min(minutes, 15))
+            packageSeconds = Double(min((seconds / 15) * 15, 45))
+        } else if let minutesOnly = Int(trimmed), minutesOnly >= 0 {
+            packageMinutes = Double(min(minutesOnly, 15))
+            packageSeconds = 0
+        }
+    }
+
     private func invalidateConversion() {
         guard result != Self.emptyResult else { return }
         result = "Pairing changed. Convert a fresh microwave time."
@@ -316,6 +360,7 @@ struct MicrowaveView: View {
         packageSeconds = 0
         packageWattage = 1000
         microwaveWattage = 800
+        packageTimeEntry = "4:00"
         result = Self.emptyResult
     }
 

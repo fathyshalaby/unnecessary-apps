@@ -79,6 +79,20 @@ struct OutfitView: View {
             )
             .accessibilityIdentifier("askClosetButton")
 
+            if result != Self.emptyResult, let banner = rulingBanner {
+                DumbCard(accent: accent, isSelected: true) {
+                    HStack(spacing: 12) {
+                        Image(systemName: banner.approved ? "checkmark.seal.fill" : "washer.fill")
+                            .font(.title2.weight(.black))
+                            .foregroundStyle(banner.approved ? accent : CorpPalette.warningRed)
+                        Text(banner.title)
+                            .font(.system(.title3, design: .rounded).weight(.black))
+                            .foregroundStyle(CorpPalette.ink)
+                    }
+                }
+                .accessibilityIdentifier("closetRulingBanner")
+            }
+
             DumbResult(
                 text: result,
                 accent: accent,
@@ -192,29 +206,10 @@ struct OutfitView: View {
                     text: $itemName
                 )
 
-                DumbSlider(
-                    title: "Completed wears since washing",
-                    value: $wearsSinceWash,
-                    range: 0...10,
-                    step: 1,
-                    accent: accent
-                )
-                DumbSlider(
-                    title: "Your maximum wears before washing",
-                    value: $personalLimit,
-                    range: 1...10,
-                    step: 1,
-                    accent: accent
-                )
-                DumbSlider(
-                    title: "Days since last wear",
-                    value: $daysSinceWear,
-                    range: 0...14,
-                    step: 1,
-                    accent: accent
-                )
-
-                Divider()
+                Text("CONDITION EVIDENCE")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(CorpPalette.mutedInk)
 
                 conditionToggle(
                     "Odor noticed",
@@ -234,8 +229,43 @@ struct OutfitView: View {
                     isOn: $wasSweaty,
                     identifier: "sweatyWearToggle"
                 )
+
+                Divider()
+
+                DumbSlider(
+                    title: "Completed wears since washing",
+                    value: $wearsSinceWash,
+                    range: 0...10,
+                    step: 1,
+                    accent: accent
+                )
+                DumbSlider(
+                    title: "Your maximum wears before washing",
+                    value: $personalLimit,
+                    range: 1...10,
+                    step: 1,
+                    accent: accent
+                )
+                DumbSlider(
+                    title: "Days since last wear (social context only)",
+                    value: $daysSinceWear,
+                    range: 0...14,
+                    step: 1,
+                    accent: accent
+                )
             }
         }
+    }
+
+    private var rulingBanner: (approved: Bool, title: String)? {
+        guard result != Self.emptyResult else { return nil }
+        if result.localizedCaseInsensitiveContains("laundry") || result.localizedCaseInsensitiveContains("wash") {
+            return (false, "LAUNDRY")
+        }
+        if result.localizedCaseInsensitiveContains("approved") || result.localizedCaseInsensitiveContains("wear again") {
+            return (true, "APPROVED")
+        }
+        return nil
     }
 
     private func conditionToggle(

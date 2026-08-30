@@ -260,10 +260,19 @@ struct OneMoreEpisodeView: View {
             minutesEach: Int(minutesEach),
             sleepBudgetMinutes: Int((sleepBudgetHours * 60).rounded())
         )
+        let impliedWake = forecast.remainingMinutes
+        let regretLine: String
+        if forecast.runtimeMinutes >= forecast.sleepBudgetMinutes {
+            regretLine = "Tomorrow-you is filing a formal complaint. The chosen sleep budget is gone."
+        } else if forecast.remainingMinutes < 360 {
+            regretLine = "Tomorrow-you will negotiate with the alarm like it owes them money."
+        } else {
+            regretLine = "Tomorrow-you may survive, but the remote was definitely the villain."
+        }
         result = """
         Watch time: \(formatMinutes(forecast.runtimeMinutes)).
-        Chosen sleep budget left: \(formatMinutes(forecast.remainingMinutes)).
-        \(forecast.runtimeMinutes >= forecast.sleepBudgetMinutes ? "The episodes consume the entire chosen budget." : "That is the exact trade-off under the published assumption.")
+        Sleep budget left: \(formatMinutes(forecast.remainingMinutes)) (~\(formatMinutes(impliedWake)) before a hypothetical wake-up).
+        \(regretLine)
         """
         history.insert(forecast, at: 0)
         history = Array(history.prefix(20))
