@@ -85,6 +85,8 @@ h2 { margin-top: 42px; font-size: 23px; letter-spacing: -.02em; }
 .availability-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--line); }
 .availability-item.ready { color: #16744a; }
 .availability-item.ready .availability-dot { background: #36a269; }
+.availability-item.review { color: #9a5b09; }
+.availability-item.review .availability-dot { background: #e8a32a; box-shadow: 0 0 0 4px rgba(232, 163, 42, .15); }
 .availability-item.pending .availability-dot { background: #b5aec2; }
 .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
 .app-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; min-height: 84px; padding: 16px 17px; color: inherit; text-decoration: none; background: rgba(255, 255, 255, .72); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 10px 28px rgba(53, 36, 73, .06); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
