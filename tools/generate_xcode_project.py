@@ -115,6 +115,13 @@ LOCATION_USAGE_DESCRIPTIONS = {
     "App29BenchReviews": "Local Bench Reviews uses your location only when you ask it to center the map near you. Reviews and coordinates stay on this device.",
     "App36StepDebt": "Step Debt uses your location only when you ask it to find a nearby walking route. It does not store or upload your location.",
 }
+NATIVE_URL_SCHEME_TARGETS = {
+    "App03DoNotTextThem",
+    "App13ToiletTimer",
+    "App30ApologyDraft",
+    "App36StepDebt",
+    "App43HydrationNarc",
+}
 APP_EXTENSION_ONLY_SOURCES = {
     "App13ToiletTimer": {"ToiletTimerLiveActivity.swift"},
 }
@@ -243,6 +250,11 @@ def app_settings(target: str, slug: str) -> str:
             'PROVISIONING_PROFILE_SPECIFIER = "Unnecessary Apps Store 13";',
             "INFOPLIST_KEY_NSSupportsLiveActivities = YES;",
         ])
+    if target in NATIVE_URL_SCHEME_TARGETS:
+        scheme = target.lower()
+        settings.append(
+            f'INFOPLIST_KEY_CFBundleURLTypes = ( {{ CFBundleURLName = "{scheme}"; CFBundleURLSchemes = ( {scheme} ); }} );'
+        )
     return "\n".join(settings)
 
 

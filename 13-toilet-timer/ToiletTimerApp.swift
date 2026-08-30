@@ -211,6 +211,18 @@ struct ToiletTimerView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(sessions.isEmpty)
             .accessibilityIdentifier("clearToiletHistoryButton")
+
+            DumbNativeTip(
+                "Siri & Lock Screen",
+                detail: "Say “Start stall timer,” use Shortcuts, or watch the session on your Lock Screen and Dynamic Island.",
+                systemImage: "timer",
+                accent: accent
+            )
+        }
+        .dumbNativeEntry(scheme: "app13toilettimer") { action, _ in
+            if action == "start", !isRunning {
+                beginLiveSession()
+            }
         }
         .onAppear(perform: restoreState)
         .onChange(of: scenePhase) { _, _ in

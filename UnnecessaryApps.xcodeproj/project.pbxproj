@@ -29,6 +29,13 @@ SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2";
 INFOPLIST_KEY_NSCameraUsageDescription = "Tiny Personal Museum uses the camera only when you ask it to photograph an exhibit for your collection."; }; name = Debug; };
+		020763ED1FC7A9B31DDEB3EE = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = DumbNativeBridge.swift;
+		sourceTree = "<group>";
+	};
 		020C27B0D4A453CDF818A4D4 = { isa = PBXProject; buildConfigurationList = CA82886783D4D35AF9EE2E67; compatibilityVersion = "Xcode 15.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base,); mainGroup = 66ADC382DA4DC6DC7D4A96AB; productRefGroup = 0500089CBF0A8CDDA7483BA4; projectDirPath = ""; projectRoot = ""; targets = (AD05E0B5C04306739026E7CE, 687192BBD242EB996800DCDC, D710A210FE1FE6AF5071DF29, 43316B68A6B959DA3E876F81, A2DAF0C449F51222A9B5F899, 4F1310002004E6842AC21552, 788AF9748B28E9E30A8EB174, 48E58FC81502D46A0FF0D6D7, BB084A2294BAF83545C4B24E, 3EB5A0B006417353566EE77F, EDA7E8E5D752E634300046AC, DFAE068FBA5C734EC2909B4B, 53BCF3C82443A959B3C27D46, D95DA9304AE114320CDAEABE, DC1649853EA6801884BE65DB, 4478622E4B97A1C0EFA89593, 8C4ECC183BF11EFA6C90D76B, A71E66319C571BBABC2B7FA0, 96F5DEBF2182B07E31DF177D, 99A20EFDD6D2AE7614B1799B, 96FCF5EF367F8EB45151DCD9, 5EA2A17B79583361C912FBF2, CBD78526A36FD1BA74EDAE1C, D56B4F373479D3ACDE6DAE27, D6945B0ED49A186B07C6C87F, F9BEDC4B9FE515DB095D3F5C, C77E7EE6D83E96D1CB3EAB18, 57B917EC885B2674C0921D8E, 1AD496FB98AA8521524A34AE, FC85F8D2FF40D5B2CDB95437, C8AFE093345527484773B00E, E8221A97D0842F0C004632AD, 65852DB7E436E5BA3D85715E, 8C1B09313EF6C4E385E50432, B9674E18E56B6BC443A6F379, 1DDC6781EEAD428EA33D2E9F, 5FA51B79B84860ABEECDAEA7, D59485CB8F77E0C3E60783F1, 4F9D2947E6A239F0EAFA8B0C, BFBCE976DA9E1E8C928D840C, 79E1E0F0DF7CDE0ECC3F4617, 282879E8F3B4D10243E3CC13, 3570653304960B7586092D9F, 0C276218D201CDC5F6B09D7E, 53323E28984D89FEE2053934, 4802565572066E7BEBF6D414, B831E505DAFEE6C45CE0A83C,); };
 		026A73ED0512B15417381A44 = {
 		isa = PBXGroup;
@@ -142,7 +149,7 @@ TEST_TARGET_NAME = App03DoNotTextThem; }; name = Release; };
 		path = ContentView.swift;
 		sourceTree = "<group>";
 	};
-		091213629DE8C25A5334975B = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (0E63355224E77CA56AFED889,); runOnlyForDeploymentPostprocessing = 0; };
+		091213629DE8C25A5334975B = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (0E63355224E77CA56AFED889, 40AC0F9D15ED44D19153510D,); runOnlyForDeploymentPostprocessing = 0; };
 		0937791CFCBF3164D2B86336 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (0D52BA7F0D0499ED6E11C261, E6C4B1D4F8D1877D982F3081,); runOnlyForDeploymentPostprocessing = 0; };
 		0975C9D6166B0AFAD5BC0459 = { isa = XCConfigurationList; buildConfigurations = (ADBF4D64EC7E629B84F4215D, 65B28BB8D6D321ABEEF2ADAF); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		09DB01F88B187A14D8FDBA5A = { isa = PBXBuildFile; fileRef = E6DF5002358146576B2D77BE; };
@@ -295,6 +302,7 @@ TEST_TARGET_NAME = App03DoNotTextThem; }; name = Debug; };
 		119A9C05F890D56087E13D70 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (7B225DD532B503D761F8B67A,); runOnlyForDeploymentPostprocessing = 0; };
 		1217480CB5B59533FF494A3C = { isa = XCConfigurationList; buildConfigurations = (C70D5B631180EC696A8FD973, 19CDCF4C3097D59D67D96ADC); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		1273CED2734B8CB8B7BBDA8F = { isa = PBXBuildFile; fileRef = 0B8D4AD259969426DC132D0E; };
+		127998811ABEBF35CE572382 = { isa = PBXBuildFile; fileRef = A8E63A4891EF1CCA26D4AA46; };
 		12A1BA37973657BE509A33E3 = { isa = XCConfigurationList; buildConfigurations = (F9EFBDCDA33FCE40CDE5612D, 73A901B5654F9A206801BC38); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		12E51C8F8BA027E5AA6E556D = { isa = PBXBuildFile; fileRef = 08FA166CBC02E3E275DF75F5; };
 		13BF10E75E603B456B0C176B = { isa = PBXBuildFile; fileRef = CFD9505E203825AFC1B90439; };
@@ -354,7 +362,8 @@ PRODUCT_NAME = "$(TARGET_NAME)";
 SDKROOT = iphoneos;
 SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+TARGETED_DEVICE_FAMILY = "1,2";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app30apologydraft"; CFBundleURLSchemes = ( app30apologydraft ); } ); }; name = Debug; };
 		16DC653BB4E45F0F12223641 = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 CLANG_ENABLE_MODULES = YES;
 CODE_SIGNING_ALLOWED = YES;
@@ -721,6 +730,13 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 	};
 		298AFBDBCBF9682D500AF533 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = AD05E0B5C04306739026E7CE; remoteInfo = DumbKit; };
 		299741C3D0BA93C938645D1F = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (7EDC72EF45A10159B094DB80, 8738FA7AB5CC53CA55D84A9A,); runOnlyForDeploymentPostprocessing = 0; };
+		2B9358AEE3D7784829B7A532 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = ApologyDraftIntents.swift;
+		sourceTree = "<group>";
+	};
 		2BAE6D2BFE74D3BDF0C80AD8 = {
 		isa = XCBuildConfiguration;
 		buildSettings = {
@@ -839,7 +855,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		isa = PBXSourcesBuildPhase;
 		buildActionMask = 2147483647;
 		files = (
-			AD51A7D93F0B5C7A0C55C433, 0644CDC51A0F28596C5BB2A1, EA6C83A1EEFEC3D31FDFDC42, F75077DE9E5D0465A41803D5, 87A6D89C52F314096FF4FC9A,
+			AD51A7D93F0B5C7A0C55C433, 79BEED58256075E67F7AB5A5, 0644CDC51A0F28596C5BB2A1, EA6C83A1EEFEC3D31FDFDC42, F75077DE9E5D0465A41803D5, 87A6D89C52F314096FF4FC9A,
 		);
 		runOnlyForDeploymentPostprocessing = 0;
 	};
@@ -1073,6 +1089,7 @@ INFOPLIST_KEY_NSCameraUsageDescription = "Pigeon or Seagull uses the camera only
 		sourceTree = "<group>";
 	};
 		4093953B6A1D9AE2CEC11154 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (EADA7BE5ACB63933F4AD093B,); runOnlyForDeploymentPostprocessing = 0; };
+		40AC0F9D15ED44D19153510D = { isa = PBXBuildFile; fileRef = 2B9358AEE3D7784829B7A532; };
 		40F1639842706171509C48B5 = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -1110,7 +1127,8 @@ PRODUCT_NAME = "$(TARGET_NAME)";
 SDKROOT = iphoneos;
 SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+TARGETED_DEVICE_FAMILY = "1,2";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app30apologydraft"; CFBundleURLSchemes = ( app30apologydraft ); } ); }; name = Release; };
 		420F01A9353BA5216DDD3ED0 = { isa = XCConfigurationList; buildConfigurations = (C42453AD27532573F74433CF, C6C0EE70CB4E5B0E99A7D535); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		42164399F45FD93DCCC0672B = { isa = PBXBuildFile; fileRef = 4C3AFF06420CED885444B975; };
 		426D834451B6693E05E246E5 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = 687192BBD242EB996800DCDC; remoteInfo = ToiletTimerLiveActivityExtension; };
@@ -1316,7 +1334,8 @@ PRODUCT_NAME = "$(TARGET_NAME)";
 SDKROOT = iphoneos;
 SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+TARGETED_DEVICE_FAMILY = "1,2";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app03donottextthem"; CFBundleURLSchemes = ( app03donottextthem ); } ); }; name = Release; };
 		4F11621C3FF1B8A20B0800ED = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -1360,7 +1379,8 @@ SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2";
 CODE_SIGN_ENTITLEMENTS = config/App43HydrationNarc.entitlements;
 INFOPLIST_KEY_NSHealthShareUsageDescription = "Hydration Narc reads optional water entries from Apple Health to show a separate read-only ledger. It never writes health data.";
-INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hydration Narc requests HealthKit access only to read optional water entries for a separate read-only ledger. It never writes or updates Health data."; }; name = Debug; };
+INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hydration Narc requests HealthKit access only to read optional water entries for a separate read-only ledger. It never writes or updates Health data.";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app43hydrationnarc"; CFBundleURLSchemes = ( app43hydrationnarc ); } ); }; name = Debug; };
 		5009A58A0B7C46BCD5CC778F = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (0DDB5CCD312AD1607FD55067, E0AE96D53586732E13155739,); runOnlyForDeploymentPostprocessing = 0; };
 		507E95FDD8C9D1C0D555AE6B = {
 		isa = PBXFileReference;
@@ -1395,6 +1415,7 @@ INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hydration Narc requests HealthKi
 		sourceTree = "<group>";
 	};
 		52C5C8944E3808C69ACAB4F0 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = AD05E0B5C04306739026E7CE; remoteInfo = DumbKit; };
+		52F00D6A92DA4AC38E21F085 = { isa = PBXBuildFile; fileRef = F3CF35648D0525B46D4FD4C0; };
 		532C043D39824F896CBBACAF = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -1524,6 +1545,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 		sourceTree = "<group>";
 	};
 		595E3E408482523D0192A979 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (1273CED2734B8CB8B7BBDA8F, 208329BDA3AE0790DA158E90,); runOnlyForDeploymentPostprocessing = 0; };
+		595F41A1B90AC6639AD80ADB = { isa = PBXBuildFile; fileRef = B219E2422A0FD85B1C781455; };
 		59BA506DEF10534A63FD7CC5 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (7C8813690C259A91F06B7D0E,); runOnlyForDeploymentPostprocessing = 0; };
 		5A1D0F0FECCA32FB1BCCD00A = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 CLANG_ENABLE_MODULES = YES;
@@ -1607,7 +1629,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		5DC7306B8D2F34F5C526FD2D = { isa = PBXBuildFile; fileRef = E128E73212A407746EE62174; };
 		5E1147B3A81A2A83C8B2B6B3 = { isa = PBXBuildFile; fileRef = A20F445CED6BB6FE04F1DEB6; };
 		5E222B0A85E76FEE57B95D37 = { isa = PBXBuildFile; fileRef = 35041D0D8ED8BF2B838FDB1B; };
-		5E3D68943DD1A3E920EA36A3 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (9C01007C91E6FEC54C73E943, 54B22EFAB24770F34A1A2BB2,); runOnlyForDeploymentPostprocessing = 0; };
+		5E3D68943DD1A3E920EA36A3 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (9C01007C91E6FEC54C73E943, 54B22EFAB24770F34A1A2BB2, 92231E22D38E3B9BCB33050F,); runOnlyForDeploymentPostprocessing = 0; };
 		5EA2A17B79583361C912FBF2 = { isa = PBXNativeTarget; buildConfigurationList = 5F740960639878915494D79D; buildPhases = (649C96EEF9C5F7F14CF1124C, FDD89E0D4AB64E37D1177EE2, 1B49ACDCEE4457734AF0157A,); buildRules = (); dependencies = (9BC4230E7FD71764C4797503,); name = App20RealEmail; productName = App20RealEmail; productReference = 2315FA3476296BF99C5B35C9; productType = "com.apple.product-type.application"; };
 		5EEE4DA9A1717575B4E11013 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (4AD28373ECDAE8172E0C0B2A, B97C8ACE6C86FCBFBFECBA46,); runOnlyForDeploymentPostprocessing = 0; };
 		5F0CE4A037EB04CEBE6B3AC8 = {
@@ -1658,7 +1680,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		path = MapJournalRegion.swift;
 		sourceTree = "<group>";
 	};
-		61FD8E53B4B8CE060A6EDC9C = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (39771D1C0755205C75CAF079, E600C64932A17FBCA6CF675B,); runOnlyForDeploymentPostprocessing = 0; };
+		61FD8E53B4B8CE060A6EDC9C = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (39771D1C0755205C75CAF079, E600C64932A17FBCA6CF675B, 595F41A1B90AC6639AD80ADB,); runOnlyForDeploymentPostprocessing = 0; };
 		62E0AE45A4AB6DCCEDA3B50C = {
 		isa = PBXGroup;
 		children = (
@@ -1708,7 +1730,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 	};
 		649C96EEF9C5F7F14CF1124C = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (1047846DC5D769886C8965FE,); runOnlyForDeploymentPostprocessing = 0; };
 		6555161A476000FAA9869280 = { isa = XCConfigurationList; buildConfigurations = (7924E99ADC772883885901E0, BE23DD96D03CDF6110C8877A); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-		65653ACBA7EACD9516FD10B2 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (C4953E4992013EA820985805,); runOnlyForDeploymentPostprocessing = 0; };
+		65653ACBA7EACD9516FD10B2 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (C4953E4992013EA820985805, 52F00D6A92DA4AC38E21F085,); runOnlyForDeploymentPostprocessing = 0; };
 		65852DB7E436E5BA3D85715E = { isa = PBXNativeTarget; buildConfigurationList = 4A95B41EA736A1E8168AAA7F; buildPhases = (9D79BB69B4C5EC0A913BF23A, F188EC157A5628D64531F3F4, 0504AF29B1DF58989CBBE358,); buildRules = (); dependencies = (69A64239E4A73BA68833A2D7,); name = App31HumanGPS; productName = App31HumanGPS; productReference = 82137D673FE7A7B8ADF6D1E8; productType = "com.apple.product-type.application"; };
 		65B28BB8D6D321ABEEF2ADAF = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 CLANG_ENABLE_MODULES = YES;
@@ -1978,6 +2000,10 @@ SKIP_INSTALL = YES;
 SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+		79BEED58256075E67F7AB5A5 = {
+		isa = PBXBuildFile;
+		fileRef = 020763ED1FC7A9B31DDEB3EE;
+	};
 		79E1E0F0DF7CDE0ECC3F4617 = { isa = PBXNativeTarget; buildConfigurationList = BE3CF23D14B282C41229BE50; buildPhases = (3E4FD64E41EF4DFA03881A02, 3DB0A377EDD241F64DA1E2E4, 5EEE4DA9A1717575B4E11013,); buildRules = (); dependencies = (17A814FC38F620A4468E650D,); name = App39WorkoutExcuse; productName = App39WorkoutExcuse; productReference = 525CECF987F016FADA56BCE0; productType = "com.apple.product-type.application"; };
 		7AAC2924EDC804A06A075B1D = { isa = PBXBuildFile; fileRef = 94E7546F276F86988066A76E; };
 		7B17DA03A9C9B1C31CCC5E5D = {
@@ -2040,7 +2066,8 @@ SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2";
 PROVISIONING_PROFILE_SPECIFIER = "Unnecessary Apps Store 13";
-INFOPLIST_KEY_NSSupportsLiveActivities = YES; }; name = Release; };
+INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app13toilettimer"; CFBundleURLSchemes = ( app13toilettimer ); } ); }; name = Release; };
 		7E8B7F2BF6C7FED3C13CB485 = { isa = PBXTargetDependency; target = AD05E0B5C04306739026E7CE; targetProxy = 7209EB9F26145E7B57B9EA69; };
 		7EDC72EF45A10159B094DB80 = { isa = PBXBuildFile; fileRef = 5FBDC31FD856E3F4027F2E44; };
 		7EF017604890DCC7728FC9FE = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (24F514C384FB4125ADC30FE3, 41D0DFE6372C0262D3EDB4E3,); runOnlyForDeploymentPostprocessing = 0; };
@@ -2059,6 +2086,7 @@ INFOPLIST_KEY_NSSupportsLiveActivities = YES; }; name = Release; };
 		isa = PBXGroup;
 		children = (
 			5F7100B908FD23CB672B9BAF,
+			020763ED1FC7A9B31DDEB3EE,
 			20BA6D65118D7BCC7D94E19B,
 			60CACF7104F96521DED4AC0C,
 			9FD8DC0F9C4A35A2AE0FB2C5,
@@ -2090,6 +2118,7 @@ INFOPLIST_KEY_NSSupportsLiveActivities = YES; }; name = Release; };
 		isa = PBXGroup;
 		children = (
 			B2F014E12E8BCD6AD20098A5,
+			F3CF35648D0525B46D4FD4C0,
 			B0A722C82A5540259D6EAA5A,
 			2184CF72387384D64E6924F4,
 			35D4132C83B1E4F0AD602A4B,
@@ -2346,6 +2375,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		children = (
 			40F1639842706171509C48B5,
 			C8201C9A2FE9901581C0FB52,
+			99D4165ABF7445BF1A8E5F7F,
 			B9FB32BD35E555D349F0D9B9,
 			9F3E94B8DDC4782ECA77A4B6,
 		);
@@ -2401,6 +2431,7 @@ INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Quiet Café Index uses your
 		90ED76CF8426B1EC9DC6DC3F = { isa = PBXBuildFile; fileRef = 9F3E94B8DDC4782ECA77A4B6; };
 		91666ABA9D80FED911C1884A = { isa = PBXBuildFile; fileRef = DE451D0BF280776DB377DE73; };
 		91C8759DEA9D9D6D5D5A92E2 = { isa = PBXTargetDependency; target = AD05E0B5C04306739026E7CE; targetProxy = F6141BB2CC7CD3DCBC2AF112; };
+		92231E22D38E3B9BCB33050F = { isa = PBXBuildFile; fileRef = 99D4165ABF7445BF1A8E5F7F; };
 		926F9C21C3433C85C909ECD7 = { isa = PBXBuildFile; fileRef = A0A378C46F6FB51032A23D42; };
 		9270794A0360CDBD1C884430 = { isa = PBXBuildFile; fileRef = 7F87DB9C6509E73CDA5B4F4B; };
 		93A0CED60805D48AA362DA45 = { isa = PBXBuildFile; fileRef = E6DF5002358146576B2D77BE; };
@@ -2498,6 +2529,13 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		999BC8DBCBA539144BEB8FB7 = { isa = PBXBuildFile; fileRef = E6DF5002358146576B2D77BE; };
 		99A20EFDD6D2AE7614B1799B = { isa = PBXNativeTarget; buildConfigurationList = 3B41B89E95862F3B3AFA899B; buildPhases = (D98E89F6561A98EE29F4663C, 027EA250BCD1144153347457, 57239632CEE0993FAC383B47,); buildRules = (); dependencies = (DCE91DBCEB53449953E7C956,); name = App18TinyGratitude; productName = App18TinyGratitude; productReference = 07A3909219938D0B3E2265CA; productType = "com.apple.product-type.application"; };
 		99B26EFB3BD686451908FE87 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (1C20FAC17B85188F47AB7D19,); runOnlyForDeploymentPostprocessing = 0; };
+		99D4165ABF7445BF1A8E5F7F = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = DoNotTextThemIntents.swift;
+		sourceTree = "<group>";
+	};
 		9A12BCF62DF81898F073D887 = { isa = PBXBuildFile; fileRef = AD0E4E3DF17E0027A3DDC11E; };
 		9A715C61ED5D5DF5E10CF353 = {
 		isa = PBXFileReference;
@@ -2734,6 +2772,13 @@ TARGETED_DEVICE_FAMILY = "1,2";
 CODE_SIGN_ENTITLEMENTS = config/App37SleepAlibi.entitlements;
 INFOPLIST_KEY_NSHealthShareUsageDescription = "Sleep Alibi reads sleep samples from Apple Health to create a fictional alibi. It never writes health data.";
 INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Sleep Alibi requests HealthKit access only to read sleep samples for its fictional alibi. It never writes or updates Health data."; }; name = Release; };
+		A8E63A4891EF1CCA26D4AA46 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = StepDebtIntents.swift;
+		sourceTree = "<group>";
+	};
 		A8FC4DDB9E7F673ACC7B99C0 = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -2974,6 +3019,13 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		path = Assets.xcassets;
 		sourceTree = "<group>";
 	};
+		B219E2422A0FD85B1C781455 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = ToiletTimerIntents.swift;
+		sourceTree = "<group>";
+	};
 		B25C6D18957697E7F29641C1 = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -3100,7 +3152,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 		B6D66B72299AE04EBEABFBDD = { isa = PBXBuildFile; fileRef = C6BCC65248C7A73E1611BBC4; };
 		B72138244E21046EBAEB22D6 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = AD05E0B5C04306739026E7CE; remoteInfo = DumbKit; };
 		B737B977E69E2CA1173A3C55 = { isa = PBXTargetDependency; target = AD05E0B5C04306739026E7CE; targetProxy = B68290CA9AA87EB7EF6D14F7; };
-		B7698D28F5A9003735BF5623 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (08A991273D0113034DC2AB19,); runOnlyForDeploymentPostprocessing = 0; };
+		B7698D28F5A9003735BF5623 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (08A991273D0113034DC2AB19, 127998811ABEBF35CE572382,); runOnlyForDeploymentPostprocessing = 0; };
 		B781B3634F3FEF4655E65C31 = {
 		isa = PBXGroup;
 		children = (
@@ -3636,7 +3688,8 @@ SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2";
 CODE_SIGN_ENTITLEMENTS = config/App43HydrationNarc.entitlements;
 INFOPLIST_KEY_NSHealthShareUsageDescription = "Hydration Narc reads optional water entries from Apple Health to show a separate read-only ledger. It never writes health data.";
-INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hydration Narc requests HealthKit access only to read optional water entries for a separate read-only ledger. It never writes or updates Health data."; }; name = Release; };
+INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hydration Narc requests HealthKit access only to read optional water entries for a separate read-only ledger. It never writes or updates Health data.";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app43hydrationnarc"; CFBundleURLSchemes = ( app43hydrationnarc ); } ); }; name = Release; };
 		D1DF0D2ECD489CDFE200CC03 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A24B5DFB9BEB86C7EBB45097,); runOnlyForDeploymentPostprocessing = 0; };
 		D21BF6A1F7E2A99AB4999382 = { isa = PBXBuildFile; fileRef = B0A722C82A5540259D6EAA5A; };
 		D22990D24B85152FC581EF12 = { isa = PBXBuildFile; fileRef = 950CBEF4DE6E35D921848FDF; };
@@ -3982,6 +4035,7 @@ INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Health Data Horoscope requests H
 		children = (
 			F311046EE7E58A2C3B3364A7,
 			D58743F4D8A83C9AAE014266,
+			B219E2422A0FD85B1C781455,
 			DF9D88F70E61069B250E1843,
 			EBDCE177E98394ACC9B8674B,
 			EE07F64AECF601125ABE815E,
@@ -4231,7 +4285,8 @@ TARGETED_DEVICE_FAMILY = "1,2";
 CODE_SIGN_ENTITLEMENTS = config/App36StepDebt.entitlements;
 INFOPLIST_KEY_NSHealthShareUsageDescription = "Step Debt reads today's step count to calculate the fictional invoice. It never writes health data.";
 INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Step Debt requests HealthKit access only to read steps for its fictional invoice. It never writes or updates Health data.";
-INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Step Debt uses your location only when you ask it to find a nearby walking route. It does not store or upload your location."; }; name = Release; };
+INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Step Debt uses your location only when you ask it to find a nearby walking route. It does not store or upload your location.";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app36stepdebt"; CFBundleURLSchemes = ( app36stepdebt ); } ); }; name = Release; };
 		ED9620DB28C76E90D5214D59 = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -4252,6 +4307,7 @@ INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Step Debt uses your locatio
 		isa = PBXGroup;
 		children = (
 			E8B976BD533A06E444AB58F7,
+			2B9358AEE3D7784829B7A532,
 			28B0EB7B82FDF840453C0237,
 			35041D0D8ED8BF2B838FDB1B,
 		);
@@ -4344,7 +4400,8 @@ SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2";
 PROVISIONING_PROFILE_SPECIFIER = "Unnecessary Apps Store 13";
-INFOPLIST_KEY_NSSupportsLiveActivities = YES; }; name = Debug; };
+INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app13toilettimer"; CFBundleURLSchemes = ( app13toilettimer ); } ); }; name = Debug; };
 		F188EC157A5628D64531F3F4 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (0D0CA8633BC13E9F30945579,); runOnlyForDeploymentPostprocessing = 0; };
 		F23405B3FF6428D6BD6863B7 = { isa = XCConfigurationList; buildConfigurations = (5C00E8C7D3FA079089D327D2, 0A5C368215F02149465B8D11); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		F258D9AC256D57CBD4444A9D = {
@@ -4397,7 +4454,8 @@ TARGETED_DEVICE_FAMILY = "1,2";
 CODE_SIGN_ENTITLEMENTS = config/App36StepDebt.entitlements;
 INFOPLIST_KEY_NSHealthShareUsageDescription = "Step Debt reads today's step count to calculate the fictional invoice. It never writes health data.";
 INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Step Debt requests HealthKit access only to read steps for its fictional invoice. It never writes or updates Health data.";
-INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Step Debt uses your location only when you ask it to find a nearby walking route. It does not store or upload your location."; }; name = Debug; };
+INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Step Debt uses your location only when you ask it to find a nearby walking route. It does not store or upload your location.";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app36stepdebt"; CFBundleURLSchemes = ( app36stepdebt ); } ); }; name = Debug; };
 		F36E828DE3EDC30B18FD225D = { isa = PBXBuildFile; fileRef = E6DF5002358146576B2D77BE; };
 		F3AA7EF6EFE99C126F873EAE = { isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 CLANG_ENABLE_MODULES = YES;
@@ -4422,6 +4480,13 @@ SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
 TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		F3B09D474BEE227AF34FC9EB = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (1F8C704BA8BBFAD147411284, 5E222B0A85E76FEE57B95D37,); runOnlyForDeploymentPostprocessing = 0; };
+		F3CF35648D0525B46D4FD4C0 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.swift;
+		path = HydrationNarcIntents.swift;
+		sourceTree = "<group>";
+	};
 		F4F39A8F4837B9468A710603 = {
 		isa = PBXFileReference;
 		fileEncoding = 4;
@@ -4543,6 +4608,7 @@ TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
 		isa = PBXGroup;
 		children = (
 			35CA155F62AF240A6AA0973E,
+			A8E63A4891EF1CCA26D4AA46,
 			9AECD47B090310EC22C3C02E,
 			F32D06780DBB6337C837D372,
 			A3677C1168D18B8F8CAFF9AD,
@@ -4574,7 +4640,8 @@ PRODUCT_NAME = "$(TARGET_NAME)";
 SDKROOT = iphoneos;
 SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+TARGETED_DEVICE_FAMILY = "1,2";
+INFOPLIST_KEY_CFBundleURLTypes = ( { CFBundleURLName = "app03donottextthem"; CFBundleURLSchemes = ( app03donottextthem ); } ); }; name = Debug; };
 		FDD89E0D4AB64E37D1177EE2 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (1EAFD3DC94AE6E4578363AAB,); runOnlyForDeploymentPostprocessing = 0; };
 		FE13CA463E12DA3B5825E148 = { isa = PBXContainerItemProxy; containerPortal = 020C27B0D4A453CDF818A4D4; proxyType = 1; remoteGlobalID = AD05E0B5C04306739026E7CE; remoteInfo = DumbKit; };
 		FE2FDAA5DE7D1F0CB50A1C31 = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (8ED5F06063E9C4B8AB856F86, BFBF137B5E9919E1D5A01745,); runOnlyForDeploymentPostprocessing = 0; };

@@ -34,7 +34,8 @@ public enum DumbLocalNotifications {
         identifier: String,
         title: String,
         body: String,
-        proposedDate: Date
+        proposedDate: Date,
+        userInfo: [AnyHashable: Any] = [:]
     ) async -> DumbNotificationScheduleResult {
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
@@ -58,6 +59,9 @@ public enum DumbLocalNotifications {
         content.title = title
         content.body = body
         content.sound = .default
+        if !userInfo.isEmpty {
+            content.userInfo = userInfo
+        }
 
         let components = Calendar.autoupdatingCurrent.dateComponents(
             [.year, .month, .day, .hour, .minute],

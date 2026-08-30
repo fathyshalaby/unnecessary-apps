@@ -77,6 +77,13 @@ struct ApologyDraftView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityIdentifier("modelStatus")
 
+            DumbNativeTip(
+                "Siri & Share",
+                detail: "Say “Draft an apology,” share text in from another app, or send the finished draft through the share sheet.",
+                systemImage: "square.and.pencil",
+                accent: accent
+            )
+
             HStack(spacing: 12) {
                 Button {
                     copyDraft()
@@ -89,6 +96,17 @@ struct ApologyDraftView: View {
                 .buttonStyle(DumbPressStyle())
                 .disabled(!hasGeneratedDraft)
                 .accessibilityIdentifier("copyDraftButton")
+
+                if hasGeneratedDraft {
+                    ShareLink(item: draft, subject: Text("Apology draft"), message: Text(draft)) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(accent)
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("shareApologyButton")
+                }
 
                 Button {
                     clearCrimeScene()
@@ -104,6 +122,29 @@ struct ApologyDraftView: View {
                 .accessibilityIdentifier("clearApologyButton")
             }
         }
+        .dumbNativeEntry(scheme: "app30apologydraft", onRoute: handleNativeRoute)
+        .dumbHandoffDraft(
+            "corp.unecessary.app30.draft",
+            title: "Apology draft",
+            isActive: !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            payload: ["crime": crime, "tone": tone]
+        ) { userInfo in
+            if let restoredCrime = userInfo["crime"], !restoredCrime.isEmpty {
+                crime = restoredCrime
+            }
+            if let restoredTone = userInfo["tone"], !restoredTone.isEmpty {
+                tone = restoredTone
+            }
+        }
+    }
+
+    private func handleNativeRoute(_ action: String, _ payload: String) {
+        guard action == "draft" else { return }
+        if !payload.isEmpty {
+            crime = payload
+        }
+        guard !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !isGenerating else { return }
+        generateDraft()
     }
 
     private var tonePicker: some View {

@@ -111,6 +111,18 @@ struct HydrationNarcView: View {
             .disabled(servings <= 0)
             .accessibilityIdentifier("resetHydrationButton")
             .accessibilityHint("Asks for confirmation before clearing today’s serving count.")
+
+            DumbNativeTip(
+                "Siri & Shortcuts",
+                detail: "Say “Log water in Hydration Narc” or add the Shortcuts action for a one-tap serving without hunting for the icon.",
+                systemImage: "drop.fill",
+                accent: accent
+            )
+        }
+        .dumbNativeEntry(scheme: "app43hydrationnarc") { action, _ in
+            if action == "log" {
+                logOneServing()
+            }
         }
         .onAppear {
             loadAndRollDay()

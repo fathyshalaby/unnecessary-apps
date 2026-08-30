@@ -240,6 +240,18 @@ struct StepDebtView: View {
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetStepDebtButton")
+
+            DumbNativeTip(
+                "Siri & Apple Maps",
+                detail: "Say “Stamp my step debt,” then hand off to Apple Maps when you want a real walking route.",
+                systemImage: "figure.walk",
+                accent: accent
+            )
+        }
+        .dumbNativeEntry(scheme: "app36stepdebt") { action, _ in
+            if action == "stamp" {
+                calculateDebt()
+            }
         }
         .onAppear {
             loadNudgeDate()
