@@ -682,8 +682,8 @@
       "secondary_category": "Health & Fitness",
       "keywords": "horoscope,steps,sleep,energy,astrology,funny,fictional",
       "description": "Enter steps, sleep, and energy, then receive an obviously fictional horoscope from the wellness cosmos. The stars may be dramatic, but they do not interpret medical data, predict health outcomes, or recommend treatment. Entertainment only.",
-      "review_notes": "Enter fictional manual values, consult the horoscope, and reset. No HealthKit permission is requested; the entertainment disclaimer is part of the app.",
-      "privacy_boundary": "Manual entertainment inputs and horoscope stay on-device; no HealthKit, account, analytics, ads, or network.",
+      "review_notes": "Enter manual values or optionally connect Apple Health for steps and sleep, consult the horoscope, and reset. HealthKit is optional read-only; manual mode works without it. The entertainment disclaimer is part of the app.",
+      "privacy_boundary": "Manual entertainment inputs and horoscope stay on-device. Optional read-only HealthKit steps and sleep are processed on-device for the fictional reading and are not collected or transmitted. No account, analytics, ads, or network.",
       "age_rating": "4+",
       "release_wave": 5,
       "priority": "HOLD"

@@ -3,5 +3,5 @@ import DumbKit
 
 @main
 struct PlantCourtApp: App {
-    var body: some Scene { WindowGroup { ().dumbNativeEntry(scheme: "app08plantcourt") { _, _ in } } }
+    var body: some Scene { WindowGroup { PlantCourtView().dumbNativeEntry(scheme: "app08plantcourt") { _, _ in } } }
 }

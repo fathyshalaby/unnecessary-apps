@@ -49,6 +49,20 @@ APPS = [
 ]
 
 PATTERN = re.compile(r"WindowGroup\s*\{\s*([A-Za-z0-9_]+)\(\s*\)\s*\}")
+VIEW_NAME = re.compile(r"struct (\w+(?:View|ContentView))\s*:")
+
+
+def resolve_view_name(app_file: Path, text: str) -> str | None:
+    match = PATTERN.search(text)
+    if match:
+        return match.group(1)
+    for sibling in sorted(app_file.parent.glob("*.swift")):
+        if sibling == app_file:
+            continue
+        sibling_text = sibling.read_text(encoding="utf-8")
+        if view_match := VIEW_NAME.search(sibling_text):
+            return view_match.group(1)
+    return None
 
 
 def main() -> None:
@@ -62,11 +76,19 @@ def main() -> None:
             if "import DumbKit" not in text:
                 text = text.replace("import SwiftUI", "import SwiftUI\nimport DumbKit", 1)
             match = PATTERN.search(text)
-            if not match:
+            view_name = resolve_view_name(app_file, text)
+            if not view_name:
                 continue
-            view_name = match.group(1)
             replacement = f'WindowGroup {{ {view_name}().dumbNativeEntry(scheme: "{scheme}") {{ _, _ in }} }}'
-            new_text = PATTERN.sub(replacement, text, count=1)
+            if match:
+                new_text = PATTERN.sub(replacement, text, count=1)
+            else:
+                broken = re.compile(
+                    r'WindowGroup\s*\{\s*\x01\(\)\.dumbNativeEntry\(scheme:\s*"[^"]+"\)\s*\{\s*_,\s*_\s+in\s*\}\s*\}'
+                )
+                if not broken.search(text):
+                    continue
+                new_text = broken.sub(replacement, text, count=1)
             app_file.write_text(new_text, encoding="utf-8")
             updated += 1
             print(f"wired {app_file.relative_to(ROOT)}")
