@@ -142,6 +142,9 @@ struct StepDebtView: View {
     @State private var isGeneratingJoke = false
     @State private var generationID: UUID?
     @State private var locationService = StepDebtLocationService()
+    @State private var healthSectionExpanded = false
+    @State private var routeSectionExpanded = false
+    @State private var settingsSectionExpanded = false
 
     private let accent = CorpPalette.parkGreen
     private let healthStore = HKHealthStore()
@@ -196,35 +199,38 @@ struct StepDebtView: View {
 
             modelStatusView
 
-            DisclosureGroup {
-                healthConnectionCard
-                    .padding(.top, 8)
-            } label: {
-                Label("Apple Health connection", systemImage: "heart.text.square.fill")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
+            DumbDisclosureSection(
+                "Apple Health connection",
+                systemImage: "heart.text.square.fill",
+                isExpanded: $healthSectionExpanded,
+                accent: accent
+            ) {
+                healthConnectionContent
             }
+            .accessibilityIdentifier("stepDebtHealthCard")
 
-            DisclosureGroup {
-                routeCard
-                    .padding(.top, 8)
-            } label: {
-                Label("Optional closing walk", systemImage: "map.fill")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
+            DumbDisclosureSection(
+                "Optional closing walk",
+                systemImage: "map.fill",
+                isExpanded: $routeSectionExpanded,
+                accent: accent
+            ) {
+                routeContent
             }
+            .accessibilityIdentifier("stepDebtRouteCard")
 
-            DisclosureGroup {
+            DumbDisclosureSection(
+                "Reminders and manual entry",
+                systemImage: "slider.horizontal.3",
+                isExpanded: $settingsSectionExpanded,
+                accent: accent
+            ) {
                 VStack(spacing: 12) {
-                    notificationCard
-                    manualFallbackCard
+                    notificationContent
+                    manualFallbackContent
                 }
-                .padding(.top, 8)
-            } label: {
-                Label("Reminders and manual entry", systemImage: "slider.horizontal.3")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
             }
+            .accessibilityIdentifier("stepDebtInput")
 
             Button(action: reset) {
                 Label("Reset the ledger", systemImage: "arrow.counterclockwise")
@@ -272,66 +278,69 @@ struct StepDebtView: View {
         }
     }
 
-    private var healthConnectionCard: some View {
-        DumbCard(accent: accent, isSelected: healthSteps != nil) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(alignment: .top, spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(accent.opacity(0.14))
-                            .frame(width: 54, height: 54)
-                        Image(systemName: "heart.text.square.fill")
-                            .font(.title2.weight(.black))
-                            .foregroundStyle(accent)
-                    }
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(healthSteps == nil ? "APPLE HEALTH CONNECTION" : "APPLE HEALTH CONNECTED")
-                            .font(.caption2.weight(.black))
-                            .tracking(1.1)
-                            .foregroundStyle(accent)
-                        Text(healthSteps == nil ? "Bring the real steps." : "Today’s count is doing the paperwork.")
-                            .font(.headline.weight(.black))
-                            .foregroundStyle(CorpPalette.ink)
-                    }
-                }
-
-                if let healthSteps {
-                    Text("\(Int(healthSteps.rounded())) steps today")
+    private var healthConnectionContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(accent.opacity(0.14))
+                        .frame(width: 54, height: 54)
+                    Image(systemName: "heart.text.square.fill")
                         .font(.title2.weight(.black))
-                        .foregroundStyle(CorpPalette.ink)
-                        .contentTransition(.numericText())
-                    Text(healthStatus)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                } else {
-                    Text("One tap imports today’s step count. The app only reads it; it never writes or uploads it.")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundStyle(accent)
                 }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(healthSteps == nil ? "APPLE HEALTH CONNECTION" : "APPLE HEALTH CONNECTED")
+                        .font(.caption2.weight(.black))
+                        .tracking(1.1)
+                        .foregroundStyle(accent)
+                    Text(healthSteps == nil ? "Bring the real steps." : "Today’s count is doing the paperwork.")
+                        .font(.headline.weight(.black))
+                        .foregroundStyle(CorpPalette.ink)
+                }
+            }
 
-                Button(action: importHealthSteps) {
+            if let healthSteps {
+                Text("\(Int(healthSteps.rounded())) steps today")
+                    .font(.title2.weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .contentTransition(.numericText())
+                Text(healthStatus)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+            } else {
+                Text("One tap imports today’s step count. The app only reads it; it never writes or uploads it.")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(CorpPalette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Button(action: importHealthSteps) {
+                HStack(spacing: 8) {
+                    if isLoadingHealth {
+                        ProgressView()
+                            .tint(accent)
+                    }
                     Label(
                         isLoadingHealth
                             ? "Checking Apple Health…"
                             : healthSteps == nil ? "Connect Apple Health" : "Refresh Apple Health",
-                        systemImage: isLoadingHealth ? "hourglass" : "heart.text.square.fill"
+                        systemImage: "heart.text.square.fill"
                     )
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .disabled(isLoadingHealth)
-                .accessibilityIdentifier("importHealthStepsButton")
-
-                Text(healthSteps == nil ? healthStatus : "Read-only. You can switch back to a manual estimate below.")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(CorpPalette.mutedInk)
+                .font(.subheadline.weight(.black))
+                .frame(maxWidth: .infinity, minHeight: 44)
             }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(isLoadingHealth)
+            .accessibilityIdentifier("importHealthStepsButton")
+
+            Text(healthSteps == nil ? healthStatus : "Read-only. You can switch back to a manual estimate below.")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("stepDebtHealthCard")
     }
 
     private var progressCard: some View {
@@ -401,60 +410,63 @@ struct StepDebtView: View {
         .accessibilityIdentifier("stepDebtModelStatus")
     }
 
-    private var routeCard: some View {
-        DumbCard(accent: accent, isSelected: routeEstimatedSteps > 0) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    DumbStatusPill("CLOSING WALK", systemImage: "map.fill", accent: accent)
-                    Spacer(minLength: 0)
-                    if isRouting { ProgressView().tint(accent) }
-                }
+    private var routeContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                DumbStatusPill("CLOSING WALK", systemImage: "map.fill", accent: accent)
+                Spacer(minLength: 0)
+                if isRouting { ProgressView().tint(accent) }
+            }
 
-                Text("Need a silly payment plan? We’ll find a nearby park and hand the walking directions to Apple Maps.")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(CorpPalette.ink)
-                    .fixedSize(horizontal: false, vertical: true)
+            Text("Need a silly payment plan? We’ll find a nearby park and hand the walking directions to Apple Maps.")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(CorpPalette.ink)
+                .fixedSize(horizontal: false, vertical: true)
 
-                if routeEstimatedSteps > 0, let routeDistance, let routeDuration {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(routeDestinationName)
-                            .font(.headline.weight(.black))
-                            .foregroundStyle(CorpPalette.ink)
-                        Text("~\(routeEstimatedSteps) steps · \(distanceText(routeDistance)) · \(Int((routeDuration / 60).rounded())) min")
-                            .font(.subheadline.weight(.black))
-                            .foregroundStyle(accent)
-                        Text(routeCoverageText)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(CorpPalette.mutedInk)
-                    }
-
-                    Button(action: openWalkingDirections) {
-                        Label("Open walking directions in Apple Maps", systemImage: "arrow.up.right.square.fill")
-                            .font(.subheadline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(accent)
-                    .buttonStyle(DumbPressStyle())
-                    .accessibilityIdentifier("openWalkingDirectionsButton")
-                } else {
-                    Text(routeStatus)
+            if routeEstimatedSteps > 0, let routeDistance, let routeDuration {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(routeDestinationName)
+                        .font(.headline.weight(.black))
+                        .foregroundStyle(CorpPalette.ink)
+                    Text("~\(routeEstimatedSteps) steps · \(distanceText(routeDistance)) · \(Int((routeDuration / 60).rounded())) min")
+                        .font(.subheadline.weight(.black))
+                        .foregroundStyle(accent)
+                    Text(routeCoverageText)
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(CorpPalette.mutedInk)
-
-                    Button(action: findStepClosingRoute) {
-                        Label(isRouting ? "Finding a route…" : "Find my closing walk", systemImage: "location.fill")
-                            .font(.subheadline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(accent)
-                    .buttonStyle(DumbPressStyle())
-                    .disabled(isRouting)
-                    .accessibilityIdentifier("findStepClosingRouteButton")
                 }
+
+                Button(action: openWalkingDirections) {
+                    Label("Open walking directions in Apple Maps", systemImage: "arrow.up.right.square.fill")
+                        .font(.subheadline.weight(.black))
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .foregroundStyle(accent)
+                .buttonStyle(DumbPressStyle())
+                .accessibilityIdentifier("openWalkingDirectionsButton")
+            } else {
+                Text(routeStatus)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+
+                Button(action: findStepClosingRoute) {
+                    HStack(spacing: 8) {
+                        if isRouting {
+                            ProgressView()
+                                .tint(accent)
+                        }
+                        Label(isRouting ? "Finding a route…" : "Find my closing walk", systemImage: "location.fill")
+                    }
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .foregroundStyle(accent)
+                .buttonStyle(DumbPressStyle())
+                .disabled(isRouting)
+                .accessibilityIdentifier("findStepClosingRouteButton")
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("stepDebtRouteCard")
     }
 
     private var routeCoverageText: String {
@@ -465,103 +477,98 @@ struct StepDebtView: View {
             : "This route covers about \(covered) of the \(remainingSteps) steps due."
     }
 
-    private var notificationCard: some View {
-        DumbCard(accent: accent) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "bell.badge.fill")
-                        .font(.title3.weight(.black))
+    private var notificationContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "bell.badge.fill")
+                    .font(.title3.weight(.black))
+                    .foregroundStyle(accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("ONE TINY CHECK-IN")
+                        .font(.caption2.weight(.black))
+                        .tracking(1.1)
                         .foregroundStyle(accent)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("ONE TINY CHECK-IN")
-                            .font(.caption2.weight(.black))
-                            .tracking(1.1)
-                            .foregroundStyle(accent)
-                        Text("A gentle nudge, not a guilt machine.")
-                            .font(.subheadline.weight(.black))
-                            .foregroundStyle(CorpPalette.ink)
-                    }
+                    Text("A gentle nudge, not a guilt machine.")
+                        .font(.subheadline.weight(.black))
+                        .foregroundStyle(CorpPalette.ink)
                 }
-
-                Toggle("Daily accountant check-in", isOn: $dailyNudgeEnabled)
-                    .font(.subheadline.weight(.black))
-                    .tint(accent)
-                    .accessibilityIdentifier("stepDebtDailyNudgeSwitch")
-
-                DatePicker("Check-in time", selection: $nudgeDate, displayedComponents: .hourAndMinute)
-                    .font(.subheadline.weight(.bold))
-                    .disabled(!dailyNudgeEnabled)
-                    .accessibilityIdentifier("stepDebtNudgeTimePicker")
-
-                Text(notificationMessage)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+
+            Toggle("Daily accountant check-in", isOn: $dailyNudgeEnabled)
+                .font(.subheadline.weight(.black))
+                .tint(accent)
+                .accessibilityIdentifier("stepDebtDailyNudgeSwitch")
+
+            DatePicker("Check-in time", selection: $nudgeDate, displayedComponents: .hourAndMinute)
+                .font(.subheadline.weight(.bold))
+                .disabled(!dailyNudgeEnabled)
+                .accessibilityIdentifier("stepDebtNudgeTimePicker")
+
+            Text(notificationMessage)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("stepDebtNotificationCard")
     }
 
-    private var manualFallbackCard: some View {
-        DumbCard(accent: accent) {
-            DisclosureGroup(isExpanded: $manualEditorVisible) {
-                VStack(alignment: .leading, spacing: 10) {
-                    DumbSlider(
-                        title: "Target: \(Int(goal.rounded())) steps",
-                        value: Binding(
-                            get: { goal },
-                            set: { newValue in
-                                goal = newValue
-                                goalWasEdited = true
-                                goalSource = "Custom target. Apple Health supplies steps, not a step goal."
-                            }
-                        ),
-                        range: 3000...12000,
-                        step: 500,
-                        accent: accent
-                    )
-                    .accessibilityIdentifier("stepDebtGoalSlider")
-
-                    DumbSlider(
-                        title: "Manual steps: \(Int(actual.rounded()))",
-                        value: $actual,
-                        range: 0...20000,
-                        step: 100,
-                        accent: accent
-                    )
-                    .disabled(healthSteps != nil)
-                    .accessibilityIdentifier("stepDebtManualSlider")
-
-                    if healthSteps != nil {
-                        Button("Switch to manual estimate") {
-                            healthSteps = nil
-                            manualMode = true
-                            manualEditorVisible = true
-                            healthStatus = "Manual estimate active. Apple Health remains optional."
+    private var manualFallbackContent: some View {
+        DisclosureGroup(isExpanded: $manualEditorVisible) {
+            VStack(alignment: .leading, spacing: 10) {
+                DumbSlider(
+                    title: "Target: \(Int(goal.rounded())) steps",
+                    value: Binding(
+                        get: { goal },
+                        set: { newValue in
+                            goal = newValue
+                            goalWasEdited = true
+                            goalSource = "Custom target. Apple Health supplies steps, not a step goal."
                         }
-                        .font(.caption.weight(.black))
-                        .foregroundStyle(accent)
-                        .buttonStyle(DumbPressStyle())
-                    } else {
-                        Text("The target above can stay smart or be changed. Manual steps are the backup for the simulator, offline use, or whenever you’d rather not connect Health.")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(CorpPalette.mutedInk)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .padding(.top, 10)
-            } label: {
-                Label(
-                    healthSteps == nil ? "Enter steps manually" : "Manual estimate",
-                    systemImage: "slider.horizontal.3"
+                    ),
+                    range: 3000...12000,
+                    step: 500,
+                    accent: accent
                 )
-                .font(.subheadline.weight(.black))
-                .foregroundStyle(CorpPalette.ink)
+                .accessibilityIdentifier("stepDebtGoalSlider")
+
+                DumbSlider(
+                    title: "Manual steps: \(Int(actual.rounded()))",
+                    value: $actual,
+                    range: 0...20000,
+                    step: 100,
+                    accent: accent
+                )
+                .disabled(healthSteps != nil)
+                .accessibilityIdentifier("stepDebtManualSlider")
+
+                if healthSteps != nil {
+                    Button("Switch to manual estimate") {
+                        healthSteps = nil
+                        manualMode = true
+                        manualEditorVisible = true
+                        healthStatus = "Manual estimate active. Apple Health remains optional."
+                    }
+                    .font(.caption.weight(.black))
+                    .foregroundStyle(accent)
+                    .buttonStyle(DumbPressStyle())
+                } else {
+                    Text("The target above can stay smart or be changed. Manual steps are the backup for the simulator, offline use, or whenever you’d rather not connect Health.")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
+            .padding(.top, 10)
+        } label: {
+            Label(
+                healthSteps == nil ? "Enter steps manually" : "Manual estimate",
+                systemImage: "slider.horizontal.3"
+            )
+            .font(.subheadline.weight(.black))
+            .foregroundStyle(CorpPalette.ink)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("stepDebtInput")
     }
 
     private func calculateDebt() {

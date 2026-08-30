@@ -124,34 +124,52 @@ struct HeartRateEmailView: View {
                         .foregroundStyle(CorpPalette.ink)
                         .accessibilityIdentifier("emptyHeartRateHistory")
                 } else {
-                    ForEach(Array(history.prefix(5))) { entry in
-                        VStack(alignment: .leading, spacing: 5) {
-                            HStack {
-                                DumbStatusPill(
-                                    "\(entry.bpm) BPM",
-                                    systemImage: entry.bpm > 100 ? "heart.fill" : "heart",
-                                    accent: accent
-                                )
-                                Spacer()
-                                Text(entry.date.formatted(date: .abbreviated, time: .shortened))
-                                    .font(.caption2.weight(.bold))
-                                    .foregroundStyle(CorpPalette.mutedInk)
-                            }
-                            Text(entry.subject)
-                                .font(.headline.weight(.black))
-                                .foregroundStyle(CorpPalette.ink)
-                            Text(entry.result)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(CorpPalette.mutedInk)
-                                .fixedSize(horizontal: false, vertical: true)
+                    List {
+                        ForEach(Array(history.prefix(5))) { entry in
+                            historyRow(entry)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                                .listRowSeparator(.visible)
+                                .listRowBackground(Color.clear)
                         }
-                        .padding(.vertical, 3)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityIdentifier("heartRateHistoryEntry")
+                        .onDelete(perform: deleteHistoryEntries)
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .scrollDisabled(true)
+                    .frame(minHeight: CGFloat(min(history.count, 5)) * 96)
                 }
             }
         }
+    }
+
+    private func historyRow(_ entry: DramaEntry) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                DumbStatusPill(
+                    "\(entry.bpm) BPM",
+                    systemImage: entry.bpm > 100 ? "heart.fill" : "heart",
+                    accent: accent
+                )
+                Spacer()
+                Text(entry.date.formatted(date: .abbreviated, time: .shortened))
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+            }
+            Text(entry.subject)
+                .font(.headline.weight(.black))
+                .foregroundStyle(CorpPalette.ink)
+            Text(entry.result)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("heartRateHistoryEntry")
+    }
+
+    private func deleteHistoryEntries(at offsets: IndexSet) {
+        history.remove(atOffsets: offsets)
+        persistHistory()
     }
 
     private func recordDrama() {

@@ -229,7 +229,7 @@ private enum DumbReactionPhase {
     static let sequence: [DumbReactionPhase] = [.rest, .anticipate, .payoff, .rest]
 }
 
-public struct DumbShell<Content: View>: View {
+public struct DumbShell<Content: View, BottomBar: View>: View {
     let eyebrow: String
     let title: String
     let subtitle: String
@@ -237,6 +237,8 @@ public struct DumbShell<Content: View>: View {
     let personality: DumbPersonality?
     let experience: DumbExperienceStyle?
     @ViewBuilder let content: Content
+    @ViewBuilder let bottomBar: BottomBar
+    private let showsBottomBar: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
     @State private var mascotHasLanded = false
@@ -249,6 +251,27 @@ public struct DumbShell<Content: View>: View {
         personality: DumbPersonality? = nil,
         experience: DumbExperienceStyle? = nil,
         @ViewBuilder content: () -> Content
+    ) where BottomBar == EmptyView {
+        self.eyebrow = eyebrow
+        self.title = title
+        self.subtitle = subtitle
+        self.accent = accent
+        self.personality = personality
+        self.experience = experience
+        self.content = content()
+        self.bottomBar = EmptyView()
+        self.showsBottomBar = false
+    }
+
+    public init(
+        eyebrow: String,
+        title: String,
+        subtitle: String,
+        accent: Color,
+        personality: DumbPersonality? = nil,
+        experience: DumbExperienceStyle? = nil,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder bottomBar: () -> BottomBar
     ) {
         self.eyebrow = eyebrow
         self.title = title
@@ -257,6 +280,8 @@ public struct DumbShell<Content: View>: View {
         self.personality = personality
         self.experience = experience
         self.content = content()
+        self.bottomBar = bottomBar()
+        self.showsBottomBar = true
     }
 
     private var resolvedExperience: DumbExperienceStyle {
@@ -279,10 +304,20 @@ public struct DumbShell<Content: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, DumbSpacing.md)
                 .padding(.top, DumbSpacing.sm)
-                .padding(.bottom, DumbSpacing.xl)
+                .padding(.bottom, showsBottomBar ? DumbSpacing.xxl : DumbSpacing.xl)
             }
             .scrollIndicators(.hidden)
             .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if showsBottomBar {
+                    VStack(spacing: 0) {
+                        bottomBar
+                    }
+                    .padding(.horizontal, DumbSpacing.md)
+                    .padding(.vertical, DumbSpacing.sm)
+                    .background(CorpPalette.canvas.opacity(0.96))
+                }
+            }
         }
         .background(CorpPalette.canvas.ignoresSafeArea())
         .tint(accent)
@@ -405,33 +440,53 @@ public struct DumbAction: View {
     let title: String
     let accent: Color
     let systemImage: String
+    let isLoading: Bool
     let action: () -> Void
     @Environment(\.dumbExperienceStyle) private var experience
+    @Environment(\.isEnabled) private var isEnabled
 
-    public init(title: String, accent: Color, systemImage: String = "sparkles", action: @escaping () -> Void) {
+    public init(
+        title: String,
+        accent: Color,
+        systemImage: String = "sparkles",
+        isLoading: Bool = false,
+        action: @escaping () -> Void
+    ) {
         self.title = title
         self.accent = accent
         self.systemImage = systemImage
+        self.isLoading = isLoading
         self.action = action
     }
 
     public var body: some View {
         Button {
+            guard isEnabled, !isLoading else { return }
             #if os(iOS)
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             #endif
             action()
         } label: {
             HStack(spacing: 10) {
-                Image(systemName: systemImage)
-                    .font(.headline.weight(.black))
-                    .accessibilityHidden(true)
+                Group {
+                    if isLoading {
+                        ProgressView()
+                            .tint(CorpPalette.actionInk)
+                    } else {
+                        Image(systemName: systemImage)
+                    }
+                }
+                .font(.headline.weight(.black))
+                .frame(width: 22, height: 22)
+                .accessibilityHidden(true)
                 Text(title)
                     .font(.headline.weight(.black))
                 Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.headline.weight(.black))
-                    .accessibilityHidden(true)
+                if !isLoading {
+                    Image(systemName: "arrow.right")
+                        .font(.headline.weight(.black))
+                        .accessibilityHidden(true)
+                }
             }
             .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
             .padding(.horizontal, DumbSpacing.md)
@@ -688,6 +743,7 @@ public struct DumbField: View {
     let axis: Axis
     let maxLength: Int
     @Binding var text: String
+    @FocusState private var isFocused: Bool
     @Environment(\.dumbExperienceStyle) private var experience
 
     public init(_ label: String, axis: Axis = .horizontal, maxLength: Int = 240, text: Binding<String>) {
@@ -706,12 +762,20 @@ public struct DumbField: View {
                 .accessibilityHidden(true)
             TextField("Enter \(label.lowercased())", text: $text, axis: axis)
                 .font(.body.weight(.bold))
+                .focused($isFocused)
                 .padding(.horizontal, DumbSpacing.sm)
                 .padding(.vertical, 11)
                 .frame(minHeight: DumbMetrics.minimumTapTarget)
                 .background(CorpPalette.canvas, in: RoundedRectangle(cornerRadius: inputRadius, style: .continuous))
                 .accessibilityLabel(label)
                 .accessibilityHint("Enter up to \(maxLength) characters.")
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { isFocused = false }
+                            .fontWeight(.semibold)
+                    }
+                }
                 .onChange(of: text) { _, newValue in
                     guard newValue.count > maxLength else { return }
                     text = String(newValue.prefix(maxLength))
@@ -727,6 +791,51 @@ public struct DumbField: View {
         case .camera, .gallery, .wellness: return 16
         default: return 15
         }
+    }
+}
+
+/// A native disclosure section with one surface — avoids card-inside-disclosure nesting.
+public struct DumbDisclosureSection<Content: View>: View {
+    let title: String
+    let systemImage: String
+    @Binding var isExpanded: Bool
+    let accent: Color?
+    @ViewBuilder let content: Content
+    @Environment(\.dumbExperienceStyle) private var experience
+
+    public init(
+        _ title: String,
+        systemImage: String,
+        isExpanded: Binding<Bool>,
+        accent: Color? = nil,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.title = title
+        self.systemImage = systemImage
+        self._isExpanded = isExpanded
+        self.accent = accent
+        self.content = content()
+    }
+
+    public var body: some View {
+        DisclosureGroup(isExpanded: $isExpanded) {
+            content
+                .padding(.top, DumbSpacing.sm)
+        } label: {
+            Label(title, systemImage: systemImage)
+                .font(.subheadline.weight(.black))
+                .foregroundStyle(CorpPalette.ink)
+        }
+        .padding(experience.cardPadding)
+        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: experience.cardRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: experience.cardRadius, style: .continuous)
+                .stroke(
+                    accent?.opacity(0.22) ?? CorpPalette.ink.opacity(0.06),
+                    lineWidth: accent == nil ? 1 : 1.5
+                )
+        }
+        .shadow(color: CorpPalette.ink.opacity(0.035), radius: min(experience.cardShadowRadius, 8), y: min(experience.cardShadowY, 4))
     }
 }
 
