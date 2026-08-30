@@ -7,8 +7,10 @@ struct HumanGPSApp: App {
 }
 
 struct HumanGPSView: View {
-    @AppStorage("humanGPS.landmark") private var landmark = "the bakery"
-    @AppStorage("humanGPS.direction") private var direction = "Face the large thing."
+    private static let emptyDirection = "Enter a landmark and generate instructions."
+
+    @AppStorage("humanGPS.landmark") private var landmark = ""
+    @AppStorage("humanGPS.direction") private var direction = Self.emptyDirection
 
     private let accent = CorpPalette.bathroomBlue
 
@@ -16,7 +18,7 @@ struct HumanGPSView: View {
         DumbShell(
             eyebrow: "OUTSIDE COORDINATION",
             title: "Human GPS",
-            subtitle: "Because “I’m outside” is not a coordinate.",
+            subtitle: "Because “I'm outside” is not a coordinate.",
             accent: accent,
             personality: .optimistic
         ) {
@@ -41,8 +43,8 @@ struct HumanGPSView: View {
             DumbResult(text: direction, accent: accent, systemImage: "figure.walk", reactionStyle: .bounce)
 
             Button {
-                landmark = "the bakery"
-                direction = "Face the large thing."
+                landmark = ""
+                direction = Self.emptyDirection
             } label: {
                 Label("Reset the coordinate", systemImage: "arrow.counterclockwise")
                     .font(.subheadline.weight(.black))
@@ -55,7 +57,27 @@ struct HumanGPSView: View {
     }
 
     private func generateInstructions() {
-        let destination = landmark.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "the nearest landmark" : landmark
-        direction = "Face \(destination). Walk until you see a person looking at their phone like they have also been abandoned."
+        let destination = landmark.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !destination.isEmpty else {
+            direction = "No landmark entered. The GPS cannot navigate vibes alone."
+            return
+        }
+
+        let lowered = destination.lowercased()
+        let body: String
+        if lowered.contains("bakery") || lowered.contains("boulangerie") || lowered.contains("café") || lowered.contains("cafe") {
+            body = "Face \(destination). Walk toward the smell of bread and regret. Turn when you see someone holding a pastry like it is evidence."
+        } else if lowered.contains("station") || lowered.contains("metro") || lowered.contains("train") || lowered.contains("bus") {
+            body = "Face \(destination). Follow the crowd that looks late on purpose. If you hear an announcement, ignore it and keep walking."
+        } else if lowered.contains("park") || lowered.contains("garden") || lowered.contains("square") {
+            body = "Face \(destination). Walk past the bench where someone is reading the same page for twenty minutes. Green things mean you are close."
+        } else if lowered.contains("shop") || lowered.contains("store") || lowered.contains("market") {
+            body = "Face \(destination). Walk until the window display makes you question your budget. The entrance is probably behind someone on their phone."
+        } else if lowered.contains("church") || lowered.contains("cathedral") || lowered.contains("temple") {
+            body = "Face \(destination). Walk toward the tallest quiet building. If bells happen, you are either close or spiritually lost."
+        } else {
+            body = "Face \(destination). Walk until you see a person looking at their phone like they have also been abandoned."
+        }
+        direction = body
     }
 }

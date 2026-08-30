@@ -3,7 +3,7 @@ import DumbKit
 
 @main struct WeatherOutfitApp: App { var body: some Scene { WindowGroup { WeatherOutfitView() } } }
 struct WeatherOutfitView: View {
-    @AppStorage("weatherOutfit.outfit") private var outfit = "linen shirt"
+    @AppStorage("weatherOutfit.outfit") private var outfit = ""
     @AppStorage("weatherOutfit.temperature") private var temperature = 14.0
     @AppStorage("weatherOutfit.excuse") private var excuse = "No excuse prepared."
 
@@ -18,7 +18,12 @@ struct WeatherOutfitView: View {
             personality: .optimistic
         ) {
             DumbCard(accent: accent) {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 10) {
+                    DumbStatusPill(
+                        "MANUAL TEMPERATURE ONLY · NO LIVE WEATHER DATA",
+                        systemImage: "hand.raised.fill",
+                        accent: accent
+                    )
                     DumbField("Your outfit", maxLength: 80, text: $outfit)
                     DumbSlider(title: "Temperature (°C)", value: $temperature, range: -10...35, step: 1, accent: accent)
                     Text("Enter the temperature outside. Then blame the weather with confidence.")
@@ -59,7 +64,7 @@ struct WeatherOutfitView: View {
     }
 
     private func reset() {
-        outfit = "linen shirt"
+        outfit = ""
         temperature = 14
         excuse = "No excuse prepared."
     }

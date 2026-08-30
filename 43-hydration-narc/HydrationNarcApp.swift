@@ -52,7 +52,7 @@ struct HydrationNarcView: View {
         DumbShell(
             eyebrow: "BOTTLE OVERSIGHT",
             title: "Hydration narc",
-            subtitle: "A one-tap water ledger with a very small attitude problem.",
+            subtitle: "A manual one-tap water ledger. The bottle reacts when you log—not from proactive notifications.",
             accent: accent,
             personality: .office,
             experience: .wellness
@@ -86,15 +86,6 @@ struct HydrationNarcView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(servings <= 0)
             .accessibilityIdentifier("undoGlassButton")
-
-            Button(action: reportToBottle) {
-                Label("Report to the bottle", systemImage: "megaphone.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("reportButton")
 
             DumbResult(
                 text: result,

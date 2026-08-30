@@ -59,16 +59,6 @@ struct FridgeWitnessView: View {
             .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .accessibilityIdentifier("fileFridgeEvidenceButton")
 
-            Button(action: interrogate) {
-                Label("Interrogate current inventory", systemImage: "person.crop.circle.badge.questionmark")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(items.isEmpty)
-            .accessibilityIdentifier("interrogateFridgeButton")
-
             DumbResult(
                 text: statement,
                 accent: accent,
@@ -317,12 +307,15 @@ struct FridgeWitnessView: View {
         }
         itemName = ""
         quantity = 1
-        statement = "Evidence filed. Interrogate the inventory for a current statement."
         persistInventory()
+        interrogate()
     }
 
     private func interrogate() {
-        guard !items.isEmpty else { return }
+        guard !items.isEmpty else {
+            statement = Self.emptyStatement
+            return
+        }
         let overdue = items.filter { statusLabel(for: $0) == "Overdue reminder" }.count
         let dueSoon = items.filter { statusLabel(for: $0) == "Due within 3 days" }.count
         statement = "FRIDGE WITNESS STATEMENT — \(items.count) item \(items.count == 1 ? "type" : "types"), \(totalUnits) total \(totalUnits == 1 ? "unit" : "units"). \(overdue) overdue reminders; \(dueSoon) due within three days. Your reminders—not a freshness or safety verdict."
@@ -353,14 +346,14 @@ struct FridgeWitnessView: View {
         } else {
             items.remove(at: index)
         }
-        statement = "Inventory changed. Interrogate again for a fresh statement."
         persistInventory()
+        interrogate()
     }
 
     private func discard(_ item: FridgeItem) {
         items.removeAll { $0.id == item.id }
-        statement = items.isEmpty ? Self.emptyStatement : "Inventory changed. Interrogate again for a fresh statement."
         persistInventory()
+        interrogate()
     }
 
     private func eraseAllData() {

@@ -186,8 +186,18 @@ struct HealthHoroscopeView: View {
                         .foregroundStyle(accent)
                 }
                 HStack(spacing: 12) {
-                    metric(title: "STEPS", value: "\(Int(effectiveSteps.rounded()))", icon: "figure.walk")
-                    metric(title: "SLEEP", value: String(format: "%.1fh", effectiveSleep), icon: "bed.double.fill")
+                    metric(
+                        title: "STEPS",
+                        value: "\(Int(effectiveSteps.rounded()))",
+                        icon: "figure.walk",
+                        source: healthSteps != nil ? "Apple Health" : "Manual"
+                    )
+                    metric(
+                        title: "SLEEP",
+                        value: String(format: "%.1fh", effectiveSleep),
+                        icon: "bed.double.fill",
+                        source: healthSleepHours != nil ? "Apple Health" : "Manual"
+                    )
                 }
                 Text(healthSteps == nil && healthSleepHours == nil ? "Manual numbers are fine. No health claim is hiding behind the glitter." : "Imported values are shown as supplied; incomplete data is possible.")
                     .font(.caption.weight(.semibold))
@@ -197,10 +207,14 @@ struct HealthHoroscopeView: View {
         .accessibilityIdentifier("healthHoroscopeInputs")
     }
 
-    private func metric(title: String, value: String, icon: String) -> some View {
+    private func metric(title: String, value: String, icon: String, source: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Image(systemName: icon)
-                .foregroundStyle(accent)
+            HStack {
+                Image(systemName: icon)
+                    .foregroundStyle(accent)
+                Spacer()
+                DumbStatusPill(source.uppercased(), systemImage: source == "Apple Health" ? "heart.text.square.fill" : "hand.raised.fill", accent: accent)
+            }
             Text(title)
                 .font(.caption2.weight(.black))
                 .tracking(0.9)

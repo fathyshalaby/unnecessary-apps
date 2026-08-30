@@ -21,7 +21,25 @@ struct WaitingRoomView: View {
             personality: .office
         ) {
             DumbCard(accent: accent, isSelected: minutes > 45) {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 16) {
+                        waitSeverityDial
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("WAIT SEVERITY")
+                                .font(.caption2.weight(.black))
+                                .tracking(1.1)
+                                .foregroundStyle(accent)
+                            Text("\(Int(minutes)) min")
+                                .font(.title2.weight(.black))
+                                .foregroundStyle(CorpPalette.ink)
+                                .contentTransition(.numericText())
+                            Text(waitSeverityLabel)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(CorpPalette.mutedInk)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
                     DumbSlider(
                         title: "Simulated minutes waited",
                         value: $minutes,
@@ -48,7 +66,7 @@ struct WaitingRoomView: View {
 
             Button {
                 minutes = 0
-                result = "Your name will be called shortly. This is untrue."
+                updateResult()
             } label: {
                 Label("Leave the waiting room", systemImage: "figure.walk.depart")
                     .font(.subheadline.weight(.black))
@@ -58,12 +76,52 @@ struct WaitingRoomView: View {
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetWaitingRoomButton")
         }
+        .onChange(of: minutes) { _, _ in
+            updateResult()
+        }
+    }
+
+    private var waitSeverityDial: some View {
+        ZStack {
+            Circle()
+                .stroke(accent.opacity(0.16), lineWidth: 10)
+            Circle()
+                .trim(from: 0, to: waitSeverityProgress)
+                .stroke(waitSeverityColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            Image(systemName: minutes > 45 ? "brain.head.profile" : "chair.lounge.fill")
+                .font(.title3.weight(.black))
+                .foregroundStyle(waitSeverityColor)
+        }
+        .frame(width: 84, height: 84)
+        .accessibilityHidden(true)
+    }
+
+    private var waitSeverityProgress: CGFloat {
+        CGFloat(min(max(minutes / 120, 0), 1))
+    }
+
+    private var waitSeverityColor: Color {
+        minutes > 45 ? CorpPalette.warningRed : accent
+    }
+
+    private var waitSeverityLabel: String {
+        switch minutes {
+        case 0..<15: return "Mild inconvenience"
+        case 15..<45: return "Existential drift"
+        default: return "Enlightenment achieved"
+        }
     }
 
     private func continueWaiting() {
         minutes = min(minutes + 5, 120)
+    }
+
+    private func updateResult() {
         result = minutes > 45
             ? "You have achieved waiting-room enlightenment."
-            : "The receptionist has looked directly through you."
+            : minutes > 0
+                ? "The receptionist has looked directly through you."
+                : "Your name will be called shortly. This is untrue."
     }
 }

@@ -26,7 +26,7 @@ struct AmIEarlyView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private static let emptyResult = "Awaiting your arrival report."
 
-    @AppStorage("amIEarly.minutes") private var minutes = 12.0
+    @AppStorage("amIEarly.minutes") private var minutes = 0.0
     @AppStorage("amIEarly.occasion") private var occasion = ""
     @AppStorage("amIEarly.result") private var result = Self.emptyResult
     @AppStorage("amIEarly.history") private var storedHistory = "[]"
@@ -57,7 +57,12 @@ struct AmIEarlyView: View {
             )
             .accessibilityIdentifier("punctualityButton")
 
-            DumbResult(text: result, accent: accent, systemImage: "clock.fill")
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "clock.fill",
+                reactionStyle: isActiveVerdict ? .stamp : .bounce
+            )
                 .accessibilityIdentifier("punctualityResult")
 
             Button(action: resetCurrentReport) {
@@ -102,18 +107,83 @@ struct AmIEarlyView: View {
 
     private var summaryCard: some View {
         DumbCard(accent: accent, isSelected: !history.isEmpty) {
-            HStack(spacing: 10) {
-                summaryMetric(value: history.count, label: "filed")
-                Divider()
-                summaryMetric(value: notLateCount, label: "not late")
-                Divider()
-                summaryMetric(value: lateCount, label: "late")
+            VStack(spacing: 14) {
+                offsetGauge
+
+                HStack(spacing: 10) {
+                    summaryMetric(value: history.count, label: "filed")
+                    Divider()
+                    summaryMetric(value: notLateCount, label: "not late")
+                    Divider()
+                    summaryMetric(value: lateCount, label: "late")
+                }
             }
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("punctualitySummary")
         .accessibilityLabel("Punctuality history summary")
-        .accessibilityValue("\(history.count) filed, \(notLateCount) not late, \(lateCount) late")
+        .accessibilityValue("\(Int(minutes)) minute offset, \(history.count) filed, \(notLateCount) not late, \(lateCount) late")
+    }
+
+    private var offsetGauge: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .stroke(accent.opacity(0.16), lineWidth: 8)
+                Circle()
+                    .trim(from: 0, to: offsetGaugeProgress)
+                    .stroke(accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                VStack(spacing: 2) {
+                    Text(offsetGaugeLabel)
+                        .font(.caption.weight(.black))
+                        .foregroundStyle(accent)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(8)
+            }
+            .frame(width: 72, height: 72)
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("CURRENT OFFSET")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.1)
+                    .foregroundStyle(accent)
+                Text(offsetDescription)
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Late ← on time → early")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var offsetGaugeProgress: CGFloat {
+        CGFloat((minutes + 30) / 90)
+    }
+
+    private var offsetGaugeLabel: String {
+        let offset = Int(minutes)
+        if offset > 0 { return "+\(offset)" }
+        if offset < 0 { return "\(offset)" }
+        return "0"
+    }
+
+    private var offsetDescription: String {
+        let offset = Int(minutes)
+        if offset > 0 { return "\(offset) minutes early" }
+        if offset < 0 { return "\(-offset) minutes late" }
+        return "Exactly on time"
+    }
+
+    private var isActiveVerdict: Bool {
+        result != Self.emptyResult && !result.hasPrefix("Arrival changed.")
     }
 
     private func summaryMetric(value: Int, label: String) -> some View {
@@ -241,7 +311,7 @@ struct AmIEarlyView: View {
 
     private var hasCurrentReport: Bool {
         !occasion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || minutes != 12
+            || minutes != 0
             || result != Self.emptyResult
     }
 
@@ -289,7 +359,7 @@ struct AmIEarlyView: View {
 
     private func resetCurrentReport() {
         occasion = ""
-        minutes = 12
+        minutes = 0
         result = Self.emptyResult
     }
 
@@ -302,7 +372,7 @@ struct AmIEarlyView: View {
         history = []
         showAllHistory = false
         occasion = ""
-        minutes = 12
+        minutes = 0
         result = Self.emptyResult
         persistHistory()
     }
