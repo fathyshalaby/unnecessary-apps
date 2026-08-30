@@ -80,6 +80,12 @@ h2 { margin-top: 42px; font-size: 23px; letter-spacing: -.02em; }
 .testflight-callout { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; margin: 28px 0 14px; }
 .testflight-callout strong { font-size: 17px; }
 .testflight-callout span { color: #4d475a; line-height: 1.45; }
+.feedback-callout { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; margin-top: 28px; }
+.feedback-callout > div { display: grid; gap: 7px; max-width: 600px; }
+.feedback-callout strong { font-size: 17px; }
+.feedback-callout span { color: #4d475a; line-height: 1.45; }
+.feedback-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 11px 15px; color: #fff; background: var(--ink); border-radius: 14px; font-size: 14px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.feedback-link:hover, .feedback-link:focus-visible { background: #41394c; outline: none; }
 .availability-key { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 22px; color: var(--muted); font-size: 13px; font-weight: 750; }
 .availability-item { display: inline-flex; align-items: center; gap: 7px; }
 .availability-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--line); }
@@ -108,4 +114,5 @@ h2 { margin-top: 42px; font-size: 23px; letter-spacing: -.02em; }
   .app-card.ready { grid-template-columns: auto 1fr auto; }
   .app-status { grid-column: 2; grid-row: 2; justify-self: start; }
   .app-card.ready .app-arrow { grid-column: 3; grid-row: 1 / span 2; }
+  .feedback-link { width: 100%; justify-content: center; }
 }

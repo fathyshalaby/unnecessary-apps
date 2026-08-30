@@ -40,5 +40,8 @@ for (const staleClaim of ["Available now", "Rolling out", ">AVAILABLE<", "five r
 if (!html.includes("All 44 apps in Apple review")) {
   fail("missing the current collection-wide review state");
 }
+if (!html.includes("Send Beta Feedback") || !html.includes('href="support.html"')) {
+  fail("missing the native TestFlight feedback guidance or collection fallback");
+}
 
-console.log("validated 44 TestFlight hub cards, invite links, and Apple-review state");
+console.log("validated 44 TestFlight hub cards, invite links, review state, and feedback route");
