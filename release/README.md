@@ -3,11 +3,10 @@
 This folder contains the release checklist, export-options template, external
 credential template, and the shareable beta-link hub for all 44 active apps.
 
-The first five builds remain a valid internal pilot: Do Not Text Them, Dog Name
-Guesser, Step Debt, Sleep Alibi, and Workout Excuse. All 44 App Store Connect
-records and 44 external TestFlight groups/public links are now provisioned;
-five external groups already have a `VALID` build assigned and the other 39
-await their signed upload and App Store processing. Real App Store Connect credentials belong in
+All 44 App Store Connect records, processed TestFlight builds, and external
+TestFlight groups/public links are provisioned. The current builds are
+submitted to Apple for Beta App Review. Once approved, attach external testers
+to each app's group. Real App Store Connect credentials belong in
 `~/.private_keys/appstoreconnect.env`, never in this repository.
 
 The editable App Store Connect Store metadata is also synced for all 44 apps:
@@ -18,9 +17,8 @@ Apple keeps TestFlight invitations app-scoped, so the collection’s single
 shareable entry point is [TESTFLIGHT_INVITE_LINKS.md](TESTFLIGHT_INVITE_LINKS.md)
 or [the web link hub](../site/testflight.html). The hosted hub is
 https://fathyshalaby.github.io/unnecessary-apps/testflight.html. Each app link
-becomes installable only after its processed build is assigned to that app’s
-external group. The live hub marks the five currently installable pilot apps as
-“Available now” and the other 39 as “Rolling out.”
+becomes installable only after Apple approves the corresponding external beta
+build. The live hub accurately marks the collection as in Apple review.
 
 Start with [TESTFLIGHT_CHECKLIST.md](TESTFLIGHT_CHECKLIST.md).
 
@@ -30,6 +28,7 @@ for all 44 active local/manual candidates are in
 [app-store-metadata.json](app-store-metadata.json). Validate the manifest with
 `python3 tools/validate_store_metadata.py release/app-store-metadata.json`
 before copying metadata into App Store Connect.
+Also run `node tools/validate_testflight_hub.js` after changing the public hub.
 
 The 44 iPhone 6.9-inch images under `release/screenshots/` are QA reference
 captures, not final Store screenshots: they need a clean simulator/device
@@ -55,22 +54,16 @@ ARCHIVE_DEVELOPMENT_TEAM=2CGZC35S8K \
 This produces development-signed archives for on-device checks. It is not the
 App Store distribution export or TestFlight upload step.
 
-For the repeatable signed archive/export/upload lane, use
-`tools/release_all_testflight.sh` after unlocking the Mac. It uses the external
-API key and App Store Connect records already configured for the 44-app lane;
-run it in bounded batches if the machine needs shorter sessions, for example
-with `RELEASE_APP_NUMBERS=1-2,4-10` for the current pending set. Successful API uploads also attach each
-processed build to its app’s `Unnecessary Apps Friends` external group; Beta
-App Review submission remains opt-in with `ASC_SUBMIT_BETA_REVIEW=true`.
+For a future signed archive/export/upload update, use
+`tools/release_all_testflight.sh` with a new build number and a deliberately
+selected app batch. Successful API uploads attach each processed build to its
+app’s `Unnecessary Apps Friends` external group. Submit the updated build to
+Beta App Review with `ASC_SUBMIT_BETA_REVIEW=true` after confirming its review
+notes and privacy report.
 
-For the exact 39-app remainder, use `tools/release_remaining_testflight.sh`.
-It runs the App40 signing canary first, then the four non-pilot batches; set
-`RELEASE_RUN_APP40_CANARY=false` to resume after a completed canary.
-
-Before the first external review submission, App Store Connect also requires a
-Beta App Review contact (first name, last name, phone in international format,
-and email) for each app. The metadata helper can populate those fields without
-storing them in this repository; see `release/appstoreconnect.env.example`.
+Beta App Review contacts are already populated in App Store Connect and are
+intentionally not stored in this repository. See
+`release/appstoreconnect.env.example` for the local configuration shape.
 
 Verify the completed sweep with python3 tools/verify_local_archives.py. The
 verifier checks all 44 active archive products against the metadata bundle IDs,
