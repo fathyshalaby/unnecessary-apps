@@ -29,6 +29,8 @@ for all 44 active local/manual candidates are in
 `python3 tools/validate_store_metadata.py release/app-store-metadata.json`
 before copying metadata into App Store Connect.
 Also run `node tools/validate_testflight_hub.js` after changing the public hub.
+Use `node tools/check_testflight_review_status.js` to see every Apple beta
+review state without changing App Store Connect.
 
 The 44 iPhone 6.9-inch images under `release/screenshots/` are QA reference
 captures, not final Store screenshots: they need a clean simulator/device
