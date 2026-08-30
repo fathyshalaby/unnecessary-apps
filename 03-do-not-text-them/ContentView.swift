@@ -99,6 +99,24 @@ struct DoNotTextThemView: View {
                 reactionTrigger: interventionRevision,
                 reactionStyle: .shake
             )
+
+            DumbNativeTip(
+                "Siri & Shortcuts",
+                detail: "Say “Start intervention in Do Not Text Them,” add the Shortcuts action, or Handoff a draft from another device.",
+                systemImage: "hand.raised.fill",
+                accent: CorpPalette.emergencyRed
+            )
+        }
+        .dumbNativeEntry(scheme: "app03donottextthem", onRoute: handleNativeRoute)
+        .dumbHandoffDraft(
+            "corp.unecessary.app03.draft",
+            title: "Do Not Text Them draft",
+            isActive: !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            payload: ["message": message]
+        ) { userInfo in
+            if let restored = userInfo["message"], !restored.isEmpty {
+                message = restored
+            }
         }
         .onAppear {
             resumeIntervention()
@@ -221,6 +239,19 @@ struct DoNotTextThemView: View {
         case 4...7: return "The message is getting less charming by the second."
         case 1...3: return "Future you is almost safe."
         default: return "Crisis downgraded."
+        }
+    }
+
+    private func handleNativeRoute(_ action: String, _ payload: String) {
+        switch action {
+        case "start":
+            if !payload.isEmpty {
+                message = payload
+            }
+            guard !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, remaining == 0 else { return }
+            startIntervention()
+        default:
+            break
         }
     }
 
@@ -351,6 +382,7 @@ struct DoNotTextThemView: View {
         content.title = "Cooling-off complete"
         content.body = "The tribunal has released the draft for review."
         content.sound = .default
+        content.userInfo = [DumbNativeRoute.userInfoKey: "open:"]
         let trigger = UNTimeIntervalNotificationTrigger(
             timeInterval: max(1, fireDate.timeIntervalSinceNow),
             repeats: false
