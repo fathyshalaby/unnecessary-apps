@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme LastUpgradeVersion="2620" version="1.7">
+   <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting="YES"
+            buildForRunning="NO"
+            buildForProfiling="NO"
+            buildForArchiving="NO"
+            buildForAnalyzing="YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B831E505DAFEE6C45CE0A83C"
+               BuildableName = "App03DoNotTextThemUITests.xctest"
+               BlueprintName = "App03DoNotTextThemUITests"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D59485CB8F77E0C3E60783F1"
+               BuildableName = "App36StepDebt.app"
+               BlueprintName = "App36StepDebt"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4F9D2947E6A239F0EAFA8B0C"
+               BuildableName = "App37SleepAlibi.app"
+               BlueprintName = "App37SleepAlibi"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "79E1E0F0DF7CDE0ECC3F4617"
+               BuildableName = "App39WorkoutExcuse.app"
+               BlueprintName = "App39WorkoutExcuse"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "282879E8F3B4D10243E3CC13"
+               BuildableName = "App40HealthHoroscope.app"
+               BlueprintName = "App40HealthHoroscope"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3570653304960B7586092D9F"
+               BuildableName = "App41RecoveryGoblin.app"
+               BlueprintName = "App41RecoveryGoblin"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "53323E28984D89FEE2053934"
+               BuildableName = "App43HydrationNarc.app"
+               BlueprintName = "App43HydrationNarc"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4802565572066E7BEBF6D414"
+               BuildableName = "App44RestDayPolice.app"
+               BlueprintName = "App44RestDayPolice"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration="Debug"
+      selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv="YES">
+      <Testables>
+         <TestableReference skipped="NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B831E505DAFEE6C45CE0A83C"
+               BuildableName = "App03DoNotTextThemUITests.xctest"
+               BlueprintName = "App03DoNotTextThemUITests"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+            <SelectedTests>
+               <Test Identifier = "App03DoNotTextThemUITests/testStepDebtCalculatesAndResets()"/>
+               <Test Identifier = "App03DoNotTextThemUITests/testSleepAlibiGeneratesAndResets()"/>
+               <Test Identifier = "App03DoNotTextThemUITests/testWorkoutExcuseDetectsAndResets()"/>
+               <Test Identifier = "App03DoNotTextThemUITests/testHealthHoroscopeConsultsAndResets()"/>
+               <Test Identifier = "App03DoNotTextThemUITests/testRecoveryGoblinAnswersAndResets()"/>
+               <Test Identifier = "App03DoNotTextThemUITests/testHydrationNarcLogsAndResets()"/>
+               <Test Identifier = "App03DoNotTextThemUITests/testRestDayPoliceIssuesAndResets()"/>
+            </SelectedTests>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration="Debug"
+      selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle="0"
+      useCustomWorkingDirectory="NO"
+      ignoresPersistentStateOnLaunch="NO"
+      debugDocumentVersioning="YES"
+      debugServiceExtension="internal"
+      allowLocationSimulation="YES"/>
+   <ProfileAction buildConfiguration="Release" shouldUseLaunchSchemeArgsEnv="YES"/>
+   <AnalyzeAction buildConfiguration="Debug"/>
+   <ArchiveAction buildConfiguration="Release" revealArchiveInOrganizer="NO"/>
+</Scheme>

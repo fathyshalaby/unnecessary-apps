@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>destination</key>
+	<string>upload</string>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+	<key>teamID</key>
+	<string>2CGZC35S8K</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>corp.unecessary.app01chairfinder</key>
+		<string>Unnecessary Apps App Store 01</string>
+		<key>corp.unecessary.app02bathroommap</key>
+		<string>Unnecessary Apps Store 02</string>
+		<key>corp.unecessary.app03donottextthem</key>
+		<string>Unnecessary Apps Store 03</string>
+		<key>corp.unecessary.app04socialbatteryreceipt</key>
+		<string>Unnecessary Apps Store 04</string>
+		<key>corp.unecessary.app05fridgewitness</key>
+		<string>Unnecessary Apps Store 05</string>
+		<key>corp.unecessary.app06receiptemotionaldamage</key>
+		<string>Unnecessary Apps Store 06</string>
+		<key>corp.unecessary.app07socktribunal</key>
+		<string>Unnecessary Apps Store 07</string>
+		<key>corp.unecessary.app08plantcourt</key>
+		<string>Unnecessary Apps Store 08</string>
+		<key>corp.unecessary.app09laundrymountain</key>
+		<string>Unnecessary Apps Store 09</string>
+		<key>corp.unecessary.app10whatwasidoing</key>
+		<string>Unnecessary Apps Store 10</string>
+		<key>corp.unecessary.app11amiearly</key>
+		<string>Unnecessary Apps Store 11</string>
+		<key>corp.unecessary.app12pigeonorseagull</key>
+		<string>Unnecessary Apps Store 12</string>
+		<key>corp.unecessary.app13toilettimer</key>
+		<string>Unnecessary Apps Store 13</string>
+		<key>corp.unecessary.app13toilettimer.liveactivity</key>
+		<string>Unnecessary Apps Store 13 Live Activity</string>
+		<key>corp.unecessary.app14onemoreepisode</key>
+		<string>Unnecessary Apps Store 14</string>
+		<key>corp.unecessary.app15caniwearthisagain</key>
+		<string>Unnecessary Apps Store 15</string>
+		<key>corp.unecessary.app16microwavesommelier</key>
+		<string>Unnecessary Apps Store 16</string>
+		<key>corp.unecessary.app17meetingbingo</key>
+		<string>Unnecessary Apps Store 17</string>
+		<key>corp.unecessary.app18tinygratitude</key>
+		<string>Unnecessary Apps Store 18</string>
+		<key>corp.unecessary.app19medievaladvice</key>
+		<string>Unnecessary Apps Store 19</string>
+		<key>corp.unecessary.app20realemail</key>
+		<string>Unnecessary Apps Store 20</string>
+		<key>corp.unecessary.app21vibemeter</key>
+		<string>Unnecessary Apps Store 21</string>
+		<key>corp.unecessary.app22snackroulette</key>
+		<string>Unnecessary Apps Store 22</string>
+		<key>corp.unecessary.app23quietcafe</key>
+		<string>Unnecessary Apps Store 23</string>
+		<key>corp.unecessary.app24dognameguesser</key>
+		<string>Unnecessary Apps Store 24</string>
+		<key>corp.unecessary.app25waitingroom</key>
+		<string>Unnecessary Apps Store 25</string>
+		<key>corp.unecessary.app26neighbornoise</key>
+		<string>Unnecessary Apps Store 26</string>
+		<key>corp.unecessary.app27tinymuseum</key>
+		<string>Unnecessary Apps Store 27</string>
+		<key>corp.unecessary.app28overthinkingboard</key>
+		<string>Unnecessary Apps Store 28</string>
+		<key>corp.unecessary.app29benchreviews</key>
+		<string>Unnecessary Apps Store 29</string>
+		<key>corp.unecessary.app30apologydraft</key>
+		<string>Unnecessary Apps Store 30</string>
+		<key>corp.unecessary.app31humangps</key>
+		<string>Unnecessary Apps Store 31</string>
+		<key>corp.unecessary.app32lastslice</key>
+		<string>Unnecessary Apps Store 32</string>
+		<key>corp.unecessary.app33queuepersonality</key>
+		<string>Unnecessary Apps Store 33</string>
+		<key>corp.unecessary.app34weatheroutfit</key>
+		<string>Unnecessary Apps Store 34</string>
+		<key>corp.unecessary.app35doorwaspush</key>
+		<string>Unnecessary Apps Store 35</string>
+		<key>corp.unecessary.app36stepdebt</key>
+		<string>Unnecessary Apps Store 36</string>
+		<key>corp.unecessary.app37sleepalibi</key>
+		<string>Unnecessary Apps Store 37</string>
+		<key>corp.unecessary.app38heartrateemail</key>
+		<string>Unnecessary Apps Store 38</string>
+		<key>corp.unecessary.app39workoutexcuse</key>
+		<string>Unnecessary Apps Store 39</string>
+		<key>corp.unecessary.app40healthhoroscope</key>
+		<string>Unnecessary Apps Health 40</string>
+		<key>corp.unecessary.app41recoverygoblin</key>
+		<string>Unnecessary Apps Health 41</string>
+		<key>corp.unecessary.app42walkingmeeting</key>
+		<string>Unnecessary Apps Store 42</string>
+		<key>corp.unecessary.app43hydrationnarc</key>
+		<string>Unnecessary Apps Health 43</string>
+		<key>corp.unecessary.app44restdaypolice</key>
+		<string>Unnecessary Apps Health 44</string>
+	</dict>
+	<key>testFlightInternalTestingOnly</key>
+	<false/>
+	<key>uploadSymbols</key>
+	<true/>
+</dict>
+</plist>

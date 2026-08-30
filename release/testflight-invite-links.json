@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-30",
+  "group_name": "Unnecessary Apps Friends",
+  "note": "Apple TestFlight public links are app-scoped. This is a link hub for the collection; five pilot apps have a VALID build assigned and the other 39 await their first processed upload.",
+  "apps": [
+    {
+      "number": 1,
+      "scheme": "App01ChairFinder",
+      "name": "Unnecessary: Chair Finder",
+      "subtitle": "Municipal seating intelligence",
+      "app_store_id": "6806654437",
+      "group_id": "3c261336-a33f-4099-8281-b4f18a740ad8",
+      "public_link": "https://testflight.apple.com/join/t5DmTx87",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 2,
+      "scheme": "App02BathroomMap",
+      "name": "Unnecessary: Public Bathroom Quality Map",
+      "subtitle": "Official restroom reports",
+      "app_store_id": "6806654721",
+      "group_id": "55cdc97c-099d-4e84-bfb0-625ee242d296",
+      "public_link": "https://testflight.apple.com/join/vmwSeTh4",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 3,
+      "scheme": "App03DoNotTextThem",
+      "name": "Unnecessary: Do Not Text Them",
+      "subtitle": "A ten-second text brake",
+      "app_store_id": "6805352462",
+      "group_id": "1cac4e23-78b0-45f1-af36-72cc8abab046",
+      "public_link": "https://testflight.apple.com/join/qGch1Vfs",
+      "build_assignment": "assigned_ready_for_beta_review"
+    },
+    {
+      "number": 4,
+      "scheme": "App04SocialBatteryReceipt",
+      "name": "Unnecessary: Social Battery Receipt",
+      "subtitle": "A receipt for socializing",
+      "app_store_id": "6806655535",
+      "group_id": "067b33ef-122f-4c25-b44e-99f9d17d6016",
+      "public_link": "https://testflight.apple.com/join/VZz9uxPY",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 5,
+      "scheme": "App05FridgeWitness",
+      "name": "Unnecessary: Fridge Witness",
+      "subtitle": "Interrogate the leftovers",
+      "app_store_id": "6806655804",
+      "group_id": "94cd042c-6baa-4379-a401-798cb94fc9ed",
+      "public_link": "https://testflight.apple.com/join/X6pWPTfV",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 6,
+      "scheme": "App06ReceiptEmotionalDamage",
+      "name": "Unnecessary: Receipt Emotional Damage",
+      "subtitle": "An invoice for regret",
+      "app_store_id": "6806656619",
+      "group_id": "772a72d6-5b0f-4e2b-a47e-bbda926018e9",
+      "public_link": "https://testflight.apple.com/join/HKQKgxm1",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 7,
+      "scheme": "App07SockTribunal",
+      "name": "Unnecessary: Sock Tribunal",
+      "subtitle": "Justice for unmatched socks",
+      "app_store_id": "6806656919",
+      "group_id": "0e7f4b5f-f942-4f69-b402-548a18f85f1d",
+      "public_link": "https://testflight.apple.com/join/ZxNVbrE9",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 8,
+      "scheme": "App08PlantCourt",
+      "name": "Unnecessary: Plant Court",
+      "subtitle": "Your plant has filed a case",
+      "app_store_id": "6806657333",
+      "group_id": "78b52603-6bc1-46fb-95a6-d775e073942a",
+      "public_link": "https://testflight.apple.com/join/rv61pg9s",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 9,
+      "scheme": "App09LaundryMountain",
+      "name": "Unnecessary: Laundry Mountain",
+      "subtitle": "A trail map for every load",
+      "app_store_id": "6806657830",
+      "group_id": "2b5b2d36-d898-4955-8dfe-b97199b0c214",
+      "public_link": "https://testflight.apple.com/join/qU93RApN",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 10,
+      "scheme": "App10WhatWasIDoing",
+      "name": "Unnecessary: What Was I Doing?",
+      "subtitle": "A tiny lapse tracker",
+      "app_store_id": "6806659286",
+      "group_id": "99e62889-fd81-4c7c-9060-6052c92eed82",
+      "public_link": "https://testflight.apple.com/join/TPKZfayc",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 11,
+      "scheme": "App11AmIEarly",
+      "name": "Unnecessary: Am I Early?",
+      "subtitle": "Punctuality, officially judged",
+      "app_store_id": "6806659362",
+      "group_id": "084c8ecc-4759-4caa-af64-325f66e9348e",
+      "public_link": "https://testflight.apple.com/join/HQv4xpGB",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 12,
+      "scheme": "App12PigeonOrSeagull",
+      "name": "Unnecessary: Pigeon or Seagull?",
+      "subtitle": "The bird courtroom convenes",
+      "app_store_id": "6806658411",
+      "group_id": "1af9262e-cfd1-44e8-bf83-7b8a77fe0f59",
+      "public_link": "https://testflight.apple.com/join/E1xAasTp",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 13,
+      "scheme": "App13ToiletTimer",
+      "name": "Unnecessary: Toilet Timer",
+      "subtitle": "A bathroom timer with rulings",
+      "app_store_id": "6806659847",
+      "group_id": "407d43d0-bdb3-4b67-8612-ae21d358ee5d",
+      "public_link": "https://testflight.apple.com/join/raynpbSB",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 14,
+      "scheme": "App14OneMoreEpisode",
+      "name": "Unnecessary: One More Episode",
+      "subtitle": "Tomorrow's regret calculator",
+      "app_store_id": "6806660337",
+      "group_id": "23cc2eed-9d5f-4a37-999d-0a82a4c9e6c3",
+      "public_link": "https://testflight.apple.com/join/r4MNS5XV",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 15,
+      "scheme": "App15CanIWearThisAgain",
+      "name": "Unnecessary: Can I Wear This Again?",
+      "subtitle": "Permission to rewear",
+      "app_store_id": "6806660466",
+      "group_id": "1e685ce6-c9a7-4183-839b-85f2542b576a",
+      "public_link": "https://testflight.apple.com/join/mq5jafgd",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 16,
+      "scheme": "App16MicrowaveSommelier",
+      "name": "Unnecessary: Microwave Sommelier",
+      "subtitle": "Playful microwave timing",
+      "app_store_id": "6806660813",
+      "group_id": "50f71a27-f52c-4611-a5c4-90066f934972",
+      "public_link": "https://testflight.apple.com/join/G6DBVMEq",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 17,
+      "scheme": "App17MeetingBingo",
+      "name": "Unnecessary: Meeting Bingo for One",
+      "subtitle": "Solo meeting bingo",
+      "app_store_id": "6806661969",
+      "group_id": "5ec3fc53-5eb8-46bd-b320-739f0887fa81",
+      "public_link": "https://testflight.apple.com/join/rBQrTrNA",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 18,
+      "scheme": "App18TinyGratitude",
+      "name": "Unnecessary: Tiny Gratitude",
+      "subtitle": "Microscopic gratitude journal",
+      "app_store_id": "6806661022",
+      "group_id": "f3ac9a55-24e4-4ef0-8930-3c6372fb3242",
+      "public_link": "https://testflight.apple.com/join/mRkJACMT",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 19,
+      "scheme": "App19MedievalAdvice",
+      "name": "Unnecessary: Bad Advice from a Peasant",
+      "subtitle": "Questionable peasant wisdom",
+      "app_store_id": "6806661182",
+      "group_id": "cf09683c-fee2-494e-a2d3-c4e720c46eaa",
+      "public_link": "https://testflight.apple.com/join/Qb4U2W1d",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 20,
+      "scheme": "App20RealEmail",
+      "name": "Unnecessary: Is This a Real Email?",
+      "subtitle": "Corporate-fog check",
+      "app_store_id": "6806661191",
+      "group_id": "6db1c996-3bdf-41da-a067-5624cc9cdb56",
+      "public_link": "https://testflight.apple.com/join/YJQgVqEN",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 21,
+      "scheme": "App21VibeMeter",
+      "name": "Unnecessary: The Vibe Meter",
+      "subtitle": "An unlicensed room reading",
+      "app_store_id": "6806662318",
+      "group_id": "13b699e5-dc70-4c09-8ceb-f5dd606f03ec",
+      "public_link": "https://testflight.apple.com/join/zhRZckdq",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 22,
+      "scheme": "App22SnackRoulette",
+      "name": "Unnecessary: Snack Roulette",
+      "subtitle": "Let fate pick the snack",
+      "app_store_id": "6806661627",
+      "group_id": "5b4c62eb-ffb0-4f0e-96a7-dc4cefcbbc54",
+      "public_link": "https://testflight.apple.com/join/5kCXKGBa",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 23,
+      "scheme": "App23QuietCafe",
+      "name": "Unnecessary: Quiet Café Index",
+      "subtitle": "Rate cafés by their hush",
+      "app_store_id": "6806661711",
+      "group_id": "757b32bc-70c6-4870-8e56-f61a0827e7eb",
+      "public_link": "https://testflight.apple.com/join/VPktH3aM",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 24,
+      "scheme": "App24DogNameGuesser",
+      "name": "Unnecessary: Dog Name Guesser",
+      "subtitle": "Guess a dog name by vibes",
+      "app_store_id": "6805446694",
+      "group_id": "292d9ae0-2adc-4abe-ae3e-3f62bb735afd",
+      "public_link": "https://testflight.apple.com/join/7EvaGdEU",
+      "build_assignment": "assigned_ready_for_beta_review"
+    },
+    {
+      "number": 25,
+      "scheme": "App25WaitingRoom",
+      "name": "Unnecessary: Waiting Room Simulator",
+      "subtitle": "Professional waiting practice",
+      "app_store_id": "6806662528",
+      "group_id": "0a8b0bd1-5565-4baa-9601-cdb2fb138d76",
+      "public_link": "https://testflight.apple.com/join/ZMAW7cbs",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 26,
+      "scheme": "App26NeighborNoise",
+      "name": "Unnecessary: Neighbor Noise Translator",
+      "subtitle": "Translate the thud, calmly",
+      "app_store_id": "6806662763",
+      "group_id": "fd6cbbd7-bc59-43c7-947f-14fe4bbb8ba3",
+      "public_link": "https://testflight.apple.com/join/b4EfGHku",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 27,
+      "scheme": "App27TinyMuseum",
+      "name": "Unnecessary: Tiny Personal Museum",
+      "subtitle": "A museum for ordinary things",
+      "app_store_id": "6806662876",
+      "group_id": "631128ee-fba1-4426-8c40-a6e8e530e9a5",
+      "public_link": "https://testflight.apple.com/join/mZv5KV6h",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 28,
+      "scheme": "App28OverthinkingBoard",
+      "name": "Unnecessary: Overthinking Evidence Board",
+      "subtitle": "A courtroom for your worry",
+      "app_store_id": "6806663189",
+      "group_id": "09c028b1-a6a4-40d8-bfdf-458c1e0f6789",
+      "public_link": "https://testflight.apple.com/join/uUajJvNV",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 29,
+      "scheme": "App29BenchReviews",
+      "name": "Unnecessary: Local Bench Reviews",
+      "subtitle": "Serious reviews of benches",
+      "app_store_id": "6806662993",
+      "group_id": "e3a70cbf-1c2d-46d8-92df-1b1fdc73a13b",
+      "public_link": "https://testflight.apple.com/join/k2XqtnmC",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 30,
+      "scheme": "App30ApologyDraft",
+      "name": "Unnecessary: Apology Draft Generator",
+      "subtitle": "Apologies for tiny crimes",
+      "app_store_id": "6806663794",
+      "group_id": "768d9502-f4ef-4797-935c-f707a5b6e0fa",
+      "public_link": "https://testflight.apple.com/join/vRTv4T2y",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 31,
+      "scheme": "App31HumanGPS",
+      "name": "Unnecessary: Human GPS",
+      "subtitle": "Directions without GPS",
+      "app_store_id": "6806664155",
+      "group_id": "527059ea-e95d-4932-aa01-081fd64cb655",
+      "public_link": "https://testflight.apple.com/join/7YyvrMjX",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 32,
+      "scheme": "App32LastSlice",
+      "name": "Unnecessary: The Last Slice",
+      "subtitle": "Tiny fair-allocation treaty",
+      "app_store_id": "6806665056",
+      "group_id": "d28a7f4d-d06b-4606-9ed0-ccc2d5f6767d",
+      "public_link": "https://testflight.apple.com/join/61bvvJg7",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 33,
+      "scheme": "App33QueuePersonality",
+      "name": "Unnecessary: Queue Personality Test",
+      "subtitle": "A real wait, silly verdict",
+      "app_store_id": "6806665765",
+      "group_id": "b1a38fe4-5051-49ed-87b4-f31de0978ee3",
+      "public_link": "https://testflight.apple.com/join/r8zvuWug",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 34,
+      "scheme": "App34WeatherOutfit",
+      "name": "Unnecessary: Weather Outfit Excuse",
+      "subtitle": "Your outfit needs an alibi",
+      "app_store_id": "6806666070",
+      "group_id": "f5c1fac0-0fdc-48ab-b3d0-22696de5c763",
+      "public_link": "https://testflight.apple.com/join/sRmNJEFE",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 35,
+      "scheme": "App35DoorWasPush",
+      "name": "Unnecessary: The Door Was Push",
+      "subtitle": "File every door incident",
+      "app_store_id": "6806666550",
+      "group_id": "7088b2d6-8590-4748-af2a-2db03d62323c",
+      "public_link": "https://testflight.apple.com/join/V24gDu3d",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 36,
+      "scheme": "App36StepDebt",
+      "name": "Unnecessary: Step Debt",
+      "subtitle": "A fictional movement invoice",
+      "app_store_id": "6806534240",
+      "group_id": "1848e776-b56b-45bb-8809-224bf1662db8",
+      "public_link": "https://testflight.apple.com/join/NhhagbPp",
+      "build_assignment": "assigned_ready_for_beta_review"
+    },
+    {
+      "number": 37,
+      "scheme": "App37SleepAlibi",
+      "name": "Unnecessary: Sleep Alibi",
+      "subtitle": "A joke for your sleepy day",
+      "app_store_id": "6806534690",
+      "group_id": "8c134fb1-f4d8-4bc0-90b1-b1fd877a65ff",
+      "public_link": "https://testflight.apple.com/join/eYapP3R8",
+      "build_assignment": "assigned_ready_for_beta_review"
+    },
+    {
+      "number": 38,
+      "scheme": "App38HeartRateEmail",
+      "name": "Unnecessary: Heart Rate During Email",
+      "subtitle": "An inbox drama log",
+      "app_store_id": "6806772572",
+      "group_id": "ee926faf-f8de-4120-8609-5fca822702c6",
+      "public_link": "https://testflight.apple.com/join/Y6dv6KE8",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 39,
+      "scheme": "App39WorkoutExcuse",
+      "name": "Unnecessary: Workout Excuse Detector",
+      "subtitle": "A supportive excuse audit",
+      "app_store_id": "6806534987",
+      "group_id": "05566bfe-e609-4d9d-abdb-e921bd133c98",
+      "public_link": "https://testflight.apple.com/join/yBFnp5Y9",
+      "build_assignment": "assigned_ready_for_beta_review"
+    },
+    {
+      "number": 40,
+      "scheme": "App40HealthHoroscope",
+      "name": "Unnecessary: Health Data Horoscope",
+      "subtitle": "Fictional health horoscope",
+      "app_store_id": "6806772962",
+      "group_id": "8ff5eec9-d148-48d7-b44e-a72f42582545",
+      "public_link": "https://testflight.apple.com/join/f1ntmYuk",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 41,
+      "scheme": "App41RecoveryGoblin",
+      "name": "Unnecessary: The Recovery Goblin",
+      "subtitle": "A playful recovery check-in",
+      "app_store_id": "6806773101",
+      "group_id": "90bba308-b9c9-45cd-8b81-c7a9ae85df82",
+      "public_link": "https://testflight.apple.com/join/ZxPKJp1T",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 42,
+      "scheme": "App42WalkingMeeting",
+      "name": "Unnecessary: Walking Meeting Escape Plan",
+      "subtitle": "A joke exit plan for meetings",
+      "app_store_id": "6806773397",
+      "group_id": "41992289-936a-47ab-8129-3ae301e33084",
+      "public_link": "https://testflight.apple.com/join/X4cYjjBh",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 43,
+      "scheme": "App43HydrationNarc",
+      "name": "Unnecessary: Hydration Narc",
+      "subtitle": "A bottle with opinions",
+      "app_store_id": "6806773830",
+      "group_id": "c7740457-9490-4aa8-9e6f-33e2d752256f",
+      "public_link": "https://testflight.apple.com/join/by9Femc2",
+      "build_assignment": "pending_upload"
+    },
+    {
+      "number": 44,
+      "scheme": "App44RestDayPolice",
+      "name": "Unnecessary: Rest Day Police",
+      "subtitle": "A fictional training citation",
+      "app_store_id": "6806773981",
+      "group_id": "c9cdb8dd-e99f-4a21-b5a1-b681b256e194",
+      "public_link": "https://testflight.apple.com/join/yp5HtHfG",
+      "build_assignment": "pending_upload"
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1620"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B831E505DAFEE6C45CE0A83C"
+               BuildableName = "App03DoNotTextThemUITests.xctest"
+               BlueprintName = "App03DoNotTextThemUITests"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A2DAF0C449F51222A9B5F899"
+               BuildableName = "App03DoNotTextThem.app"
+               BlueprintName = "App03DoNotTextThem"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DFAE068FBA5C734EC2909B4B"
+               BuildableName = "App10WhatWasIDoing.app"
+               BlueprintName = "App10WhatWasIDoing"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "96F5DEBF2182B07E31DF177D" BuildableName = "App17MeetingBingo.app" BlueprintName = "App17MeetingBingo" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "99A20EFDD6D2AE7614B1799B" BuildableName = "App18TinyGratitude.app" BlueprintName = "App18TinyGratitude" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "5EA2A17B79583361C912FBF2" BuildableName = "App20RealEmail.app" BlueprintName = "App20RealEmail" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "D56B4F373479D3ACDE6DAE27" BuildableName = "App22SnackRoulette.app" BlueprintName = "App22SnackRoulette" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "E8221A97D0842F0C004632AD" BuildableName = "App30ApologyDraft.app" BlueprintName = "App30ApologyDraft" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "53323E28984D89FEE2053934" BuildableName = "App43HydrationNarc.app" BlueprintName = "App43HydrationNarc" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "D710A210FE1FE6AF5071DF29" BuildableName = "App01ChairFinder.app" BlueprintName = "App01ChairFinder" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "43316B68A6B959DA3E876F81" BuildableName = "App02BathroomMap.app" BlueprintName = "App02BathroomMap" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "4F1310002004E6842AC21552" BuildableName = "App04SocialBatteryReceipt.app" BlueprintName = "App04SocialBatteryReceipt" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "788AF9748B28E9E30A8EB174" BuildableName = "App05FridgeWitness.app" BlueprintName = "App05FridgeWitness" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "48E58FC81502D46A0FF0D6D7" BuildableName = "App06ReceiptEmotionalDamage.app" BlueprintName = "App06ReceiptEmotionalDamage" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "BB084A2294BAF83545C4B24E" BuildableName = "App07SockTribunal.app" BlueprintName = "App07SockTribunal" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "3EB5A0B006417353566EE77F" BuildableName = "App08PlantCourt.app" BlueprintName = "App08PlantCourt" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "EDA7E8E5D752E634300046AC" BuildableName = "App09LaundryMountain.app" BlueprintName = "App09LaundryMountain" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "53BCF3C82443A959B3C27D46" BuildableName = "App11AmIEarly.app" BlueprintName = "App11AmIEarly" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "D95DA9304AE114320CDAEABE" BuildableName = "App12PigeonOrSeagull.app" BlueprintName = "App12PigeonOrSeagull" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "DC1649853EA6801884BE65DB" BuildableName = "App13ToiletTimer.app" BlueprintName = "App13ToiletTimer" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "4478622E4B97A1C0EFA89593" BuildableName = "App14OneMoreEpisode.app" BlueprintName = "App14OneMoreEpisode" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "8C4ECC183BF11EFA6C90D76B" BuildableName = "App15CanIWearThisAgain.app" BlueprintName = "App15CanIWearThisAgain" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "A71E66319C571BBABC2B7FA0" BuildableName = "App16MicrowaveSommelier.app" BlueprintName = "App16MicrowaveSommelier" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "96FCF5EF367F8EB45151DCD9" BuildableName = "App19MedievalAdvice.app" BlueprintName = "App19MedievalAdvice" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "CBD78526A36FD1BA74EDAE1C" BuildableName = "App21VibeMeter.app" BlueprintName = "App21VibeMeter" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "D6945B0ED49A186B07C6C87F" BuildableName = "App23QuietCafe.app" BlueprintName = "App23QuietCafe" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "F9BEDC4B9FE515DB095D3F5C" BuildableName = "App24DogNameGuesser.app" BlueprintName = "App24DogNameGuesser" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "C77E7EE6D83E96D1CB3EAB18" BuildableName = "App25WaitingRoom.app" BlueprintName = "App25WaitingRoom" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "57B917EC885B2674C0921D8E" BuildableName = "App26NeighborNoise.app" BlueprintName = "App26NeighborNoise" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "1AD496FB98AA8521524A34AE" BuildableName = "App27TinyMuseum.app" BlueprintName = "App27TinyMuseum" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "FC85F8D2FF40D5B2CDB95437" BuildableName = "App28OverthinkingBoard.app" BlueprintName = "App28OverthinkingBoard" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "C8AFE093345527484773B00E" BuildableName = "App29BenchReviews.app" BlueprintName = "App29BenchReviews" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "65852DB7E436E5BA3D85715E" BuildableName = "App31HumanGPS.app" BlueprintName = "App31HumanGPS" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "8C1B09313EF6C4E385E50432" BuildableName = "App32LastSlice.app" BlueprintName = "App32LastSlice" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "B9674E18E56B6BC443A6F379" BuildableName = "App33QueuePersonality.app" BlueprintName = "App33QueuePersonality" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "1DDC6781EEAD428EA33D2E9F" BuildableName = "App34WeatherOutfit.app" BlueprintName = "App34WeatherOutfit" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "5FA51B79B84860ABEECDAEA7" BuildableName = "App35DoorWasPush.app" BlueprintName = "App35DoorWasPush" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "D59485CB8F77E0C3E60783F1" BuildableName = "App36StepDebt.app" BlueprintName = "App36StepDebt" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "4F9D2947E6A239F0EAFA8B0C" BuildableName = "App37SleepAlibi.app" BlueprintName = "App37SleepAlibi" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "BFBCE976DA9E1E8C928D840C" BuildableName = "App38HeartRateEmail.app" BlueprintName = "App38HeartRateEmail" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "79E1E0F0DF7CDE0ECC3F4617" BuildableName = "App39WorkoutExcuse.app" BlueprintName = "App39WorkoutExcuse" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "282879E8F3B4D10243E3CC13" BuildableName = "App40HealthHoroscope.app" BlueprintName = "App40HealthHoroscope" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "3570653304960B7586092D9F" BuildableName = "App41RecoveryGoblin.app" BlueprintName = "App41RecoveryGoblin" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "0C276218D201CDC5F6B09D7E" BuildableName = "App42WalkingMeeting.app" BlueprintName = "App42WalkingMeeting" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "NO" buildForArchiving = "NO" buildForAnalyzing = "YES"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "4802565572066E7BEBF6D414" BuildableName = "App44RestDayPolice.app" BlueprintName = "App44RestDayPolice" ReferencedContainer = "container:UnnecessaryApps.xcodeproj"/></BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B831E505DAFEE6C45CE0A83C"
+               BuildableName = "App03DoNotTextThemUITests.xctest"
+               BlueprintName = "App03DoNotTextThemUITests"
+               ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A2DAF0C449F51222A9B5F899"
+            BuildableName = "App03DoNotTextThem.app"
+            BlueprintName = "App03DoNotTextThem"
+            ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A2DAF0C449F51222A9B5F899"
+            BuildableName = "App03DoNotTextThem.app"
+            BlueprintName = "App03DoNotTextThem"
+            ReferencedContainer = "container:UnnecessaryApps.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction buildConfiguration = "Debug"/>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES"/>
+</Scheme>

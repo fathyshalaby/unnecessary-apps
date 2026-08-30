@@ -1,0 +1,27 @@
+.DS_Store
+DerivedData/
+build/
+.build/
+.swiftpm/
+__pycache__/
+*.pyc
+*.xcuserstate
+xcuserdata/
+
+# App Store and signing artifacts never belong in source control.
+*.xcarchive
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.mobileprovision
+*.p8
+*.p12
+*.cer
+*.pem
+*.key
+
+# Local secrets and provider configuration.
+.env
+.env.*
+!*.env.example
+config/Secrets.xcconfig

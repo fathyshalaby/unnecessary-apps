@@ -1,0 +1,72 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Unnecessary Apps Corp//Social Launch//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Unnecessary Apps Launch
+X-WR-TIMEZONE:Europe/Vienna
+BEGIN:VEVENT
+UID:ua-capture-20260829@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260829T130000
+DTEND;TZID=Europe/Vienna:20260829T170000
+SUMMARY:Unnecessary Apps — batch film launch content
+DESCRIPTION:Capture trailer\, mascot reveal\, montage\, and Episodes 1–3. Use social/launch-week/CAPTURE_MANIFEST.md.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-trailer-20260831@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260831T183000
+DTEND;TZID=Europe/Vienna:20260831T190000
+SUMMARY:Publish Unnecessary Apps series trailer
+DESCRIPTION:Post to TikTok\, Reels\, and Shorts. Pin the problem-submission comment and reply live for 30–60 minutes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-mascot-20260902@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260902T183000
+DTEND;TZID=Europe/Vienna:20260902T190000
+SUMMARY:Publish Unnecessary Apps Corp mascot reveal
+DESCRIPTION:Introduce the Nonsense Dept. Ask the audience to name the mascot.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-montage-20260904@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260904T183000
+DTEND;TZID=Europe/Vienna:20260904T190000
+SUMMARY:Publish three-app launch montage
+DESCRIPTION:Chair Finder\, Do Not Text Them\, and The Door Was Push. Ask TEXT versus DOOR for the next TestFlight priority.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-e01-20260907@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260907T183000
+DTEND;TZID=Europe/Vienna:20260907T190000
+SUMMARY:Publish S01 E01 — Chair Finder
+DESCRIPTION:Post clean master to TikTok\, Reels\, and Shorts. Pin chair-formula comment and engage for 30–60 minutes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-e02-20260909@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260909T183000
+DTEND;TZID=Europe/Vienna:20260909T190000
+SUMMARY:Publish S01 E02 — Do Not Text Them
+DESCRIPTION:Use fictional drafts only. Pin safety/comedy comment and engage for 30–60 minutes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-e03-20260911@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260911T183000
+DTEND;TZID=Europe/Vienna:20260911T190000
+SUMMARY:Publish S01 E03 — The Door Was Push
+DESCRIPTION:Publish the architecture incident report. Pin the pull-count question and engage for 30–60 minutes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ua-review-20260913@unnecessaryapps.corp
+DTSTAMP:20260825T110000Z
+DTSTART;TZID=Europe/Vienna:20260913T180000
+DTEND;TZID=Europe/Vienna:20260913T183000
+SUMMARY:Unnecessary Apps — first analytics review
+DESCRIPTION:Record early signals without changing the identity. Full seven-day decisions happen per post in social/launch-week/METRICS.md.
+END:VEVENT
+END:VCALENDAR

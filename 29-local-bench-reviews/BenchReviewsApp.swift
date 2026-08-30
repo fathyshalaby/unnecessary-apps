@@ -1,0 +1,658 @@
+@preconcurrency import CoreLocation
+import MapKit
+import Observation
+import SwiftUI
+import DumbKit
+
+@main
+struct BenchReviewsApp: App {
+    var body: some Scene {
+        WindowGroup {
+            BenchReviewsView()
+        }
+    }
+}
+
+private struct BenchCoordinate: Codable, Hashable {
+    let latitude: Double
+    let longitude: Double
+
+    init(_ coordinate: CLLocationCoordinate2D) {
+        latitude = coordinate.latitude
+        longitude = coordinate.longitude
+    }
+
+    var clLocationCoordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+private struct BenchReview: Codable, Identifiable, Hashable {
+    let id: UUID
+    let createdAt: Date
+    let coordinate: BenchCoordinate
+    var name: String
+    var comfort: Int
+    var shade: Int
+    var view: Int
+    var pigeonClaimed: Bool
+    var note: String
+
+    var score: Int {
+        Int((Double(comfort + shade + view) / 3).rounded())
+    }
+}
+
+private struct BenchDraft: Identifiable {
+    let id = UUID()
+    let coordinate: BenchCoordinate
+}
+
+@MainActor
+@Observable
+private final class BenchReviewStore {
+    private static let storageKey = "benchReviews.saved.v2"
+    private static let maximumReviews = 100
+
+    @ObservationIgnored private let defaults: UserDefaults
+    private(set) var reviews: [BenchReview]
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        guard
+            let data = defaults.data(forKey: Self.storageKey),
+            let decoded = try? JSONDecoder().decode([BenchReview].self, from: data)
+        else {
+            reviews = []
+            return
+        }
+        reviews = Array(decoded.prefix(Self.maximumReviews))
+    }
+
+    func add(
+        coordinate: BenchCoordinate,
+        name: String,
+        comfort: Int,
+        shade: Int,
+        view: Int,
+        pigeonClaimed: Bool,
+        note: String
+    ) {
+        let review = BenchReview(
+            id: UUID(),
+            createdAt: .now,
+            coordinate: coordinate,
+            name: name,
+            comfort: comfort,
+            shade: shade,
+            view: view,
+            pigeonClaimed: pigeonClaimed,
+            note: note
+        )
+        reviews.insert(review, at: 0)
+        reviews = Array(reviews.prefix(Self.maximumReviews))
+        persist()
+    }
+
+    func remove(id: UUID) {
+        reviews.removeAll { $0.id == id }
+        persist()
+    }
+
+    func removeAll() {
+        reviews.removeAll()
+        defaults.removeObject(forKey: Self.storageKey)
+    }
+
+    private func persist() {
+        guard let data = try? JSONEncoder().encode(reviews) else { return }
+        defaults.set(data, forKey: Self.storageKey)
+    }
+}
+
+@MainActor
+@Observable
+private final class BenchLocationService: NSObject, @preconcurrency CLLocationManagerDelegate {
+    @ObservationIgnored private let manager = CLLocationManager()
+    @ObservationIgnored private var shouldRequestLocationAfterAuthorization = false
+
+    private(set) var lastCoordinate: BenchCoordinate?
+    private(set) var statusMessage = "Pan the map or use your position to find the bench in question."
+    private(set) var isWorking = false
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    }
+
+    func requestCurrentLocation() {
+        guard CLLocationManager.locationServicesEnabled() else {
+            statusMessage = "Location Services are off. You can still pan and review the map."
+            return
+        }
+
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            shouldRequestLocationAfterAuthorization = true
+            isWorking = true
+            statusMessage = "Waiting for your location choice…"
+            manager.requestWhenInUseAuthorization()
+        case .authorizedAlways, .authorizedWhenInUse:
+            isWorking = true
+            statusMessage = "Looking for your corner of the park…"
+            manager.requestLocation()
+        case .denied, .restricted:
+            isWorking = false
+            statusMessage = "Location access is unavailable. Pan the map to choose a bench instead."
+        @unknown default:
+            isWorking = false
+            statusMessage = "Location status is unknown. Pan the map to continue."
+        }
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            guard shouldRequestLocationAfterAuthorization else { return }
+            shouldRequestLocationAfterAuthorization = false
+            isWorking = true
+            manager.requestLocation()
+        case .denied, .restricted:
+            shouldRequestLocationAfterAuthorization = false
+            isWorking = false
+            statusMessage = "No position received. Pan the map to the bench instead."
+        case .notDetermined:
+            break
+        default:
+            shouldRequestLocationAfterAuthorization = false
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        isWorking = false
+        guard let location = locations.last else {
+            statusMessage = "No position arrived. Pan the map to continue."
+            return
+        }
+        lastCoordinate = BenchCoordinate(location.coordinate)
+        statusMessage = "Map centered. Move the pin if the bench coordinates are slightly off."
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        isWorking = false
+        statusMessage = "Could not get a position. Pan the map to continue."
+    }
+}
+
+struct BenchReviewsView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private static let fallbackRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738),
+        span: MKCoordinateSpan(latitudeDelta: 0.018, longitudeDelta: 0.018)
+    )
+
+    @State private var store = BenchReviewStore()
+    @State private var locationService = BenchLocationService()
+    @State private var cameraPosition: MapCameraPosition = .region(fallbackRegion)
+    @State private var mapCenter = BenchCoordinate(fallbackRegion.center)
+    @State private var selectedReviewID: UUID?
+    @State private var presentedDraft: BenchDraft?
+    @State private var showClearConfirmation = false
+
+    private let accent = CorpPalette.parkGreen
+
+    var body: some View {
+        ZStack {
+            CorpPalette.canvas.ignoresSafeArea()
+            VStack(spacing: 0) {
+                brandHeader
+                mapCard
+                reviewLedger
+            }
+        }
+        .tint(accent)
+        .environment(\.dumbExperienceStyle, .map)
+        .sheet(item: $presentedDraft) { draft in
+            BenchEditorSheet(draft: draft) { name, comfort, shade, view, pigeonClaimed, note in
+                store.add(
+                    coordinate: draft.coordinate,
+                    name: name,
+                    comfort: comfort,
+                    shade: shade,
+                    view: view,
+                    pigeonClaimed: pigeonClaimed,
+                    note: note
+                )
+                selectedReviewID = store.reviews.first?.id
+            }
+        }
+        .confirmationDialog(
+            "Clear every bench review?",
+            isPresented: $showClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear all reviews", role: .destructive) {
+                selectedReviewID = nil
+                store.removeAll()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears every bench review. It cannot be undone.")
+        }
+        .onChange(of: locationService.lastCoordinate) { _, coordinate in
+            guard let coordinate else { return }
+            mapCenter = coordinate
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.45)) {
+                cameraPosition = .region(
+                    MKCoordinateRegion(
+                        center: coordinate.clLocationCoordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.009, longitudeDelta: 0.009)
+                    )
+                )
+            }
+        }
+        .onChange(of: selectedReviewID) { _, reviewID in
+            guard let review = store.reviews.first(where: { $0.id == reviewID }) else { return }
+            mapCenter = review.coordinate
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.35)) {
+                cameraPosition = .region(
+                    MKCoordinateRegion(
+                        center: review.coordinate.clLocationCoordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.006, longitudeDelta: 0.006)
+                    )
+                )
+            }
+        }
+    }
+
+    private var brandHeader: some View {
+        HStack(alignment: .center, spacing: DumbSpacing.sm) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("PARK DESK · FIELD FILE")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(accent)
+                Text("Local Bench Reviews")
+                    .font(.system(.title3, design: .rounded).weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .lineLimit(1)
+                    .accessibilityAddTraits(.isHeader)
+                Text("Pin it. Sit on it. Judge it.")
+                    .font(.caption)
+                    .foregroundStyle(CorpPalette.mutedInk)
+                    .lineLimit(2)
+            }
+            Spacer(minLength: DumbSpacing.xs)
+            Image("AppMascot", bundle: .main)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 48, height: 48)
+                .padding(5)
+                .background(accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(accent.opacity(0.20), lineWidth: 1))
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, DumbSpacing.md)
+        .padding(.top, DumbSpacing.sm)
+        .padding(.bottom, DumbSpacing.sm)
+    }
+
+    private var mapCard: some View {
+        Map(position: $cameraPosition, selection: $selectedReviewID) {
+            UserAnnotation()
+            ForEach(store.reviews) { review in
+                Marker(review.name, systemImage: "chair.lounge.fill", coordinate: review.coordinate.clLocationCoordinate)
+                    .tint(accent)
+                    .tag(review.id)
+            }
+        }
+        .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll, showsTraffic: false))
+        .mapControls {
+            MapCompass()
+            MapScaleView()
+        }
+        .onMapCameraChange(frequency: .onEnd) { context in
+            mapCenter = BenchCoordinate(context.region.center)
+        }
+        .overlay {
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 26, weight: .bold))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(accent, CorpPalette.surface)
+                .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                locationService.requestCurrentLocation()
+            } label: {
+                Group {
+                    if locationService.isWorking {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "location.fill")
+                    }
+                }
+                .font(.headline.weight(.black))
+                .frame(width: DumbMetrics.minimumTapTarget, height: DumbMetrics.minimumTapTarget)
+                .background(CorpPalette.surface.opacity(0.94), in: Circle())
+                .shadow(color: .black.opacity(0.10), radius: 3, y: 2)
+            }
+            .disabled(locationService.isWorking)
+            .accessibilityLabel("Use my location")
+            .accessibilityHint("Requests location only to center the map near you.")
+            .accessibilityIdentifier("useBenchLocationButton")
+            .padding(12)
+        }
+        .overlay(alignment: .bottom) {
+            Button {
+                presentedDraft = BenchDraft(coordinate: mapCenter)
+            } label: {
+                Label("Review the map center", systemImage: "mappin.and.ellipse")
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(CorpPalette.actionInk)
+                    .padding(.horizontal, DumbSpacing.md)
+                    .frame(minHeight: DumbMetrics.minimumTapTarget)
+                    .background(accent, in: Capsule())
+            }
+            .buttonStyle(DumbPressStyle())
+            .accessibilityHint("Opens a review for the point under the center marker.")
+            .accessibilityIdentifier("reviewMapCenterButton")
+            .padding(.bottom, DumbSpacing.sm)
+        }
+        .frame(height: 360)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(CorpPalette.ink.opacity(0.08), lineWidth: 1))
+        .padding(.horizontal, DumbSpacing.sm)
+    }
+
+    private var reviewLedger: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: DumbSpacing.sm) {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "lock.fill")
+                        .foregroundStyle(accent)
+                    Text(locationService.statusMessage)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, DumbSpacing.micro)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("benchLocationStatus")
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(store.reviews.isEmpty ? "No benches on file" : "\(store.reviews.count) bench\(store.reviews.count == 1 ? "" : "es") on file")
+                            .font(.headline.weight(.black))
+                            .foregroundStyle(CorpPalette.ink)
+                        Text("Your opinion stays between you and the bench.")
+                            .font(.caption)
+                            .foregroundStyle(CorpPalette.mutedInk)
+                    }
+                    Spacer()
+                    if !store.reviews.isEmpty {
+                        Button("Clear all", role: .destructive) {
+                            showClearConfirmation = true
+                        }
+                        .font(.caption.weight(.bold))
+                        .accessibilityIdentifier("clearBenchReviewsButton")
+                    }
+                }
+
+                if store.reviews.isEmpty {
+                    emptyState
+                } else {
+                    ForEach(store.reviews) { review in
+                        BenchReviewCard(review: review, accent: accent) {
+                            selectedReviewID = review.id
+                        } onDelete: {
+                            if selectedReviewID == review.id {
+                                selectedReviewID = nil
+                            }
+                            store.remove(id: review.id)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, DumbSpacing.md)
+            .padding(.top, DumbSpacing.sm)
+            .padding(.bottom, DumbSpacing.lg)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private var emptyState: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "chair.lounge")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(accent)
+                .frame(width: 48, height: 48)
+                .background(accent.opacity(0.13), in: Circle())
+            VStack(alignment: .leading, spacing: 4) {
+                Text("The park desk is suspiciously empty.")
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                Text("Pan the map, put the crosshair on a bench, and file the first unnecessary review.")
+                    .font(.caption)
+                    .foregroundStyle(CorpPalette.mutedInk)
+            }
+        }
+        .padding(DumbSpacing.md)
+        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        .accessibilityIdentifier("emptyBenchLedger")
+    }
+}
+
+private struct BenchReviewCard: View {
+    let review: BenchReview
+    let accent: Color
+    let onSelect: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(review.name)
+                        .font(.headline.weight(.black))
+                        .foregroundStyle(CorpPalette.ink)
+                    Text(review.createdAt, format: .dateTime.day().month().hour().minute())
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                }
+                Spacer()
+                Text("\(review.score)/10")
+                    .font(.system(.title3, design: .rounded).weight(.black))
+                    .foregroundStyle(accent)
+            }
+
+            HStack(spacing: 7) {
+                scorePill("Comfort \(review.comfort)", icon: "chair.lounge.fill")
+                scorePill("Shade \(review.shade)", icon: "leaf.fill")
+                scorePill("View \(review.view)", icon: "binoculars.fill")
+            }
+
+            if !review.note.isEmpty {
+                Text(review.note)
+                    .font(.subheadline)
+                    .foregroundStyle(CorpPalette.mutedInk)
+                    .lineLimit(3)
+            }
+
+            HStack {
+                Label(
+                    review.pigeonClaimed ? "Pigeon jurisdiction" : "Armrest unclaimed",
+                    systemImage: review.pigeonClaimed ? "bird.fill" : "checkmark.seal.fill"
+                )
+                .font(.caption.weight(.bold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                Spacer()
+                Button("Show on map", action: onSelect)
+                    .font(.caption.weight(.black))
+                Button(role: .destructive, action: onDelete) {
+                    Image(systemName: "trash")
+                }
+                .accessibilityLabel("Delete \(review.name)")
+            }
+        }
+        .padding(DumbSpacing.md)
+        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        .accessibilityIdentifier("benchReviewCard")
+    }
+
+    private func scorePill(_ title: String, icon: String) -> some View {
+        Label(title, systemImage: icon)
+            .font(.caption2.weight(.black))
+            .foregroundStyle(CorpPalette.ink.opacity(0.78))
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .padding(.horizontal, DumbSpacing.xs)
+            .padding(.vertical, DumbSpacing.micro + 2)
+            .background(accent.opacity(0.12), in: Capsule())
+    }
+}
+
+private struct BenchEditorSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let draft: BenchDraft
+    let onSave: (String, Int, Int, Int, Bool, String) -> Void
+
+    @State private var name = ""
+    @State private var comfort = 7.0
+    @State private var shade = 6.0
+    @State private var view = 7.0
+    @State private var pigeonClaimed = false
+    @State private var note = ""
+    @State private var validationMessage: String?
+
+    private let accent = CorpPalette.parkGreen
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    coordinateTicket
+
+                    DumbCard(accent: accent) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            DumbField("Bench name", maxLength: 80, text: $name)
+                                .accessibilityIdentifier("benchNameField")
+                            ratingSlider("Comfort", value: $comfort, icon: "chair.lounge.fill")
+                            ratingSlider("Shade", value: $shade, icon: "leaf.fill")
+                            ratingSlider("View", value: $view, icon: "binoculars.fill")
+                            Toggle("Pigeon has claimed jurisdiction", isOn: $pigeonClaimed)
+                                .font(.subheadline.weight(.bold))
+                                .tint(accent)
+                                .accessibilityIdentifier("pigeonClaimedToggle")
+                        }
+                    }
+
+                    DumbCard(accent: accent) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("FIELD NOTE · OPTIONAL")
+                                .font(.caption2.weight(.black))
+                                .tracking(1.0)
+                                .foregroundStyle(accent)
+                            TextEditor(text: $note)
+                                .frame(minHeight: 90)
+                                .scrollContentBackground(.hidden)
+                                .padding(8)
+                                .background(CorpPalette.canvas.opacity(0.7), in: RoundedRectangle(cornerRadius: 14))
+                                .accessibilityLabel("Bench note")
+                                .accessibilityIdentifier("benchNoteField")
+                                .onChange(of: note) { _, value in
+                                    if value.count > 300 {
+                                        note = String(value.prefix(300))
+                                    }
+                                }
+                            Text("\(note.count)/300")
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(CorpPalette.mutedInk)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+                    }
+
+                    if let validationMessage {
+                        Label(validationMessage, systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(CorpPalette.warningRed)
+                            .accessibilityIdentifier("benchValidationMessage")
+                    }
+
+                    DumbAction(title: "File this bench", accent: accent, systemImage: "tray.and.arrow.down.fill", action: save)
+                        .accessibilityIdentifier("saveBenchReviewButton")
+                }
+                .padding(18)
+            }
+            .background(CorpPalette.canvas.ignoresSafeArea())
+            .navigationTitle("New bench file")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private var coordinateTicket: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "mappin.and.ellipse")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(accent)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("MAP PIN")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.1)
+                    .foregroundStyle(accent)
+                Text("\(draft.coordinate.latitude, specifier: "%.5f"), \(draft.coordinate.longitude, specifier: "%.5f")")
+                    .font(.caption.monospacedDigit().weight(.semibold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private func ratingSlider(_ title: String, value: Binding<Double>, icon: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Label(title, systemImage: icon)
+                    .font(.subheadline.weight(.bold))
+                Spacer()
+                Text("\(Int(value.wrappedValue))/10")
+                    .font(.caption.monospacedDigit().weight(.black))
+                    .foregroundStyle(accent)
+            }
+            Slider(value: value, in: 0...10, step: 1)
+                .tint(accent)
+                .accessibilityValue("\(Int(value.wrappedValue)) out of 10")
+        }
+    }
+
+    private func save() {
+        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanName.isEmpty else {
+            validationMessage = "Give the bench a name before filing it."
+            return
+        }
+
+        validationMessage = nil
+        onSave(
+            String(cleanName.prefix(80)),
+            Int(comfort),
+            Int(shade),
+            Int(view),
+            pigeonClaimed,
+            note.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        dismiss()
+    }
+}
