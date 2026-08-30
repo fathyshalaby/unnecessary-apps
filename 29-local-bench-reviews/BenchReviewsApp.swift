@@ -46,6 +46,12 @@ private struct BenchReview: Codable, Identifiable, Hashable {
 private struct BenchDraft: Identifiable {
     let id = UUID()
     let coordinate: BenchCoordinate
+    let existingReview: BenchReview?
+
+    init(coordinate: BenchCoordinate, existingReview: BenchReview? = nil) {
+        self.coordinate = coordinate
+        self.existingReview = existingReview
+    }
 }
 
 @MainActor
@@ -91,6 +97,32 @@ private final class BenchReviewStore {
         )
         reviews.insert(review, at: 0)
         reviews = Array(reviews.prefix(Self.maximumReviews))
+        persist()
+    }
+
+    func update(
+        id: UUID,
+        coordinate: BenchCoordinate,
+        name: String,
+        comfort: Int,
+        shade: Int,
+        view: Int,
+        pigeonClaimed: Bool,
+        note: String
+    ) {
+        guard let index = reviews.firstIndex(where: { $0.id == id }) else { return }
+        let existing = reviews[index]
+        reviews[index] = BenchReview(
+            id: id,
+            createdAt: existing.createdAt,
+            coordinate: coordinate,
+            name: name,
+            comfort: comfort,
+            shade: shade,
+            view: view,
+            pigeonClaimed: pigeonClaimed,
+            note: note
+        )
         persist()
     }
 
@@ -187,15 +219,13 @@ private final class BenchLocationService: NSObject, @preconcurrency CLLocationMa
 
 struct BenchReviewsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private static let fallbackRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738),
-        span: MKCoordinateSpan(latitudeDelta: 0.018, longitudeDelta: 0.018)
-    )
+    private static let regionStorageKey = "benchReviews.region"
+    private static let initialRegion = MapJournalRegionStore.load(storageKey: regionStorageKey)
 
     @State private var store = BenchReviewStore()
     @State private var locationService = BenchLocationService()
-    @State private var cameraPosition: MapCameraPosition = .region(fallbackRegion)
-    @State private var mapCenter = BenchCoordinate(fallbackRegion.center)
+    @State private var cameraPosition: MapCameraPosition = .region(initialRegion)
+    @State private var mapCenter = BenchCoordinate(initialRegion.center)
     @State private var selectedReviewID: UUID?
     @State private var presentedDraft: BenchDraft?
     @State private var showClearConfirmation = false
@@ -215,16 +245,30 @@ struct BenchReviewsView: View {
         .environment(\.dumbExperienceStyle, .map)
         .sheet(item: $presentedDraft) { draft in
             BenchEditorSheet(draft: draft) { name, comfort, shade, view, pigeonClaimed, note in
-                store.add(
-                    coordinate: draft.coordinate,
-                    name: name,
-                    comfort: comfort,
-                    shade: shade,
-                    view: view,
-                    pigeonClaimed: pigeonClaimed,
-                    note: note
-                )
-                selectedReviewID = store.reviews.first?.id
+                if let existing = draft.existingReview {
+                    store.update(
+                        id: existing.id,
+                        coordinate: draft.coordinate,
+                        name: name,
+                        comfort: comfort,
+                        shade: shade,
+                        view: view,
+                        pigeonClaimed: pigeonClaimed,
+                        note: note
+                    )
+                    selectedReviewID = existing.id
+                } else {
+                    store.add(
+                        coordinate: draft.coordinate,
+                        name: name,
+                        comfort: comfort,
+                        shade: shade,
+                        view: view,
+                        pigeonClaimed: pigeonClaimed,
+                        note: note
+                    )
+                    selectedReviewID = store.reviews.first?.id
+                }
             }
         }
         .confirmationDialog(
@@ -314,15 +358,10 @@ struct BenchReviewsView: View {
         }
         .onMapCameraChange(frequency: .onEnd) { context in
             mapCenter = BenchCoordinate(context.region.center)
+            MapJournalRegionStore.save(context.region, storageKey: Self.regionStorageKey)
         }
         .overlay {
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: 26, weight: .bold))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(accent, CorpPalette.surface)
-                .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+            MapJournalCrosshair(accent: accent)
         }
         .overlay(alignment: .topTrailing) {
             Button {
@@ -408,6 +447,8 @@ struct BenchReviewsView: View {
                     ForEach(store.reviews) { review in
                         BenchReviewCard(review: review, accent: accent) {
                             selectedReviewID = review.id
+                        } onEdit: {
+                            presentedDraft = BenchDraft(coordinate: review.coordinate, existingReview: review)
                         } onDelete: {
                             if selectedReviewID == review.id {
                                 selectedReviewID = nil
@@ -447,10 +488,33 @@ struct BenchReviewsView: View {
     }
 }
 
+private struct MapJournalCrosshair: View {
+    let accent: Color
+
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(accent.opacity(0.88))
+                .frame(width: 24, height: 2)
+            Rectangle()
+                .fill(accent.opacity(0.88))
+                .frame(width: 2, height: 24)
+            Circle()
+                .fill(accent)
+                .frame(width: 6, height: 6)
+                .overlay(Circle().stroke(CorpPalette.surface, lineWidth: 1.5))
+        }
+        .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
 private struct BenchReviewCard: View {
     let review: BenchReview
     let accent: Color
     let onSelect: () -> Void
+    let onEdit: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
@@ -493,6 +557,8 @@ private struct BenchReviewCard: View {
                 Spacer()
                 Button("Show on map", action: onSelect)
                     .font(.caption.weight(.black))
+                Button("Edit", action: onEdit)
+                    .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {
                     Image(systemName: "trash")
                 }
@@ -523,15 +589,32 @@ private struct BenchEditorSheet: View {
     let draft: BenchDraft
     let onSave: (String, Int, Int, Int, Bool, String) -> Void
 
-    @State private var name = ""
-    @State private var comfort = 7.0
-    @State private var shade = 6.0
-    @State private var view = 7.0
-    @State private var pigeonClaimed = false
-    @State private var note = ""
+    @State private var name: String
+    @State private var comfort: Double
+    @State private var shade: Double
+    @State private var view: Double
+    @State private var pigeonClaimed: Bool
+    @State private var note: String
     @State private var validationMessage: String?
 
     private let accent = CorpPalette.parkGreen
+
+    init(
+        draft: BenchDraft,
+        onSave: @escaping (String, Int, Int, Int, Bool, String) -> Void
+    ) {
+        self.draft = draft
+        self.onSave = onSave
+        let review = draft.existingReview
+        _name = State(initialValue: review?.name ?? "")
+        _comfort = State(initialValue: Double(review?.comfort ?? 7))
+        _shade = State(initialValue: Double(review?.shade ?? 6))
+        _view = State(initialValue: Double(review?.view ?? 7))
+        _pigeonClaimed = State(initialValue: review?.pigeonClaimed ?? false)
+        _note = State(initialValue: review?.note ?? "")
+    }
+
+    private var isEditing: Bool { draft.existingReview != nil }
 
     var body: some View {
         NavigationStack {
@@ -585,13 +668,18 @@ private struct BenchEditorSheet: View {
                             .accessibilityIdentifier("benchValidationMessage")
                     }
 
-                    DumbAction(title: "File this bench", accent: accent, systemImage: "tray.and.arrow.down.fill", action: save)
+                    DumbAction(
+                        title: isEditing ? "Update bench review" : "File this bench",
+                        accent: accent,
+                        systemImage: "tray.and.arrow.down.fill",
+                        action: save
+                    )
                         .accessibilityIdentifier("saveBenchReviewButton")
                 }
                 .padding(18)
             }
             .background(CorpPalette.canvas.ignoresSafeArea())
-            .navigationTitle("New bench file")
+            .navigationTitle(isEditing ? "Edit bench review" : "New bench file")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
