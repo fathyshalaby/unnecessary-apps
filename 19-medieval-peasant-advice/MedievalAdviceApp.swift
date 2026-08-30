@@ -35,6 +35,7 @@ struct MedievalAdviceView: View {
                 title: isGenerating ? "Consulting the peasant…" : "Seek village wisdom",
                 accent: accent,
                 systemImage: "person.fill.questionmark",
+                isLoading: isGenerating,
                 action: seekWisdom
             )
             .disabled(isGenerating)
@@ -43,18 +44,11 @@ struct MedievalAdviceView: View {
             DumbResult(text: answer, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
                 .accessibilityIdentifier("peasantAnswer")
 
-            HStack(spacing: 8) {
-                if isGenerating {
-                    ProgressView()
-                        .tint(accent)
-                }
-                Text(modelStatus)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("modelStatus")
+            Text(modelStatus)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("modelStatus")
 
             Button {
                 question = ""

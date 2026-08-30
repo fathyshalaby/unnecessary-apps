@@ -57,6 +57,7 @@ struct ApologyDraftView: View {
                 title: isGenerating ? "Consulting the apology department…" : "Draft a \(tone.lowercased()) apology",
                 accent: accent,
                 systemImage: "pencil.and.scribble",
+                isLoading: isGenerating,
                 action: generateDraft
             )
             .disabled(isGenerating || crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -70,18 +71,11 @@ struct ApologyDraftView: View {
             )
             .accessibilityIdentifier("apologyDraft")
 
-            HStack(spacing: 8) {
-                if isGenerating {
-                    ProgressView()
-                        .tint(accent)
-                }
-                Text(modelStatus)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("modelStatus")
+            Text(modelStatus)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("modelStatus")
 
             HStack(spacing: 12) {
                 Button {

@@ -181,6 +181,17 @@ struct TinyMuseumView: View {
                 .accessibilityLabel("Clear the complete museum")
                 .accessibilityIdentifier("clearMuseumButton")
             }
+        } bottomBar: {
+            if canOpenExhibition {
+                DumbAction(
+                    title: exhibits.count >= MuseumArchive.limit ? "Museum at capacity" : "Open this exhibition",
+                    accent: accent,
+                    systemImage: "building.columns.fill",
+                    action: openExhibition
+                )
+                .disabled(exhibitsAtCapacity)
+                .accessibilityIdentifier("openTinyExhibitionButton")
+            }
         }
         .confirmationDialog(
             "Permanently close every exhibit?",
@@ -234,21 +245,6 @@ struct TinyMuseumView: View {
                         Button("Close") { selectedExhibit = nil }
                     }
                 }
-            }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if canOpenExhibition {
-                DumbAction(
-                    title: exhibits.count >= MuseumArchive.limit ? "Museum at capacity" : "Open this exhibition",
-                    accent: accent,
-                    systemImage: "building.columns.fill",
-                    action: openExhibition
-                )
-                .disabled(exhibitsAtCapacity)
-                .accessibilityIdentifier("openTinyExhibitionButton")
-                .padding(.horizontal, DumbSpacing.md)
-                .padding(.vertical, DumbSpacing.sm)
-                .background(CorpPalette.canvas.opacity(0.96))
             }
         }
     }
