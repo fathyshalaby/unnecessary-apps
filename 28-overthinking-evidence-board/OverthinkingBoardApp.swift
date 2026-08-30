@@ -33,7 +33,7 @@ private struct ReflectionCase: Codable, Identifiable {
 
 @main
 struct OverthinkingBoardApp: App {
-    var body: some Scene { WindowGroup { OverthinkingBoardView() } }
+    var body: some Scene { WindowGroup { OverthinkingBoardView().dumbNativeEntry(scheme: "app28overthinkingboard") { _, _ in } } }
 }
 
 struct OverthinkingBoardView: View {
@@ -109,8 +109,21 @@ struct OverthinkingBoardView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(cases.isEmpty)
             .accessibilityIdentifier("manageOverthinkingArchiveButton")
+
+            DumbNativeTip(
+                "Share from anywhere",
+                detail: "Share selected text from Notes or Messages to pin it on the evidence board.",
+                systemImage: "square.and.arrow.down",
+                accent: accent
+            )
         }
-        .onAppear(perform: restoreCases)
+        .onAppear {
+            restoreCases()
+            if let shared = DumbSharedPayload.consume(for: .overthinking) {
+                worry = shared
+                evidenceSectionsExpanded = false
+            }
+        }
         .onChange(of: worry) { _, _ in invalidateConclusion() }
         .onChange(of: evidenceFor) { _, _ in invalidateConclusion() }
         .onChange(of: evidenceAgainst) { _, _ in invalidateConclusion() }

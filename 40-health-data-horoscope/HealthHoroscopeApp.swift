@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct HealthHoroscopeApp: App {
     var body: some Scene {
-        WindowGroup { HealthHoroscopeView() }
+        WindowGroup { HealthHoroscopeView().dumbNativeEntry(scheme: "app40healthhoroscope") { _, _ in } }
     }
 }
 

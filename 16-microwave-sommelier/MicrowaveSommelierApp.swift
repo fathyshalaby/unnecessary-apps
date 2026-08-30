@@ -33,7 +33,7 @@ private struct HeatConversion: Codable, Identifiable {
 
 @main
 struct MicrowaveSommelierApp: App {
-    var body: some Scene { WindowGroup { MicrowaveView() } }
+    var body: some Scene { WindowGroup { MicrowaveView().dumbNativeEntry(scheme: "app16microwavesommelier") { _, _ in } } }
 }
 
 struct MicrowaveView: View {

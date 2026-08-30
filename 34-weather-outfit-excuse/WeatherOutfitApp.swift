@@ -1,7 +1,7 @@
 import SwiftUI
 import DumbKit
 
-@main struct WeatherOutfitApp: App { var body: some Scene { WindowGroup { WeatherOutfitView() } } }
+@main struct WeatherOutfitApp: App { var body: some Scene { WindowGroup { WeatherOutfitView().dumbNativeEntry(scheme: "app34weatheroutfit") { _, _ in } } } }
 struct WeatherOutfitView: View {
     @AppStorage("weatherOutfit.outfit") private var outfit = ""
     @AppStorage("weatherOutfit.temperature") private var temperature = 14.0

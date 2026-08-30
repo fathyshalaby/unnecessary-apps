@@ -4,7 +4,7 @@ import DumbKit
 
 @main
 struct MedievalAdviceApp: App {
-    var body: some Scene { WindowGroup { MedievalAdviceView() } }
+    var body: some Scene { WindowGroup { MedievalAdviceView().dumbNativeEntry(scheme: "app19medievaladvice") { _, _ in } } }
 }
 
 struct MedievalAdviceView: View {

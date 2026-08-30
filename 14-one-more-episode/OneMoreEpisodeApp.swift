@@ -30,7 +30,7 @@ private struct EpisodeForecast: Codable, Identifiable {
 
 @main
 struct OneMoreEpisodeApp: App {
-    var body: some Scene { WindowGroup { OneMoreEpisodeView() } }
+    var body: some Scene { WindowGroup { OneMoreEpisodeView().dumbNativeEntry(scheme: "app14onemoreepisode") { _, _ in } } }
 }
 
 struct OneMoreEpisodeView: View {

@@ -1,9 +1,12 @@
 import SwiftUI
 import DumbKit
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 @main
 struct QueuePersonalityApp: App {
-    var body: some Scene { WindowGroup { QueuePersonalityView() } }
+    var body: some Scene { WindowGroup { QueuePersonalityView().dumbNativeEntry(scheme: "app33queuepersonality") { _, _ in } } }
 }
 
 private struct ActiveQueue: Codable, Identifiable {
@@ -352,6 +355,9 @@ struct QueuePersonalityView: View {
         persistActive()
         if queue.remindersEnabled { scheduleTurnReminder(for: queue) }
         clearDraft(keepTicket: true)
+        #if canImport(ActivityKit)
+        Task { await QueueLivePresentation.begin(queue: queue) }
+        #endif
     }
 
     private func personServed() {
@@ -361,6 +367,9 @@ struct QueuePersonalityView: View {
             ? "YOU APPEAR TO BE NEXT — confirm when you reach the front."
             : "PROGRESS — \(queue.peopleServed) observed served; \(queue.peopleAhead) remain ahead. ETA now uses observed pace."
         persistActive(); rescheduleIfNeeded(queue)
+        #if canImport(ActivityKit)
+        if let queue = activeQueue { Task { await QueueLivePresentation.update(queue: queue) } }
+        #endif
     }
 
     private func personJoinedAhead() {
@@ -368,6 +377,9 @@ struct QueuePersonalityView: View {
         queue.peopleAhead = min(99, queue.peopleAhead + 1); queue.lastUpdatedAt = Date(); activeQueue = queue
         latestTicket = "QUEUE UPDATE — one person joined ahead by your report; \(queue.peopleAhead) now remain."
         persistActive(); rescheduleIfNeeded(queue)
+        #if canImport(ActivityKit)
+        if let queue = activeQueue { Task { await QueueLivePresentation.update(queue: queue) } }
+        #endif
     }
 
     private func correctOneFewer() {
@@ -375,6 +387,9 @@ struct QueuePersonalityView: View {
         queue.peopleAhead -= 1; queue.lastUpdatedAt = Date(); activeQueue = queue
         latestTicket = "POSITION CORRECTED — \(queue.peopleAhead) now remain ahead. This correction does not count as observed service."
         persistActive(); rescheduleIfNeeded(queue)
+        #if canImport(ActivityKit)
+        if let queue = activeQueue { Task { await QueueLivePresentation.update(queue: queue) } }
+        #endif
     }
 
     private func finish(_ outcome: QueueOutcome) {
@@ -391,6 +406,9 @@ struct QueuePersonalityView: View {
             ? "SESSION COMPLETE — \(record.name), \(formatDuration(record.secondsWaited)). Archetype: The Evidence-Based Optimist."
             : "SESSION ENDED — left \(record.name) after \(formatDuration(record.secondsWaited)). Archetype: The Boundary Setter."
         persistActive(); persistHistory()
+        #if canImport(ActivityKit)
+        Task { await QueueLivePresentation.finish(sessionID: queue.id) }
+        #endif
     }
 
     private func delete(_ record: QueueRecord) {
@@ -485,6 +503,37 @@ struct QueuePersonalityView: View {
         storedHistory = encoded
     }
 }
+
+#if canImport(ActivityKit)
+private enum QueueLivePresentation {
+    static func begin(queue: ActiveQueue) async {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let attributes = QueueActivityAttributes(queueName: queue.name, sessionID: queue.id)
+        let state = QueueActivityAttributes.ContentState(
+            peopleAhead: queue.peopleAhead,
+            status: "Waiting in \(queue.name)"
+        )
+        let content = ActivityContent(state: state, staleDate: nil)
+        _ = try? Activity.request(attributes: attributes, content: content, pushType: nil)
+    }
+
+    static func update(queue: ActiveQueue) async {
+        let state = QueueActivityAttributes.ContentState(
+            peopleAhead: queue.peopleAhead,
+            status: queue.peopleAhead == 0 ? "Your turn" : "\(queue.peopleServed) served so far"
+        )
+        for activity in Activity<QueueActivityAttributes>.activities where activity.attributes.sessionID == queue.id {
+            await activity.update(ActivityContent(state: state, staleDate: nil))
+        }
+    }
+
+    static func finish(sessionID: UUID) async {
+        for activity in Activity<QueueActivityAttributes>.activities where activity.attributes.sessionID == sessionID {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
+    }
+}
+#endif
 
 #if canImport(PreviewsMacros)
 #Preview { QueuePersonalityView() }

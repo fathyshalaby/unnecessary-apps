@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct HumanGPSApp: App {
-    var body: some Scene { WindowGroup { HumanGPSView() } }
+    var body: some Scene { WindowGroup { HumanGPSView().dumbNativeEntry(scheme: "app31humangps") { _, _ in } } }
 }
 
 struct HumanGPSView: View {

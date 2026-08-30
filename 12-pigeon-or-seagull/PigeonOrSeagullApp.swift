@@ -5,7 +5,7 @@ import UIKit
 import ImageIO
 import DumbKit
 
-@main struct PigeonOrSeagullApp: App { var body: some Scene { WindowGroup { PigeonView() } } }
+@main struct PigeonOrSeagullApp: App { var body: some Scene { WindowGroup { PigeonView().dumbNativeEntry(scheme: "app12pigeonorseagull") { _, _ in } } } }
 struct PigeonView: View {
     @AppStorage("birdGuess.nearWater") private var nearWater = false
     @AppStorage("birdGuess.looksAngry") private var looksAngry = true

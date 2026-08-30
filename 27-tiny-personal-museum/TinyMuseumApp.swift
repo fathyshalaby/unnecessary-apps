@@ -6,7 +6,7 @@ import DumbKit
 
 @main
 struct TinyMuseumApp: App {
-    var body: some Scene { WindowGroup { TinyMuseumView() } }
+    var body: some Scene { WindowGroup { TinyMuseumView().dumbNativeEntry(scheme: "app27tinymuseum") { _, _ in } } }
 }
 
 private struct MuseumExhibit: Identifiable, Codable, Equatable {

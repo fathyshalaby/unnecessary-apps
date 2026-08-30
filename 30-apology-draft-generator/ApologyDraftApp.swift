@@ -136,9 +136,18 @@ struct ApologyDraftView: View {
                 tone = restoredTone
             }
         }
+        .onAppear {
+            if let shared = DumbSharedPayload.consume(for: .apology) {
+                crime = shared
+            }
+        }
     }
 
     private func handleNativeRoute(_ action: String, _ payload: String) {
+        if action == "share", let shared = DumbSharedPayload.consume(for: .apology) {
+            crime = shared
+            return
+        }
         guard action == "draft" else { return }
         if !payload.isEmpty {
             crime = payload

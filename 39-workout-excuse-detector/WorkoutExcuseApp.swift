@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct WorkoutExcuseApp: App {
     var body: some Scene {
-        WindowGroup { WorkoutExcuseView() }
+        WindowGroup { WorkoutExcuseView().dumbNativeEntry(scheme: "app39workoutexcuse") { _, _ in } }
     }
 }
 

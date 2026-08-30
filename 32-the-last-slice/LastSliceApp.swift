@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct LastSliceApp: App {
-    var body: some Scene { WindowGroup { LastSliceView() } }
+    var body: some Scene { WindowGroup { LastSliceView().dumbNativeEntry(scheme: "app32lastslice") { _, _ in } } }
 }
 
 private struct SliceRuling: Codable, Identifiable {

@@ -115,15 +115,64 @@ LOCATION_USAGE_DESCRIPTIONS = {
     "App29BenchReviews": "Local Bench Reviews uses your location only when you ask it to center the map near you. Reviews and coordinates stay on this device.",
     "App36StepDebt": "Step Debt uses your location only when you ask it to find a nearby walking route. It does not store or upload your location.",
 }
-NATIVE_URL_SCHEME_TARGETS = {
+NATIVE_URL_SCHEME_TARGETS = {target for target, _ in APPS}
+APP_GROUP_ENTITLEMENTS = "config/UnnecessaryAppGroup.entitlements"
+APP_GROUP_HOST_TARGETS = {
     "App03DoNotTextThem",
-    "App13ToiletTimer",
+    "App20RealEmail",
+    "App28OverthinkingBoard",
     "App30ApologyDraft",
+    "App33QueuePersonality",
     "App36StepDebt",
+    "App38HeartRateEmail",
+    "App42WalkingMeeting",
     "App43HydrationNarc",
+}
+LIVE_ACTIVITY_HOST_TARGETS = {
+    "App13ToiletTimer",
+    "App33QueuePersonality",
+    "App42WalkingMeeting",
 }
 APP_EXTENSION_ONLY_SOURCES = {
     "App13ToiletTimer": {"ToiletTimerLiveActivity.swift"},
+    "App03DoNotTextThem": {"DoNotTextThemWidget.swift"},
+    "App36StepDebt": {"StepDebtWidget.swift"},
+    "App43HydrationNarc": {"HydrationNarcWidget.swift"},
+    "App33QueuePersonality": {"QueueLiveActivity.swift"},
+    "App42WalkingMeeting": {"WalkingMeetingLiveActivity.swift"},
+    "App30ApologyDraft": {"ApologyDraftShareExtension.swift"},
+    "App20RealEmail": {"RealEmailShareExtension.swift"},
+    "App28OverthinkingBoard": {"OverthinkingShareExtension.swift"},
+    "App38HeartRateEmail": {"HeartRateShareExtension.swift"},
+}
+EXTENSIONS_FOR_HOST = {
+    "App03DoNotTextThem": [
+        {"name": "DoNotTextThemWidgetExtension", "kind": "widget", "sources": ["DoNotTextThemWidget.swift"], "shared": []},
+    ],
+    "App36StepDebt": [
+        {"name": "StepDebtWidgetExtension", "kind": "widget", "sources": ["StepDebtWidget.swift"], "shared": []},
+    ],
+    "App43HydrationNarc": [
+        {"name": "HydrationNarcWidgetExtension", "kind": "widget", "sources": ["HydrationNarcWidget.swift"], "shared": []},
+    ],
+    "App30ApologyDraft": [
+        {"name": "ApologyDraftShareExtension", "kind": "share", "sources": ["ApologyDraftShareExtension.swift"], "shared": ["DumbShareExtensionController.swift"], "plist": "ApologyDraftShareInfo.plist"},
+    ],
+    "App20RealEmail": [
+        {"name": "RealEmailShareExtension", "kind": "share", "sources": ["RealEmailShareExtension.swift"], "shared": ["DumbShareExtensionController.swift"], "plist": "RealEmailShareInfo.plist"},
+    ],
+    "App28OverthinkingBoard": [
+        {"name": "OverthinkingShareExtension", "kind": "share", "sources": ["OverthinkingShareExtension.swift"], "shared": ["DumbShareExtensionController.swift"], "plist": "OverthinkingShareInfo.plist"},
+    ],
+    "App38HeartRateEmail": [
+        {"name": "HeartRateShareExtension", "kind": "share", "sources": ["HeartRateShareExtension.swift"], "shared": ["DumbShareExtensionController.swift"], "plist": "HeartRateShareInfo.plist"},
+    ],
+    "App33QueuePersonality": [
+        {"name": "QueueLiveActivityExtension", "kind": "live", "sources": ["QueueActivityAttributes.swift", "QueueLiveActivity.swift"], "shared": [], "plist": "QueueLiveActivityInfo.plist"},
+    ],
+    "App42WalkingMeeting": [
+        {"name": "WalkingMeetingLiveActivityExtension", "kind": "live", "sources": ["WalkingMeetingActivityAttributes.swift", "WalkingMeetingLiveActivity.swift"], "shared": [], "plist": "WalkingMeetingLiveActivityInfo.plist"},
+    ],
 }
 
 
@@ -159,6 +208,14 @@ shared_file_ids = [
 shared_group = add(
     "group/shared",
     "PBXGroup = {\n\t\tisa = PBXGroup;\n\t\tchildren = (\n\t\t\t%s\n\t\t);\n\t\tpath = shared;\n\t\tsourceTree = \"<group>\";\n\t};" % "\n\t\t\t".join(f"{x}," for x in shared_file_ids),
+)
+extensions_share_source = file_ref(
+    "extensions/DumbShareExtensionController.swift",
+    "../extensions/DumbShareExtensionController.swift",
+)
+extensions_group = add(
+    "group/extensions",
+    f"PBXGroup = {{ isa = PBXGroup; children = ({extensions_share_source},); path = extensions; sourceTree = \"<group>\"; }};",
 )
 
 library_product = file_ref("product/DumbKit", "libDumbKit.a", "archive.ar")
@@ -245,6 +302,10 @@ def app_settings(target: str, slug: str) -> str:
         settings.append(f'INFOPLIST_KEY_NSCameraUsageDescription = "{CAMERA_USAGE_DESCRIPTIONS[target]}";')
     if target in LOCATION_USAGE_DESCRIPTIONS:
         settings.append(f'INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "{LOCATION_USAGE_DESCRIPTIONS[target]}";')
+    if target in APP_GROUP_HOST_TARGETS:
+        settings.append(f"CODE_SIGN_ENTITLEMENTS = {APP_GROUP_ENTITLEMENTS};")
+    if target in LIVE_ACTIVITY_HOST_TARGETS:
+        settings.append("INFOPLIST_KEY_NSSupportsLiveActivities = YES;")
     if target == "App13ToiletTimer":
         settings.extend([
             'PROVISIONING_PROFILE_SPECIFIER = "Unnecessary Apps Store 13";',
@@ -331,6 +392,117 @@ live_activity_target = add(
 app_target_ids.append(live_activity_target)
 
 
+def extension_build_settings(host_target: str, kind: str, slug: str, plist: str | None) -> str:
+    bundle_suffix = {"widget": "widget", "share": "share", "live": "liveactivity"}[kind]
+    lines = [
+        "APPLICATION_EXTENSION_API_ONLY = YES;",
+        "CLANG_ENABLE_MODULES = YES;",
+        "CODE_SIGNING_ALLOWED = YES;",
+        "CODE_SIGNING_REQUIRED = YES;",
+        "CODE_SIGN_STYLE = Automatic;",
+        "CURRENT_PROJECT_VERSION = 2;",
+        f'DEVELOPMENT_TEAM = "{DEVELOPMENT_TEAM}";',
+        "GENERATE_INFOPLIST_FILE = NO;",
+        f"CODE_SIGN_ENTITLEMENTS = {APP_GROUP_ENTITLEMENTS};",
+        "IPHONEOS_DEPLOYMENT_TARGET = 17.0;",
+        'LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";',
+        "MARKETING_VERSION = 1.0;",
+        f"PRODUCT_BUNDLE_IDENTIFIER = corp.unecessary.{host_target.lower()}.{bundle_suffix};",
+        'PRODUCT_NAME = "$(TARGET_NAME)";',
+        "SDKROOT = iphoneos;",
+        "SKIP_INSTALL = YES;",
+        'SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";',
+        "SWIFT_VERSION = 5.0;",
+        'TARGETED_DEVICE_FAMILY = "1,2";',
+    ]
+    if kind == "widget":
+        lines.append("INFOPLIST_FILE = config/WidgetKitExtensionInfo.plist;")
+    else:
+        lines.append(f"INFOPLIST_FILE = {slug}/{plist};")
+    return "\n".join(lines)
+
+
+def create_extension_target(host_target: str, slug: str, spec: dict) -> tuple[str, str, str]:
+    ext_name = spec["name"]
+    kind = spec["kind"]
+    plist = spec.get("plist")
+    source_refs = [file_ref(f"{slug}/{name}", name) for name in spec["sources"]]
+    shared_refs = []
+    for shared_name in spec.get("shared", []):
+        shared_refs.append(file_ref(f"extensions/{shared_name}", f"../extensions/{shared_name}"))
+    all_refs = source_refs + shared_refs
+    source_builds = [
+        add(f"build/{ext_name}/{ref}", f"PBXBuildFile = {{ isa = PBXBuildFile; fileRef = {ref}; }};")
+        for ref in all_refs
+    ]
+    link_build = add(
+        f"build/{ext_name}/DumbKit",
+        f"PBXBuildFile = {{ isa = PBXBuildFile; fileRef = {library_product}; }};",
+    ) if kind in {"widget", "live"} else None
+    framework_files = f"{link_build}," if link_build else ""
+    sources_phase = add(
+        f"phase/{ext_name}/sources",
+        f"PBXSourcesBuildPhase = {{ isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ({', '.join(x + ',' for x in source_builds)}); runOnlyForDeploymentPostprocessing = 0; }};",
+    )
+    frameworks_phase = add(
+        f"phase/{ext_name}/frameworks",
+        f"PBXFrameworksBuildPhase = {{ isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ({framework_files}); runOnlyForDeploymentPostprocessing = 0; }};",
+    )
+    resources_phase = add(
+        f"phase/{ext_name}/resources",
+        "PBXResourcesBuildPhase = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };",
+    )
+    product = file_ref(f"product/{ext_name}", f"{ext_name}.appex", "wrapper.app-extension")
+    products_group_children.append(product)
+    settings_body = extension_build_settings(host_target, kind, slug, plist)
+    debug = add(
+        f"config/{ext_name}/debug",
+        f"XCBuildConfiguration = {{ isa = XCBuildConfiguration; buildSettings = {{ {settings_body} }}; name = Debug; }};",
+    )
+    release = add(
+        f"config/{ext_name}/release",
+        f"XCBuildConfiguration = {{ isa = XCBuildConfiguration; buildSettings = {{ {settings_body} }}; name = Release; }};",
+    )
+    config_list = add(
+        f"config/{ext_name}/list",
+        f"XCConfigurationList = {{ isa = XCConfigurationList; buildConfigurations = ({debug}, {release}); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; }};",
+    )
+    ext_dependencies = []
+    if link_build:
+        dumbkit_proxy = add(
+            f"proxy/{ext_name}/DumbKit",
+            f"PBXContainerItemProxy = {{ isa = PBXContainerItemProxy; containerPortal = PROJECT; proxyType = 1; remoteGlobalID = {library_target}; remoteInfo = DumbKit; }};",
+        )
+        ext_dependencies.append(
+            add(
+                f"dependency/{ext_name}/DumbKit",
+                f"PBXTargetDependency = {{ isa = PBXTargetDependency; target = {library_target}; targetProxy = {dumbkit_proxy}; }};",
+            )
+        )
+    ext_target = add(
+        f"target/{ext_name}",
+        f"PBXNativeTarget = {{ isa = PBXNativeTarget; buildConfigurationList = {config_list}; buildPhases = ({sources_phase}, {frameworks_phase}, {resources_phase}); buildRules = (); dependencies = ({', '.join(x + ',' for x in ext_dependencies)}); name = {ext_name}; productName = {ext_name}; productReference = {product}; productType = \"com.apple.product-type.app-extension\"; }};",
+    )
+    app_target_ids.append(ext_target)
+    embed_build = add(
+        f"build/{host_target}/embed-{ext_name}",
+        f"PBXBuildFile = {{ isa = PBXBuildFile; fileRef = {product}; settings = {{ ATTRIBUTES = (RemoveHeadersOnCopy,); }}; }};",
+    )
+    embed_phase = add(
+        f"phase/{host_target}/embed-{ext_name}",
+        f"PBXCopyFilesBuildPhase = {{ isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = \"\"; dstSubfolderSpec = 13; files = ({embed_build},); name = \"Embed App Extensions\"; runOnlyForDeploymentPostprocessing = 0; }};",
+    )
+    ext_proxy = add(
+        f"proxy/{host_target}/{ext_name}",
+        f"PBXContainerItemProxy = {{ isa = PBXContainerItemProxy; containerPortal = PROJECT; proxyType = 1; remoteGlobalID = {ext_target}; remoteInfo = {ext_name}; }};",
+    )
+    ext_dependency = add(
+        f"dependency/{host_target}/{ext_name}",
+        f"PBXTargetDependency = {{ isa = PBXTargetDependency; target = {ext_target}; targetProxy = {ext_proxy}; }};",
+    )
+    return embed_phase, ext_dependency
+
+
 for target_name, slug in APPS:
     all_source_paths = sorted(p.name for p in (ROOT / slug).glob("*.swift"))
     source_paths = [
@@ -359,6 +531,8 @@ for target_name, slug in APPS:
     if target_name in HEALTHKIT_CONFIG:
         entitlements_path = HEALTHKIT_CONFIG[target_name][0]
         group_refs.append(file_ref(entitlements_path, f"../{entitlements_path}", "text.plist.entitlements"))
+    if target_name in APP_GROUP_HOST_TARGETS:
+        group_refs.append(file_ref(APP_GROUP_ENTITLEMENTS, f"../{APP_GROUP_ENTITLEMENTS}", "text.plist.entitlements"))
     group = add(
         f"group/{slug}",
         "PBXGroup = {\n\t\tisa = PBXGroup;\n\t\tchildren = (\n\t\t\t%s\n\t\t);\n\t\tpath = %s;\n\t\tsourceTree = \"<group>\";\n\t};" % ("\n\t\t\t".join(x + "," for x in group_refs), slug),
@@ -409,6 +583,10 @@ for target_name, slug in APPS:
         )
         build_phases.append(live_activity_embed_phase)
         dependencies.append(live_activity_dependency)
+    for spec in EXTENSIONS_FOR_HOST.get(target_name, []):
+        embed_phase, ext_dependency = create_extension_target(target_name, slug, spec)
+        build_phases.append(embed_phase)
+        dependencies.append(ext_dependency)
     target_id = add(
         f"target/{target_name}",
         f"PBXNativeTarget = {{ isa = PBXNativeTarget; buildConfigurationList = {config_list}; buildPhases = ({', '.join(x + ',' for x in build_phases)}); buildRules = (); dependencies = ({', '.join(x + ',' for x in dependencies)}); name = {target_name}; productName = {target_name}; productReference = {product}; productType = \"com.apple.product-type.application\"; }};",
@@ -509,7 +687,7 @@ pilot_ui_test_target = add(
 app_target_ids.append(pilot_ui_test_target)
 
 products_group = add("group/products", f"PBXGroup = {{ isa = PBXGroup; children = ({', '.join(x + ',' for x in products_group_children)}); name = Products; sourceTree = \"<group>\"; }};")
-main_group = add("group/main", f"PBXGroup = {{ isa = PBXGroup; children = ({shared_group}, {products_group}, {test_group}, {', '.join(x + ',' for x in app_groups)}); sourceTree = \"<group>\"; }};")
+main_group = add("group/main", f"PBXGroup = {{ isa = PBXGroup; children = ({shared_group}, {extensions_group}, {products_group}, {test_group}, {', '.join(x + ',' for x in app_groups)}); sourceTree = \"<group>\"; }};")
 project_id = add(
     "project/root",
     f"PBXProject = {{ isa = PBXProject; buildConfigurationList = {project_config_list}; compatibilityVersion = \"Xcode 15.0\"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base,); mainGroup = {main_group}; productRefGroup = {products_group}; projectDirPath = \"\"; projectRoot = \"\"; targets = ({library_target}, {', '.join(x + ',' for x in app_target_ids)}); }};",

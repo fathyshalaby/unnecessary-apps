@@ -7,9 +7,7 @@ import DumbKit
 @main
 struct QuietCafeApp: App {
     var body: some Scene {
-        WindowGroup {
-            QuietCafeView()
-        }
+        WindowGroup { QuietCafeView().dumbNativeEntry(scheme: "app23quietcafe") { _, _ in } }
     }
 }
 

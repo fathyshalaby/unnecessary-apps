@@ -73,7 +73,7 @@ private struct EmailAnalysis {
 @main
 struct RealEmailApp: App {
     var body: some Scene {
-        WindowGroup { RealEmailView() }
+        WindowGroup { RealEmailView().dumbNativeEntry(scheme: "app20realemail") { _, _ in } }
     }
 }
 
@@ -142,6 +142,18 @@ struct RealEmailView: View {
             .disabled(email.isEmpty && analysis == nil)
             .accessibilityIdentifier("clearEmailButton")
             .accessibilityHint("Removes the pasted email from this screen.")
+
+            DumbNativeTip(
+                "Share from Mail",
+                detail: "Use the share sheet in Mail or Notes to send text here for a fog autopsy.",
+                systemImage: "square.and.arrow.down",
+                accent: accent
+            )
+        }
+        .onAppear {
+            if let shared = DumbSharedPayload.consume(for: .realEmail) {
+                email = shared
+            }
         }
         .onDisappear {
             clearEvidence()
