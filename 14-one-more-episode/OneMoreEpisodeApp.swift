@@ -52,36 +52,21 @@ struct OneMoreEpisodeView: View {
     private let accent = CorpPalette.violet
 
     var body: some View {
-        DumbShell(
-            eyebrow: "STREAMING CONSEQUENCES",
-            title: "One more episode?",
-            subtitle: "A transparent trade-off calculator for bedtime bargaining.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "STREAMING CONSEQUENCES",
+                title: "One more episode?",
+                subtitle: "A transparent trade-off calculator for bedtime bargaining.",
+                accent: accent
+            )
+
             assumptionCard
             forecastEditor
 
-            DumbAction(
-                title: "Calculate & file tomorrow",
-                accent: accent,
-                systemImage: "moon.zzz.fill",
-                action: calculateTomorrow
-            )
-            .accessibilityIdentifier("calculateTomorrowButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "play.tv.fill",
-                reactionStyle: .bounce
-            )
-            .accessibilityIdentifier("episodeForecastResult")
-
             Button(action: resetCurrentForecast) {
-                Label("Reset current forecast", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset current forecast", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -91,16 +76,34 @@ struct OneMoreEpisodeView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every forecast", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every forecast", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentForecast)
             .accessibilityIdentifier("eraseEpisodeDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Calculate & file tomorrow",
+            accent: accent,
+            systemImage: "moon.zzz.fill",
+            action: calculateTomorrow
+            )
+            .accessibilityIdentifier("calculateTomorrowButton")
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "play.tv.fill",
+            reactionStyle: .bounce
+            )
+            .accessibilityIdentifier("episodeForecastResult")
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: episodes) { _, _ in invalidateForecast() }

@@ -39,39 +39,41 @@ struct RestDayPoliceView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "RECOVERY ENFORCEMENT",
-            title: "Rest day police",
-            subtitle: "A fictional citation for taking your foot off the accelerator.",
-            accent: accent,
-            personality: .dramatic,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "RECOVERY ENFORCEMENT",
+                title: "Rest day police",
+                subtitle: "A fictional citation for taking your foot off the accelerator.",
+                accent: accent
+            )
+
             healthConnectionCard
             streakCard
-
-            DumbAction(
-                title: "Issue citation",
-                accent: accent,
-                systemImage: "figure.cooldown",
-                action: issueCitation
-            )
-            .accessibilityIdentifier("issueRestDayCitationButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "checkmark.shield.fill", reactionStyle: .stamp)
-                .accessibilityIdentifier("restDayPoliceResult")
 
             notificationCard
             manualFallbackCard
 
             Button(action: reset) {
-                Label("Reset the docket", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the docket", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetRestDayPoliceButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Issue citation",
+            accent: accent,
+            systemImage: "figure.cooldown",
+            action: issueCitation
+            )
+            .accessibilityIdentifier("issueRestDayCitationButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "checkmark.shield.fill", reactionStyle: .stamp)
+            .accessibilityIdentifier("restDayPoliceResult")
+
         }
         .onAppear {
             loadNudgeDate()

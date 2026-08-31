@@ -26,101 +26,105 @@ struct ApologyDraftView: View {
     private let tones = ["Sincere-ish", "Formal", "Text message", "Dramatic"]
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MINOR CRIMES OFFICE",
-            title: "Apology draft generator",
-            subtitle: "For when the crime was tiny but the silence is now enormous.",
-            accent: accent,
-            personality: .dramatic
-        ) {
-            DumbCard(accent: accent, isSelected: !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                VStack(alignment: .leading, spacing: 14) {
-                    DumbField(
-                        "What did you do?",
-                        axis: .vertical,
-                        maxLength: 180,
-                        text: $crime
-                    )
-
-                    tonePicker
-
-                    if crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text("Describe the tiny crime before the department can draft.")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(CorpPalette.mutedInk)
-                    }
-                }
-            }
-            .accessibilityIdentifier("crimeEditor")
-
-            DumbAction(
-                title: isGenerating ? "Consulting the apology department…" : "Draft a \(tone.lowercased()) apology",
-                accent: accent,
-                systemImage: "pencil.and.scribble",
-                isLoading: isGenerating,
-                action: generateDraft
-            )
-            .disabled(isGenerating || crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityIdentifier("generateApologyButton")
-
-            DumbResult(
-                text: draft,
-                accent: accent,
-                systemImage: copied ? "checkmark.circle.fill" : "doc.text.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("apologyDraft")
-
-            Text(modelStatus)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(CorpPalette.mutedInk)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier("modelStatus")
-
-            DumbNativeTip(
-                "Siri & Share",
-                detail: "Say “Draft an apology,” share text in from another app, or send the finished draft through the share sheet.",
-                systemImage: "square.and.pencil",
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "MINOR CRIMES OFFICE",
+                title: "Apology draft generator",
+                subtitle: "For when the crime was tiny but the silence is now enormous.",
                 accent: accent
             )
 
-            HStack(spacing: 12) {
-                Button {
-                    copyDraft()
-                } label: {
-                    Label(copied ? "Copied" : "Copy draft", systemImage: copied ? "checkmark" : "doc.on.doc")
-                        .font(.subheadline.weight(.black))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .disabled(!hasGeneratedDraft)
-                .accessibilityIdentifier("copyDraftButton")
+            DumbCard(accent: accent, isSelected: !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
+            VStack(alignment: .leading, spacing: 14) {
+            DumbField(
+            "What did you do?",
+            axis: .vertical,
+            maxLength: 180,
+            text: $crime
+            )
 
-                if hasGeneratedDraft {
-                    ShareLink(item: draft, subject: Text("Apology draft"), message: Text(draft)) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                            .font(.subheadline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(accent)
-                    .buttonStyle(DumbPressStyle())
-                    .accessibilityIdentifier("shareApologyButton")
-                }
+            tonePicker
 
-                Button {
-                    clearCrimeScene()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.headline.weight(.black))
-                        .frame(width: 48, height: 44)
-                }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .disabled(crime.isEmpty && !hasGeneratedDraft)
-                .accessibilityLabel("Clear apology")
-                .accessibilityIdentifier("clearApologyButton")
+            if crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            Text("Describe the tiny crime before the department can draft.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
             }
+            }
+            }
+            .accessibilityIdentifier("crimeEditor")
+            .isEmpty)
+            .accessibilityIdentifier("generateApologyButton")
+
+            Text(modelStatus)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("modelStatus")
+
+            DumbNativeTip(
+            "Siri & Share",
+            detail: "Say “Draft an apology,” share text in from another app, or send the finished draft through the share sheet.",
+            systemImage: "square.and.pencil",
+            accent: accent
+            )
+
+            HStack(spacing: 12) {
+            Button {
+            copyDraft()
+            } label: {
+            Label(copied ? "Copied" : "Copy draft", systemImage: copied ? "checkmark" : "doc.on.doc")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(!hasGeneratedDraft)
+            .accessibilityIdentifier("copyDraftButton")
+
+            if hasGeneratedDraft {
+            ShareLink(item: draft, subject: Text("Apology draft"), message: Text(draft)) {
+            Label("Share", systemImage: "square.and.arrow.up")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("shareApologyButton")
+            }
+
+            Button {
+            clearCrimeScene()
+            } label: {
+            Image(systemName: "trash")
+            .font(.headline.weight(.black))
+            .frame(width: 48, height: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(crime.isEmpty && !hasGeneratedDraft)
+            .accessibilityLabel("Clear apology")
+            .accessibilityIdentifier("clearApologyButton")
+            }
+
+        } bottomBar: {
+            DumbAction(
+            title: isGenerating ? "Consulting the apology department…" : "Draft a \(tone.lowercased()) apology",
+            accent: accent,
+            systemImage: "pencil.and.scribble",
+            isLoading: isGenerating,
+            action: generateDraft
+            )
+            .disabled(isGenerating || crime.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            DumbResult(
+            text: draft,
+            accent: accent,
+            systemImage: copied ? "checkmark.circle.fill" : "doc.text.fill",
+            reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("apologyDraft")
+
         }
         .dumbNativeEntry(scheme: "app30apologydraft", onRoute: handleNativeRoute)
         .dumbHandoffDraft(

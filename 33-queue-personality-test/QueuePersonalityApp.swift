@@ -62,42 +62,47 @@ struct QueuePersonalityView: View {
     private let mint = CorpPalette.evidenceMint
 
     var body: some View {
-        DumbShell(
-            eyebrow: "QUEUE OBSERVATORY",
-            title: "Queue wait tracker",
-            subtitle: "Time a real line, log what moves, and collect an official queue archetype.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "QUEUE OBSERVATORY",
+                title: "Queue wait tracker",
+                subtitle: "Time a real line, log what moves, and collect an official queue archetype.",
+                accent: accent
+            )
+
             formulaCard
             lifetimeSummary
 
             if let activeQueue {
-                activeCard(activeQueue)
+            activeCard(activeQueue)
             } else {
-                startCard
-                DumbAction(
-                    title: "Start queue session",
-                    accent: accent,
-                    systemImage: "person.3.sequence.fill",
-                    action: startQueue
-                )
-                .disabled(cleanQueueName.isEmpty)
-                .accessibilityIdentifier("startQueueSessionButton")
+            startCard
+
             }
 
             queueTicket
             historyCard
 
             Button { showEraseConfirmation = true } label: {
-                Label("Erase complete queue archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase complete queue archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(CorpPalette.warningRed)
             .buttonStyle(DumbPressStyle())
             .disabled(activeQueue == nil && history.isEmpty && !hasDraft && latestTicket == Self.waitingTicket)
             .accessibilityIdentifier("eraseQueueArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Start queue session",
+            accent: accent,
+            systemImage: "person.3.sequence.fill",
+            action: startQueue
+            )
+            .disabled(cleanQueueName.isEmpty)
+            .accessibilityIdentifier("startQueueSessionButton")
+
         }
         .onAppear { restoreState(); refreshNotificationStatus() }
         .onChange(of: remindersEnabled) { _, enabled in if enabled { refreshNotificationStatus() } }

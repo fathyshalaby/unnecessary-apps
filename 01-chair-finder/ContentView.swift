@@ -63,96 +63,99 @@ struct ChairFinderView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MUNICIPAL SEATING BUREAU",
-            title: "Chair Finder",
-            subtitle: "Observe real chairs. File the evidence. Sit decisively.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "MUNICIPAL SEATING BUREAU",
+                title: "Chair Finder",
+                subtitle: "Observe real chairs. File the evidence. Sit decisively.",
+                accent: accent
+            )
+
             HStack {
-                DumbStatusPill("OFFICIAL CHAIR FILE", systemImage: "doc.text.fill", accent: accent)
-                Spacer()
-                Text("\(candidates.count)/\(ChairArchive.limit) OBSERVED")
-                    .font(.caption2.weight(.black))
-                    .tracking(0.8)
-                    .foregroundStyle(CorpPalette.mutedInk)
-                    .accessibilityIdentifier("chairCandidateCount")
-                    .accessibilityValue("\(candidates.count)")
+            DumbStatusPill("OFFICIAL CHAIR FILE", systemImage: "doc.text.fill", accent: accent)
+            Spacer()
+            Text("\(candidates.count)/\(ChairArchive.limit) OBSERVED")
+            .font(.caption2.weight(.black))
+            .tracking(0.8)
+            .foregroundStyle(CorpPalette.mutedInk)
+            .accessibilityIdentifier("chairCandidateCount")
+            .accessibilityValue("\(candidates.count)")
             }
 
             candidateEditor
 
-            DumbAction(
-                title: candidates.isEmpty ? "Add a chair before ranking" : "Rank my observed chairs",
-                accent: accent,
-                systemImage: "chair.lounge.fill",
-                action: inspectChairs
-            )
-            .disabled(candidates.isEmpty)
-            .accessibilityIdentifier("inspectChairButton")
-
             if let winner = candidates.first(where: { $0.id == winningChairID }) {
-                DumbCard(accent: accent, isSelected: true) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "crown.fill")
-                            .font(.title2.weight(.black))
-                            .foregroundStyle(CorpPalette.verdictGold)
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("CURRENT WINNER")
-                                .font(.caption2.weight(.black))
-                                .tracking(1.1)
-                                .foregroundStyle(accent)
-                            Text("\(winner.name) · SIT \(winner.score)")
-                                .font(.headline.weight(.black))
-                                .foregroundStyle(CorpPalette.ink)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                }
-                .accessibilityIdentifier("chairCurrentWinner")
+            DumbCard(accent: accent, isSelected: true) {
+            HStack(spacing: 12) {
+            Image(systemName: "crown.fill")
+            .font(.title2.weight(.black))
+            .foregroundStyle(CorpPalette.verdictGold)
+            .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 3) {
+            Text("CURRENT WINNER")
+            .font(.caption2.weight(.black))
+            .tracking(1.1)
+            .foregroundStyle(accent)
+            Text("\(winner.name) · SIT \(winner.score)")
+            .font(.headline.weight(.black))
+            .foregroundStyle(CorpPalette.ink)
             }
-
-            DumbResult(
-                text: verdict,
-                accent: accent,
-                systemImage: "checkmark.seal.fill",
-                reactionStyle: .bounce
-            )
-            .accessibilityIdentifier("chairVerdict")
+            Spacer(minLength: 0)
+            }
+            }
+            .accessibilityIdentifier("chairCurrentWinner")
+            }
 
             candidateLedger
 
             Text("Build the shortlist from chairs you have actually seen. The bureau refuses to rank imaginary furniture.")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(CorpPalette.mutedInk)
-                .fixedSize(horizontal: false, vertical: true)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 12) {
-                Button(action: resetRanking) {
-                    Label("Reset ranking", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline.weight(.black))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .disabled(storedWinnerID.isEmpty)
-                .accessibilityIdentifier("resetChairFinderButton")
-
-                Button {
-                    showClearConfirmation = true
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.headline.weight(.black))
-                        .frame(width: 48, height: 44)
-                }
-                .foregroundStyle(CorpPalette.warningRed)
-                .buttonStyle(DumbPressStyle())
-                .disabled(candidates.isEmpty)
-                .accessibilityLabel("Clear all chair observations")
-                .accessibilityIdentifier("clearChairCandidatesButton")
+            Button(action: resetRanking) {
+            Label("Reset ranking", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(storedWinnerID.isEmpty)
+            .accessibilityIdentifier("resetChairFinderButton")
+
+            Button {
+            showClearConfirmation = true
+            } label: {
+            Image(systemName: "trash")
+            .font(.headline.weight(.black))
+            .frame(width: 48, height: 44)
+            }
+            .foregroundStyle(CorpPalette.warningRed)
+            .buttonStyle(DumbPressStyle())
+            .disabled(candidates.isEmpty)
+            .accessibilityLabel("Clear all chair observations")
+            .accessibilityIdentifier("clearChairCandidatesButton")
+            }
+
+        } bottomBar: {
+            DumbAction(
+            title: candidates.isEmpty ? "Add a chair before ranking" : "Rank my observed chairs",
+            accent: accent,
+            systemImage: "chair.lounge.fill",
+            action: inspectChairs
+            )
+            .disabled(candidates.isEmpty)
+            .accessibilityIdentifier("inspectChairButton")
+
+            DumbResult(
+            text: verdict,
+            accent: accent,
+            systemImage: "checkmark.seal.fill",
+            reactionStyle: .bounce
+            )
+            .accessibilityIdentifier("chairVerdict")
+
         }
         .confirmationDialog(
             "Erase every chair observation?",

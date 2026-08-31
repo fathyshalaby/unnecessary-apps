@@ -13,68 +13,71 @@ struct WaitingRoomView: View {
     private let accent = CorpPalette.bathroomBlue
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PATIENT WAITING SERVICES",
-            title: "Waiting room simulator",
-            subtitle: "No magazines. No answers. Just chairs.",
-            accent: accent,
-            personality: .office
-        ) {
-            DumbCard(accent: accent, isSelected: minutes > 45) {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(spacing: 16) {
-                        waitSeverityDial
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("WAIT SEVERITY")
-                                .font(.caption2.weight(.black))
-                                .tracking(1.1)
-                                .foregroundStyle(accent)
-                            Text("\(Int(minutes)) min")
-                                .font(.title2.weight(.black))
-                                .foregroundStyle(CorpPalette.ink)
-                                .contentTransition(.numericText())
-                            Text(waitSeverityLabel)
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(CorpPalette.mutedInk)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "PATIENT WAITING SERVICES",
+                title: "Waiting room simulator",
+                subtitle: "No magazines. No answers. Just chairs.",
+                accent: accent
+            )
 
-                    DumbSlider(
-                        title: "Simulated minutes waited",
-                        value: $minutes,
-                        range: 0...120,
-                        step: 1,
-                        accent: accent
-                    )
-                    Text("The clock advances five minutes each time you continue waiting.")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
+            DumbCard(accent: accent, isSelected: minutes > 45) {
+            VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 16) {
+            waitSeverityDial
+            VStack(alignment: .leading, spacing: 4) {
+            Text("WAIT SEVERITY")
+            .font(.caption2.weight(.black))
+            .tracking(1.1)
+            .foregroundStyle(accent)
+            Text("\(Int(minutes)) min")
+            .font(.title2.weight(.black))
+            .foregroundStyle(CorpPalette.ink)
+            .contentTransition(.numericText())
+            Text(waitSeverityLabel)
+            .font(.caption.weight(.bold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            DumbSlider(
+            title: "Simulated minutes waited",
+            value: $minutes,
+            range: 0...120,
+            step: 1,
+            accent: accent
+            )
+            Text("The clock advances five minutes each time you continue waiting.")
+            .font(.caption.weight(.bold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
             }
             .accessibilityIdentifier("waitingRoomInput")
 
+            Button {
+            minutes = 0
+            updateResult()
+            } label: {
+            Label("Leave the waiting room", systemImage: "figure.walk.depart")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("resetWaitingRoomButton")
+
+        } bottomBar: {
             DumbAction(
-                title: "Wait five more minutes",
-                accent: accent,
-                systemImage: "clock.arrow.circlepath",
-                action: continueWaiting
+            title: "Wait five more minutes",
+            accent: accent,
+            systemImage: "clock.arrow.circlepath",
+            action: continueWaiting
             )
             .accessibilityIdentifier("continueWaitingButton")
 
             DumbResult(text: result, accent: accent, systemImage: "chair.lounge.fill", reactionStyle: .shake)
 
-            Button {
-                minutes = 0
-                updateResult()
-            } label: {
-                Label("Leave the waiting room", systemImage: "figure.walk.depart")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("resetWaitingRoomButton")
         }
         .onChange(of: minutes) { _, _ in
             updateResult()

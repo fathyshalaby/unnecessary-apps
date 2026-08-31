@@ -36,94 +36,69 @@ struct SnackRouletteView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        ZStack {
-            CorpPalette.canvas.ignoresSafeArea()
-            LinearGradient(
-                colors: [accent.opacity(0.12), CorpPalette.canvas],
-                startPoint: .top,
-                endPoint: .center
+        AppCanvas(accent: accent, experience: .game) {
+            AppHeader(
+                eyebrow: "PANTRY GAMBLING",
+                title: "Snack roulette",
+                subtitle: "A decision engine for an open cupboard.",
+                accent: accent
             )
-            .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                AppHeader(
-                    eyebrow: "PANTRY GAMBLING",
-                    title: "Snack roulette",
-                    subtitle: "A decision engine for an open cupboard.",
-                    accent: accent
-                )
-                .padding(.horizontal, DumbSpacing.md)
-                .padding(.top, DumbSpacing.sm)
-
-                ScrollView {
-                    VStack(spacing: DumbSpacing.md) {
-                        DumbCard(accent: accent, isSelected: !snackChoices.isEmpty) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                DumbField(
-                                    "Comma-separated snacks",
-                                    axis: .vertical,
-                                    maxLength: 420,
-                                    text: $snacks
-                                )
-                                Text("\(snackChoices.count) valid option\(snackChoices.count == 1 ? "" : "s") on the table")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(CorpPalette.mutedInk)
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
-                                    .accessibilityIdentifier("snackChoiceCount")
-                                    .accessibilityValue("\(snackChoices.count)")
-                            }
-                        }
-
-                        DumbResult(
-                            text: result,
-                            accent: accent,
-                            systemImage: "circle.dotted.and.circle",
-                            reactionStyle: .shake
-                        )
-                        .accessibilityIdentifier("snackResult")
-
-                        if snackChoices.isEmpty {
-                            Text("Enter at least one snack above to unlock the wheel.")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(CorpPalette.mutedInk)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-
-                        historyCard
-
-                        Button {
-                            showEraseConfirmation = true
-                        } label: {
-                            Label("Erase pantry & spin history", systemImage: "trash.fill")
-                                .font(.subheadline.weight(.black))
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                        }
-                        .foregroundStyle(accent)
-                        .buttonStyle(DumbPressStyle())
-                        .disabled(history.isEmpty && snacks.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        .accessibilityIdentifier("clearSnackHistoryButton")
-                    }
-                    .padding(.horizontal, DumbSpacing.md)
-                    .padding(.bottom, 120)
+            DumbCard(accent: accent, isSelected: !snackChoices.isEmpty) {
+                VStack(alignment: .leading, spacing: 8) {
+                    DumbField(
+                        "Comma-separated snacks",
+                        axis: .vertical,
+                        maxLength: 420,
+                        text: $snacks
+                    )
+                    Text("\(snackChoices.count) valid option\(snackChoices.count == 1 ? "" : "s") on the table")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .accessibilityIdentifier("snackChoiceCount")
+                        .accessibilityValue("\(snackChoices.count)")
                 }
-                .scrollIndicators(.hidden)
             }
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                DumbAction(
-                    title: snackChoices.isEmpty ? "Add snacks to spin" : "Spin the snack",
-                    accent: accent,
-                    systemImage: "shuffle",
-                    action: spin
-                )
-                .disabled(snackChoices.isEmpty)
-                .accessibilityIdentifier("spinSnackButton")
-                .padding(.horizontal, DumbSpacing.md)
-                .padding(.vertical, DumbSpacing.sm)
-                .background(CorpPalette.canvas.opacity(0.96))
+
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "circle.dotted.and.circle",
+                reactionStyle: .shake
+            )
+            .accessibilityIdentifier("snackResult")
+
+            if snackChoices.isEmpty {
+                Text("Enter at least one snack above to unlock the wheel.")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(CorpPalette.mutedInk)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            historyCard
+
+            Button {
+                showEraseConfirmation = true
+            } label: {
+                Label("Erase pantry & spin history", systemImage: "trash.fill")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(history.isEmpty && snacks.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("clearSnackHistoryButton")
+        } bottomBar: {
+            DumbAction(
+                title: snackChoices.isEmpty ? "Add snacks to spin" : "Spin the snack",
+                accent: accent,
+                systemImage: "shuffle",
+                action: spin
+            )
+            .disabled(snackChoices.isEmpty)
+            .accessibilityIdentifier("spinSnackButton")
         }
-        .tint(accent)
-        .environment(\.dumbExperienceStyle, .game)
         .onAppear(perform: restoreState)
         .onChange(of: snacks) { _, _ in
             if !history.isEmpty {

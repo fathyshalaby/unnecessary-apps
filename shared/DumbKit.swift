@@ -269,17 +269,32 @@ public struct AppCanvas<Content: View, BottomBar: View>: View {
         }
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
-        .background(CorpPalette.canvas.ignoresSafeArea())
+        .background {
+            CorpPalette.canvas.ignoresSafeArea()
+            LinearGradient(
+                colors: [accent.opacity(0.10), CorpPalette.canvas.opacity(0.4), CorpPalette.canvas],
+                startPoint: .top,
+                endPoint: .center
+            )
+            .ignoresSafeArea()
+        }
         .tint(accent)
         .environment(\.dumbExperienceStyle, resolvedExperience)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if showsBottomBar {
-                VStack(spacing: 0) {
+                VStack(spacing: DumbSpacing.sm) {
                     bottomBar
                 }
                 .padding(.horizontal, DumbSpacing.md)
-                .padding(.vertical, DumbSpacing.sm)
-                .background(CorpPalette.canvas.opacity(0.96))
+                .padding(.top, DumbSpacing.sm)
+                .padding(.bottom, DumbSpacing.sm)
+                .background {
+                    CorpPalette.canvas.opacity(0.96)
+                    Rectangle()
+                        .fill(accent.opacity(0.06))
+                        .frame(height: 1)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                }
             }
         }
     }

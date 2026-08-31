@@ -34,38 +34,40 @@ struct RecoveryGoblinView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "GOBLIN RECOVERY SERVICES",
-            title: "The recovery goblin",
-            subtitle: "A small creature for a kinder check-in, not a coach.",
-            accent: accent,
-            personality: .chaotic,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "GOBLIN RECOVERY SERVICES",
+                title: "The recovery goblin",
+                subtitle: "A small creature for a kinder check-in, not a coach.",
+                accent: accent
+            )
+
             healthConnectionCard
             checkInCard
-
-            DumbAction(
-                title: "Ask the goblin",
-                accent: accent,
-                systemImage: "questionmark.circle.fill",
-                action: askGoblin
-            )
-            .accessibilityIdentifier("askRecoveryGoblinButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "leaf.fill", reactionStyle: .bounce)
-                .accessibilityIdentifier("recoveryGoblinResult")
 
             notificationCard
 
             Button(action: reset) {
-                Label("Reset the goblin", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the goblin", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetRecoveryGoblinButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Ask the goblin",
+            accent: accent,
+            systemImage: "questionmark.circle.fill",
+            action: askGoblin
+            )
+            .accessibilityIdentifier("askRecoveryGoblinButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "leaf.fill", reactionStyle: .bounce)
+            .accessibilityIdentifier("recoveryGoblinResult")
+
         }
         .onAppear {
             loadNudgeDate()

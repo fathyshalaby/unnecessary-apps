@@ -33,35 +33,31 @@ struct HeartRateEmailView: View {
     private let accent = CorpPalette.emergencyRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "INBOX DRAMA LOG",
-            title: "Heart rate during email",
-            subtitle: "A silly self-report, deliberately not a heart monitor.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "INBOX DRAMA LOG",
+                title: "Heart rate during email",
+                subtitle: "A silly self-report, deliberately not a heart monitor.",
+                accent: accent
+            )
+
             DumbCard(accent: accent) {
-                VStack(alignment: .leading, spacing: 14) {
-                    DumbStatusPill("MANUAL ON PURPOSE", systemImage: "hand.raised.fill", accent: accent)
-                    DumbField("Email subject", maxLength: 120, text: $subject)
-                    DumbSlider(title: "Reported heart rate (bpm)", value: $bpm, range: 40...180, step: 1, accent: accent)
-                    Text("Rate the inbox drama yourself. This app does not read, monitor, or interpret heart-rate data, and the number is not health advice.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+            VStack(alignment: .leading, spacing: 14) {
+            DumbStatusPill("MANUAL ON PURPOSE", systemImage: "hand.raised.fill", accent: accent)
+            DumbField("Email subject", maxLength: 120, text: $subject)
+            DumbSlider(title: "Reported heart rate (bpm)", value: $bpm, range: 40...180, step: 1, accent: accent)
+            Text("Rate the inbox drama yourself. This app does not read, monitor, or interpret heart-rate data, and the number is not health advice.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .fixedSize(horizontal: false, vertical: true)
+            }
             }
             .accessibilityIdentifier("heartRateEmailInputs")
 
-            DumbAction(title: "Record the drama", accent: accent, systemImage: "heart.fill", action: recordDrama)
-                .accessibilityIdentifier("recordEmailDramaButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "envelope.badge.fill", reactionStyle: .shake)
-
             Button(action: reset) {
-                Label("Reset the inbox", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the inbox", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -72,11 +68,11 @@ struct HeartRateEmailView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase drama history", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase drama history", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -84,11 +80,18 @@ struct HeartRateEmailView: View {
             .accessibilityIdentifier("eraseHeartRateHistoryButton")
 
             DumbNativeTip(
-                "Share from Mail",
-                detail: "Share an email subject from Mail to log inbox drama faster.",
-                systemImage: "square.and.arrow.down",
-                accent: accent
+            "Share from Mail",
+            detail: "Share an email subject from Mail to log inbox drama faster.",
+            systemImage: "square.and.arrow.down",
+            accent: accent
             )
+
+        } bottomBar: {
+            DumbAction(title: "Record the drama", accent: accent, systemImage: "heart.fill", action: recordDrama)
+            .accessibilityIdentifier("recordEmailDramaButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "envelope.badge.fill", reactionStyle: .shake)
+
         }
         .onAppear {
             restoreHistory()

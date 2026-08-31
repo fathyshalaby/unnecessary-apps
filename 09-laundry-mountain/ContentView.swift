@@ -73,23 +73,15 @@ struct LaundryMountainView: View {
     private let warning = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "LAUNDRY MOUNTAIN",
-            title: "The expedition board",
-            subtitle: "Move real loads through the mountain instead of measuring imaginary danger.",
-            accent: accent,
-            personality: .chaotic
-        ) {
-            batchEditor
-
-            DumbAction(
-                title: editingID == nil ? "Add batch to the mountain" : "Save batch changes",
-                accent: accent,
-                systemImage: editingID == nil ? "mountain.2.fill" : "square.and.pencil",
-                action: saveBatch
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "LAUNDRY MOUNTAIN",
+                title: "The expedition board",
+                subtitle: "Move real loads through the mountain instead of measuring imaginary danger.",
+                accent: accent
             )
-            .disabled(cleanName.isEmpty)
-            .accessibilityIdentifier("saveLaundryBatchButton")
+
+            batchEditor
 
             expeditionTicket
 
@@ -97,27 +89,38 @@ struct LaundryMountainView: View {
             summaryCard
 
             if hasDraft || editingID != nil {
-                Button(action: clearDraft) {
-                    Label(editingID == nil ? "Clear staging area" : "Cancel batch edit", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline.weight(.black))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .accessibilityIdentifier("clearLaundryDraftButton")
+            Button(action: clearDraft) {
+            Label(editingID == nil ? "Clear staging area" : "Cancel batch edit", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("clearLaundryDraftButton")
             }
 
             queueCard
 
             Button { showEraseConfirmation = true } label: {
-                Label("Flatten complete laundry archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Flatten complete laundry archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(warning)
             .buttonStyle(DumbPressStyle())
             .disabled(batches.isEmpty && !hasDraft && latestTicket == Self.waitingTicket)
             .accessibilityIdentifier("eraseLaundryArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: editingID == nil ? "Add batch to the mountain" : "Save batch changes",
+            accent: accent,
+            systemImage: editingID == nil ? "mountain.2.fill" : "square.and.pencil",
+            action: saveBatch
+            )
+            .disabled(cleanName.isEmpty)
+            .accessibilityIdentifier("saveLaundryBatchButton")
+
         }
         .onAppear {
             restoreBatches()
