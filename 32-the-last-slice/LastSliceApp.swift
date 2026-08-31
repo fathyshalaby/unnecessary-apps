@@ -83,14 +83,36 @@ struct LastSliceView: View {
             .accessibilityIdentifier("eraseSliceArchiveButton")
 
         } bottomBar: {
-            DumbAction(
-            title: "Convene fair tribunal",
-            accent: accent,
-            systemImage: "scale.3d",
-            action: startRuling
-            )
-            .disabled(cleanItem.isEmpty || people.count < 2)
-            .accessibilityIdentifier("resolveSliceButton")
+            if activeRuling != nil {
+                HStack(spacing: 10) {
+                    Button { candidatePassed() } label: {
+                        Label("They passed", systemImage: "hand.raised.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(accent)
+                    .accessibilityIdentifier("sliceCandidatePassedButton")
+
+                    Button { awardCandidate() } label: {
+                        Label("Award it", systemImage: "checkmark.seal.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(accent)
+                    .accessibilityIdentifier("sliceAwardButton")
+                }
+            } else {
+                DumbAction(
+                    title: "Convene fair tribunal",
+                    accent: accent,
+                    systemImage: "scale.3d",
+                    action: startRuling
+                )
+                .disabled(cleanItem.isEmpty || people.count < 2)
+                .accessibilityIdentifier("resolveSliceButton")
+            }
 
         }
         .onAppear(perform: restoreState)
@@ -199,7 +221,6 @@ struct LastSliceView: View {
                 tribunalHeader(ruling)
                 candidatePanel(ruling)
                 participantChips(ruling.remaining)
-                tribunalActions
                 Button("Cancel this ruling") { cancelRuling() }
                     .font(.caption.weight(.black)).foregroundStyle(CorpPalette.mutedInk)
                     .frame(maxWidth: .infinity)
@@ -252,28 +273,6 @@ struct LastSliceView: View {
         .accessibilityLabel("Current candidate")
         .accessibilityValue(ruling.candidate)
         .accessibilityIdentifier("sliceCurrentCandidate")
-    }
-
-    private var tribunalActions: some View {
-        HStack(spacing: 10) {
-            Button { candidatePassed() } label: {
-                Label("They passed", systemImage: "hand.raised.fill")
-                    .font(.caption.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
-            }
-            .buttonStyle(.bordered)
-            .tint(accent)
-            .accessibilityIdentifier("sliceCandidatePassedButton")
-
-            Button { awardCandidate() } label: {
-                Label("Award it", systemImage: "checkmark.seal.fill")
-                    .font(.caption.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(accent)
-            .accessibilityIdentifier("sliceAwardButton")
-        }
     }
 
     private var treatyCard: some View {

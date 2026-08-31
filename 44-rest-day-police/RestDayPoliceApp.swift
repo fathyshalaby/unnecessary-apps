@@ -98,6 +98,13 @@ struct RestDayPoliceView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: streak) { _, _ in invalidateCitation() }
+        .onChange(of: healthStreak) { _, _ in invalidateCitation() }
+    }
+
+    private func invalidateCitation() {
+        guard result != "No training record. No officers dispatched." else { return }
+        result = "Streak changed. Issue a fresh citation."
     }
 
     private var healthConnectionCard: some View {

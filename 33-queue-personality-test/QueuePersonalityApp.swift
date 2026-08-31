@@ -94,14 +94,48 @@ struct QueuePersonalityView: View {
             .accessibilityIdentifier("eraseQueueArchiveButton")
 
         } bottomBar: {
-            DumbAction(
-            title: "Start queue session",
-            accent: accent,
-            systemImage: "person.3.sequence.fill",
-            action: startQueue
-            )
-            .disabled(cleanQueueName.isEmpty)
-            .accessibilityIdentifier("startQueueSessionButton")
+            if let activeQueue {
+                VStack(spacing: DumbSpacing.sm) {
+                    DumbAction(
+                        title: "Person served",
+                        accent: accent,
+                        systemImage: "person.fill.checkmark",
+                        action: personServed
+                    )
+                    .disabled(activeQueue.peopleAhead == 0)
+                    .accessibilityIdentifier("queuePersonServedButton")
+
+                    HStack(spacing: 10) {
+                        Button { finish(.reachedFront) } label: {
+                            Label("Reached front", systemImage: "figure.wave")
+                                .font(.subheadline.weight(.black))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .foregroundStyle(CorpPalette.actionInk)
+                        .background(CorpPalette.parkGreen, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .buttonStyle(DumbPressStyle())
+                        .accessibilityIdentifier("queueReachedFrontButton")
+
+                        Button { finish(.leftQueue) } label: {
+                            Label("Left queue", systemImage: "figure.walk.departure")
+                                .font(.subheadline.weight(.black))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .foregroundStyle(accent)
+                        .buttonStyle(DumbPressStyle())
+                        .accessibilityIdentifier("queueLeftQueueButton")
+                    }
+                }
+            } else {
+                DumbAction(
+                    title: "Start queue session",
+                    accent: accent,
+                    systemImage: "person.3.sequence.fill",
+                    action: startQueue
+                )
+                .disabled(cleanQueueName.isEmpty)
+                .accessibilityIdentifier("startQueueSessionButton")
+            }
 
         }
         .onAppear { restoreState(); refreshNotificationStatus() }
@@ -216,18 +250,9 @@ struct QueuePersonalityView: View {
 
                     positionTrail(queue)
 
-                    HStack(spacing: 10) {
-                        activeButton("Person served", image: "person.fill.checkmark") { personServed() }
-                            .disabled(queue.peopleAhead == 0)
-                        activeButton("Joined ahead", image: "person.badge.plus") { personJoinedAhead() }
-                    }
+                    activeButton("Joined ahead", image: "person.badge.plus") { personJoinedAhead() }
                     if queue.peopleAhead > 0 {
                         activeButton("Correct: one fewer ahead", image: "minus.circle.fill") { correctOneFewer() }
-                    }
-
-                    HStack(spacing: 10) {
-                        outcomeButton("Reached front", color: CorpPalette.parkGreen) { finish(.reachedFront) }
-                        outcomeButton("Left queue", color: CorpPalette.warningRed) { finish(.leftQueue) }
                     }
                 }
             }

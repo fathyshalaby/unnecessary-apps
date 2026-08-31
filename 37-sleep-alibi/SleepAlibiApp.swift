@@ -98,6 +98,13 @@ struct SleepAlibiView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: hours) { _, _ in invalidateAlibi() }
+        .onChange(of: healthSleepHours) { _, _ in invalidateAlibi() }
+    }
+
+    private func invalidateAlibi() {
+        guard alibi != "The witness has not testified." else { return }
+        alibi = "Sleep evidence changed. Present a fresh alibi."
     }
 
     private var healthConnectionCard: some View {

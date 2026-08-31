@@ -109,6 +109,15 @@ struct HealthHoroscopeView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: steps) { _, _ in invalidateOracle() }
+        .onChange(of: sleep) { _, _ in invalidateOracle() }
+        .onChange(of: healthSteps) { _, _ in invalidateOracle() }
+        .onChange(of: healthSleepHours) { _, _ in invalidateOracle() }
+    }
+
+    private func invalidateOracle() {
+        guard result != "The stars are waiting for numbers." else { return }
+        result = "The numbers shifted. Consult the planets again."
     }
 
     private var disclaimerCard: some View {

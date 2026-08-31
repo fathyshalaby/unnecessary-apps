@@ -57,6 +57,12 @@ struct HumanGPSView: View {
             DumbResult(text: direction, accent: accent, systemImage: "figure.walk", reactionStyle: .bounce)
 
         }
+        .onChange(of: landmark) { _, _ in invalidateDirections() }
+    }
+
+    private func invalidateDirections() {
+        guard direction != Self.emptyDirection else { return }
+        direction = "Landmark changed. Generate fresh instructions."
     }
 
     private func generateInstructions() {

@@ -87,6 +87,9 @@ struct DogNameGuesserView: View {
             DumbResult(text: result, accent: accent, systemImage: "person.text.rectangle.fill", reactionStyle: .stamp)
 
         }
+        .onChange(of: fluff) { _, _ in invalidateVerdict() }
+        .onChange(of: seriousness) { _, _ in invalidateVerdict() }
+        .onChange(of: guess) { _, _ in invalidateVerdict() }
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
             Task { await analyze(item) }
@@ -183,6 +186,11 @@ struct DogNameGuesserView: View {
             }
         }
         .accessibilityIdentifier("dogEvidenceStage")
+    }
+
+    private func invalidateVerdict() {
+        guard result != "The dog is awaiting your accusation." else { return }
+        result = "Evidence changed. Present the name again."
     }
 
     private func presentName() {

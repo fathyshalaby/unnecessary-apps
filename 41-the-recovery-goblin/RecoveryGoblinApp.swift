@@ -88,6 +88,14 @@ struct RecoveryGoblinView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: tiredness) { _, _ in invalidateReply() }
+        .onChange(of: soreness) { _, _ in invalidateReply() }
+        .onChange(of: healthWorkoutMinutes) { _, _ in invalidateReply() }
+    }
+
+    private func invalidateReply() {
+        guard result != "The goblin is hiding behind the foam roller." else { return }
+        result = "Your check-in changed. Ask the goblin again."
     }
 
     private var healthConnectionCard: some View {

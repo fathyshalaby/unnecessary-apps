@@ -61,14 +61,6 @@ struct SnackRouletteView: View {
                 }
             }
 
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "circle.dotted.and.circle",
-                reactionStyle: .shake
-            )
-            .accessibilityIdentifier("snackResult")
-
             if snackChoices.isEmpty {
                 Text("Enter at least one snack above to unlock the wheel.")
                     .font(.caption.weight(.semibold))
@@ -90,6 +82,14 @@ struct SnackRouletteView: View {
             .disabled(history.isEmpty && snacks.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .accessibilityIdentifier("clearSnackHistoryButton")
         } bottomBar: {
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "circle.dotted.and.circle",
+                reactionStyle: .shake
+            )
+            .accessibilityIdentifier("snackResult")
+
             DumbAction(
                 title: snackChoices.isEmpty ? "Add snacks to spin" : "Spin the snack",
                 accent: accent,
