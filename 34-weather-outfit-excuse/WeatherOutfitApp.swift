@@ -50,6 +50,13 @@ struct WeatherOutfitView: View {
             DumbResult(text: excuse, accent: accent, systemImage: "cloud.sun.fill", reactionStyle: .bounce)
 
         }
+        .onChange(of: outfit) { _, _ in invalidateExcuse() }
+        .onChange(of: temperature) { _, _ in invalidateExcuse() }
+    }
+
+    private func invalidateExcuse() {
+        guard excuse != "No excuse prepared." else { return }
+        excuse = "Inputs changed. Generate a fresh defense."
     }
 
     private func generateDefense() {

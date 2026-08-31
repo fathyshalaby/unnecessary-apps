@@ -128,14 +128,41 @@ struct WalkingMeetingView: View {
             .accessibilityIdentifier("eraseWalkingArchiveButton")
 
         } bottomBar: {
-            DumbAction(
-            title: "Start walking meeting",
-            accent: accent,
-            systemImage: "figure.walk.motion",
-            action: startMeeting
-            )
-            .disabled(cleanTitle.isEmpty || cleanObjective.isEmpty)
-            .accessibilityIdentifier("startWalkingMeetingButton")
+            if activeMeeting != nil {
+                HStack(spacing: 10) {
+                    Button {
+                        finish(.completed)
+                    } label: {
+                        Label("Finish meeting", systemImage: "checkmark.circle.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(CorpPalette.actionInk)
+                    .background(green, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("finishWalkingMeetingButton")
+
+                    Button {
+                        finish(.endedEarly)
+                    } label: {
+                        Label("End early", systemImage: "xmark.circle.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(accent)
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("endWalkingMeetingEarlyButton")
+                }
+            } else {
+                DumbAction(
+                    title: "Start walking meeting",
+                    accent: accent,
+                    systemImage: "figure.walk.motion",
+                    action: startMeeting
+                )
+                .disabled(cleanTitle.isEmpty || cleanObjective.isEmpty)
+                .accessibilityIdentifier("startWalkingMeetingButton")
+            }
 
         }
         .onAppear { restoreState(); refreshNotificationStatus() }
@@ -242,11 +269,6 @@ struct WalkingMeetingView: View {
                     }
                     checkpointList(meeting)
                     noteComposer(meeting)
-
-                    HStack(spacing: 10) {
-                        outcomeButton("Finish meeting", color: green) { finish(.completed) }
-                        outcomeButton("End early", color: CorpPalette.warningRed) { finish(.endedEarly) }
-                    }
                 }
             }
         }

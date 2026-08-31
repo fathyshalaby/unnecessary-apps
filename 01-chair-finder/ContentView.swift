@@ -167,6 +167,17 @@ struct ChairFinderView: View {
         } message: {
             Text("This clears the shortlist and its current ranking. It cannot be undone.")
         }
+        .onChange(of: name) { _, _ in invalidateRanking() }
+        .onChange(of: note) { _, _ in invalidateRanking() }
+        .onChange(of: comfort) { _, _ in invalidateRanking() }
+        .onChange(of: shade) { _, _ in invalidateRanking() }
+        .onChange(of: pigeonRisk) { _, _ in invalidateRanking() }
+    }
+
+    private func invalidateRanking() {
+        guard !storedWinnerID.isEmpty else { return }
+        storedWinnerID = ""
+        verdict = "Evidence changed. Rank the chairs again."
     }
 
     private var candidateEditor: some View {

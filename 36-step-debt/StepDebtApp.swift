@@ -264,9 +264,18 @@ struct StepDebtView: View {
             }
             syncWidgetSnapshot()
         }
-        .onChange(of: actual) { _, _ in syncWidgetSnapshot() }
-        .onChange(of: goal) { _, _ in syncWidgetSnapshot() }
-        .onChange(of: healthSteps) { _, _ in syncWidgetSnapshot() }
+        .onChange(of: actual) { _, _ in
+            syncWidgetSnapshot()
+            invalidateDebtResult()
+        }
+        .onChange(of: goal) { _, _ in
+            syncWidgetSnapshot()
+            invalidateDebtResult()
+        }
+        .onChange(of: healthSteps) { _, _ in
+            syncWidgetSnapshot()
+            invalidateDebtResult()
+        }
         .onChange(of: locationService.lastCoordinate) { _, coordinate in
             guard isWaitingForLocation, let coordinate else { return }
             isWaitingForLocation = false
@@ -594,6 +603,12 @@ struct StepDebtView: View {
             "steps": "\(Int(effectiveSteps.rounded()))",
             "goal": "\(Int(goal.rounded()))",
         ])
+    }
+
+    private func invalidateDebtResult() {
+        guard result != "The step accountant is asleep." else { return }
+        result = "Steps changed. Stamp a fresh invoice."
+        modelStatus = "The ledger changed. Run a new stamp when ready."
     }
 
     private func calculateDebt() {

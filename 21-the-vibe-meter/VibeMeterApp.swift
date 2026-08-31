@@ -60,6 +60,14 @@ struct VibeMeterView: View {
             DumbResult(text: result, accent: accent, systemImage: "gauge.with.dots.needle.67percent", reactionStyle: .bounce)
 
         }
+        .onChange(of: room) { _, _ in invalidateMeasurement() }
+        .onChange(of: plants) { _, _ in invalidateMeasurement() }
+        .onChange(of: lamps) { _, _ in invalidateMeasurement() }
+    }
+
+    private func invalidateMeasurement() {
+        guard result != "The room has not yet been judged." else { return }
+        result = "Inputs changed. Measure the vibe again."
     }
 
     private var heroMeterCard: some View {

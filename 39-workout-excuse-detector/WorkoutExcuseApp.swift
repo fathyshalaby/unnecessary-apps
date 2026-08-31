@@ -104,6 +104,14 @@ struct WorkoutExcuseView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: excuse) { _, _ in invalidateVerdict() }
+        .onChange(of: minutes) { _, _ in invalidateVerdict() }
+        .onChange(of: healthWorkoutMinutes) { _, _ in invalidateVerdict() }
+    }
+
+    private func invalidateVerdict() {
+        guard result != "No excuse submitted. The detector is hungry." else { return }
+        result = "Case evidence changed. Run the detector again."
     }
 
     private var caseCard: some View {

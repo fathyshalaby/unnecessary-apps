@@ -137,6 +137,12 @@ struct NeighborNoiseView: View {
             DumbResult(text: result, accent: accent, systemImage: "waveform", reactionStyle: .shake)
 
         }
+        .onChange(of: noise) { _, _ in invalidateTranslation() }
+    }
+
+    private func invalidateTranslation() {
+        guard result != "The wall is listening." else { return }
+        result = "Description changed. Translate again."
     }
 
     private func translate() {
