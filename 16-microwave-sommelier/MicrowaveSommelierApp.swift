@@ -102,6 +102,15 @@ struct MicrowaveView: View {
             .disabled(totalPackageSeconds == 0)
             .accessibilityIdentifier("pairHeatButton")
 
+            if result != Self.emptyResult && !result.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Microwave conversion",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMicrowaveButton"
+                )
+            }
+
             DumbResult(
             text: result,
             accent: accent,

@@ -61,6 +61,18 @@ struct OneMoreEpisodeView: View {
             )
 
             assumptionCard
+
+            DumbHeroMeter(
+                progress: sleepBudgetProgress,
+                valueLabel: formatMinutes(runtimeMinutes),
+                title: "Watch time vs budget",
+                subtitle: "\(formatMinutes(remainingMinutes)) sleep budget left",
+                accent: accent,
+                systemImage: "moon.zzz.fill",
+                variant: .arc
+            )
+            .accessibilityIdentifier("episodeHeroMeter")
+
             forecastEditor
 
             Button(action: resetCurrentForecast) {
@@ -95,6 +107,15 @@ struct OneMoreEpisodeView: View {
             action: calculateTomorrow
             )
             .accessibilityIdentifier("calculateTomorrowButton")
+
+            if result != Self.emptyResult && !result.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "One more episode forecast",
+                    accent: accent,
+                    accessibilityIdentifier: "shareEpisodeForecastButton"
+                )
+            }
 
             DumbResult(
             text: result,
@@ -246,6 +267,23 @@ struct OneMoreEpisodeView: View {
 
     private var visibleHistory: [EpisodeForecast] {
         showAllHistory ? history : Array(history.prefix(5))
+    }
+
+    private var runtimeMinutes: Int {
+        Int(episodes) * Int(minutesEach)
+    }
+
+    private var sleepBudgetMinutes: Int {
+        Int((sleepBudgetHours * 60).rounded())
+    }
+
+    private var remainingMinutes: Int {
+        max(sleepBudgetMinutes - runtimeMinutes, 0)
+    }
+
+    private var sleepBudgetProgress: Double {
+        guard sleepBudgetMinutes > 0 else { return 0 }
+        return min(Double(runtimeMinutes) / Double(sleepBudgetMinutes), 1)
     }
 
     private var hasCurrentForecast: Bool {

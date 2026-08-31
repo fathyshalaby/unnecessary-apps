@@ -194,9 +194,12 @@ struct TinyGratitudeView: View {
                 }
 
                 if entries.isEmpty {
-                    Label("Nothing microscopic yet.", systemImage: "sun.horizon.fill")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "Archive waiting",
+                        message: "One tiny win is enough. Type it below and file the miracle.",
+                        systemImage: "sun.max.fill",
+                        accent: accent
+                    )
                 } else {
                     ForEach(visibleEntries) { savedEntry in
                         VStack(alignment: .leading, spacing: 7) {

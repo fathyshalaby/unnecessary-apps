@@ -47,6 +47,24 @@ struct SleepAlibiView: View {
                 accent: accent
             )
 
+            DumbHeroMeter(
+                progress: min(effectiveHours / 9, 1),
+                valueLabel: String(format: "%.1f hr", effectiveHours),
+                title: "Sleep evidence",
+                subtitle: effectiveHours < 4 ? "Extremely dramatic testimony" : effectiveHours < 7 ? "Complicated case" : "Respectable alibi",
+                accent: accent,
+                systemImage: "moon.zzz.fill",
+                variant: .arc
+            )
+            .accessibilityIdentifier("sleepAlibiHeroMeter")
+
+            DumbBoundaryChip(
+                storageKey: "sleepAlibi.boundaryDismissed",
+                message: "Duration reflection only—not a sleep score or medical advice.",
+                accent: accent,
+                systemImage: "moon.fill"
+            )
+
             healthConnectionCard
             evidenceCard
 

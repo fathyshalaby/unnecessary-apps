@@ -52,6 +52,24 @@ struct WorkoutExcuseView: View {
                 accent: accent
             )
 
+            DumbHeroMeter(
+                progress: min(effectiveMinutes / 45, 1),
+                valueLabel: "\(Int(effectiveMinutes.rounded())) min",
+                title: "Movement on record",
+                subtitle: healthWorkoutMinutes == nil ? "Manual or Health evidence" : "From Apple Health today",
+                accent: accent,
+                systemImage: "figure.run",
+                variant: .arc
+            )
+            .accessibilityIdentifier("workoutExcuseHeroMeter")
+
+            DumbBoundaryChip(
+                storageKey: "workoutExcuse.boundaryDismissed",
+                message: "Jokes only—not training, medical, or coaching advice.",
+                accent: accent,
+                systemImage: "figure.run"
+            )
+
             caseCard
             healthConnectionCard
             evidenceCard

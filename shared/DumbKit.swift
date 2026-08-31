@@ -603,7 +603,7 @@ public struct DumbAction: View {
         Button {
             guard isEnabled, !isLoading else { return }
             #if os(iOS)
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            DumbHaptics.light()
             #endif
             action()
         } label: {
@@ -1061,6 +1061,10 @@ public struct DumbResult: View {
             return phase == .anticipate ? .easeIn(duration: 0.10) : DumbMotion.quick
         }
         .animation(reduceMotion ? nil : DumbMotion.quick, value: text)
+        .onChange(of: text) { oldValue, newValue in
+            guard oldValue != newValue, reactionStyle != .bounce else { return }
+            DumbHaptics.verdict()
+        }
     }
 
     private func resultScale(for phase: DumbReactionPhase) -> CGFloat {
@@ -1078,6 +1082,313 @@ public struct DumbResult: View {
         case .rest: return 0
         case .anticipate: return -1.5
         case .payoff: return 1.5
+        }
+    }
+}
+
+#if os(iOS)
+public enum DumbHaptics {
+    public static func light() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    public static func medium() {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+
+    public static func verdict() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+}
+#else
+public enum DumbHaptics {
+    public static func light() {}
+    public static func medium() {}
+    public static func verdict() {}
+}
+#endif
+
+/// Dismissible first-run boundary for health, generative, or permission-sensitive apps.
+public struct DumbBoundaryChip: View {
+    let storageKey: String
+    let message: String
+    let accent: Color
+    let systemImage: String
+
+    @AppStorage private var isDismissed: Bool
+
+    public init(
+        storageKey: String,
+        message: String,
+        accent: Color,
+        systemImage: String = "info.circle.fill"
+    ) {
+        self.storageKey = storageKey
+        self.message = message
+        self.accent = accent
+        self.systemImage = systemImage
+        _isDismissed = AppStorage(wrappedValue: false, storageKey)
+    }
+
+    public var body: some View {
+        if !isDismissed {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.subheadline.weight(.black))
+                    .foregroundStyle(accent)
+                    .accessibilityHidden(true)
+                Text(message)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(CorpPalette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+                Button {
+                    withAnimation(.snappy) { isDismissed = true }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption.weight(.black))
+                        .frame(width: DumbMetrics.minimumTapTarget, height: DumbMetrics.minimumTapTarget)
+                }
+                .foregroundStyle(CorpPalette.mutedInk)
+                .buttonStyle(DumbPressStyle())
+                .accessibilityLabel("Dismiss boundary note")
+            }
+            .padding(DumbSpacing.sm)
+            .background(accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(accent.opacity(0.22), lineWidth: 1)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("boundaryChip")
+        }
+    }
+}
+
+/// Visual empty-state invite — premise + optional action, not a dead label.
+public struct DumbEmptyInvite: View {
+    let title: String
+    let message: String
+    let systemImage: String
+    let accent: Color
+    let actionTitle: String?
+    let action: (() -> Void)?
+
+    public init(
+        title: String,
+        message: String,
+        systemImage: String,
+        accent: Color,
+        actionTitle: String? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = title
+        self.message = message
+        self.systemImage = systemImage
+        self.accent = accent
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+
+    public var body: some View {
+        VStack(spacing: DumbSpacing.sm) {
+            Image(systemName: systemImage)
+                .font(.system(size: 36, weight: .black))
+                .foregroundStyle(accent)
+                .frame(width: 72, height: 72)
+                .background(accent.opacity(0.12), in: Circle())
+                .accessibilityHidden(true)
+            Text(title)
+                .font(.headline.weight(.black))
+                .foregroundStyle(CorpPalette.ink)
+                .multilineTextAlignment(.center)
+            Text(message)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            if let actionTitle, let action {
+                Button(action: action) {
+                    Text(actionTitle)
+                        .font(.subheadline.weight(.black))
+                        .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                }
+                .foregroundStyle(accent)
+                .buttonStyle(DumbPressStyle())
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(DumbSpacing.lg)
+        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(accent.opacity(0.14), lineWidth: 1)
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// One-tap share for receipts, verdicts, and autopsy text.
+public struct DumbShareVerdict: View {
+    let text: String
+    let subject: String
+    let accent: Color
+    let systemImage: String
+    let accessibilityIdentifier: String?
+
+    public init(
+        text: String,
+        subject: String,
+        accent: Color,
+        systemImage: String = "square.and.arrow.up",
+        accessibilityIdentifier: String? = nil
+    ) {
+        self.text = text
+        self.subject = subject
+        self.accent = accent
+        self.systemImage = systemImage
+        self.accessibilityIdentifier = accessibilityIdentifier
+    }
+
+    public var body: some View {
+        ShareLink(item: text, subject: Text(subject), message: Text(text)) {
+            Label("Share this result", systemImage: systemImage)
+                .font(.subheadline.weight(.black))
+                .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+        }
+        .foregroundStyle(accent)
+        .buttonStyle(DumbPressStyle())
+        .accessibilityIdentifier(accessibilityIdentifier ?? "shareVerdictButton")
+        .accessibilityHint("Opens the share sheet with the current result.")
+    }
+}
+
+public enum DumbHeroMeterVariant {
+    case arc
+    case chairs
+    case invoice
+}
+
+/// Large hero gauge for meter-lane apps — distinct compositions without a shared template shell.
+public struct DumbHeroMeter: View {
+    let progress: Double
+    let valueLabel: String
+    let title: String
+    let subtitle: String?
+    let accent: Color
+    let systemImage: String
+    let variant: DumbHeroMeterVariant
+    let size: CGFloat
+
+    public init(
+        progress: Double,
+        valueLabel: String,
+        title: String,
+        subtitle: String? = nil,
+        accent: Color,
+        systemImage: String,
+        variant: DumbHeroMeterVariant = .arc,
+        size: CGFloat = 112
+    ) {
+        self.progress = min(max(progress, 0), 1)
+        self.valueLabel = valueLabel
+        self.title = title
+        self.subtitle = subtitle
+        self.accent = accent
+        self.systemImage = systemImage
+        self.variant = variant
+        self.size = size
+    }
+
+    public var body: some View {
+        HStack(spacing: DumbSpacing.md) {
+            meterVisual
+                .frame(width: size, height: size)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title.uppercased())
+                    .font(.caption2.weight(.black))
+                    .tracking(1.1)
+                    .foregroundStyle(accent)
+                Text(valueLabel)
+                    .font(.system(.title, design: .rounded).weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(2)
+                    .contentTransition(.numericText())
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(CorpPalette.mutedInk)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(DumbSpacing.md)
+        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(accent.opacity(0.16), lineWidth: 1)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue("\(valueLabel). \(subtitle ?? "")")
+    }
+
+    @ViewBuilder private var meterVisual: some View {
+        switch variant {
+        case .arc:
+            ZStack {
+                Circle()
+                    .stroke(accent.opacity(0.14), lineWidth: 12)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(accent, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Image(systemName: systemImage)
+                    .font(.title2.weight(.black))
+                    .foregroundStyle(accent)
+            }
+        case .chairs:
+            VStack(spacing: 4) {
+                ForEach(0..<3, id: \.self) { row in
+                    HStack(spacing: 4) {
+                        ForEach(0..<3, id: \.self) { col in
+                            let index = row * 3 + col
+                            let filled = Double(index) / 8.0 <= progress
+                            Image(systemName: filled ? "chair.lounge.fill" : "chair.lounge")
+                                .font(.caption.weight(.black))
+                                .foregroundStyle(filled ? accent : accent.opacity(0.22))
+                        }
+                    }
+                }
+            }
+        case .invoice:
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(accent)
+                    .frame(height: 4)
+                VStack(spacing: 6) {
+                    Image(systemName: systemImage)
+                        .font(.title3.weight(.black))
+                        .foregroundStyle(accent)
+                    Text(valueLabel)
+                        .font(.caption.weight(.black).monospaced())
+                        .foregroundStyle(CorpPalette.ink)
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(10)
+            }
+            .background(CorpPalette.receiptCream, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(accent.opacity(0.35), lineWidth: 1)
+            }
+            .rotationEffect(.degrees(-2))
         }
     }
 }

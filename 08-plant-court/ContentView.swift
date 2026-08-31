@@ -70,6 +70,20 @@ struct PlantCourtView: View {
 
             editorCard
 
+            if !cleanName.isEmpty {
+                DumbHeroMeter(
+                    progress: Double(condition) / 5,
+                    valueLabel: "\(Int(condition))/5",
+                    title: cleanName,
+                    subtitle: "Observed condition — next check \(draftNextCheck.formatted(date: .abbreviated, time: .omitted))",
+                    accent: accent,
+                    systemImage: "leaf.fill",
+                    variant: .arc,
+                    size: 88
+                )
+                .accessibilityIdentifier("plantCareGauge")
+            }
+
             careOrder
 
             boundaryCard

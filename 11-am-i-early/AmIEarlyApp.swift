@@ -126,42 +126,16 @@ struct AmIEarlyView: View {
     }
 
     private var offsetGauge: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .stroke(accent.opacity(0.16), lineWidth: 8)
-                Circle()
-                    .trim(from: 0, to: offsetGaugeProgress)
-                    .stroke(accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                VStack(spacing: 2) {
-                    Text(offsetGaugeLabel)
-                        .font(.caption.weight(.black))
-                        .foregroundStyle(accent)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.7)
-                }
-                .padding(8)
-            }
-            .frame(width: 72, height: 72)
-            .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("CURRENT OFFSET")
-                    .font(.caption2.weight(.black))
-                    .tracking(1.1)
-                    .foregroundStyle(accent)
-                Text(offsetDescription)
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("Late ← on time → early")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
+        DumbHeroMeter(
+            progress: offsetGaugeProgress,
+            valueLabel: offsetDescription,
+            title: "Current offset",
+            subtitle: "Late ← on time → early",
+            accent: accent,
+            systemImage: "clock.fill",
+            variant: .arc,
+            size: 96
+        )
     }
 
     private var offsetGaugeProgress: CGFloat {

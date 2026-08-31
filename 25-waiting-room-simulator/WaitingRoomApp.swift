@@ -21,10 +21,21 @@ struct WaitingRoomView: View {
                 accent: accent
             )
 
+            DumbHeroMeter(
+                progress: waitSeverityProgress,
+                valueLabel: "\(Int(minutes)) min",
+                title: "Wait severity",
+                subtitle: waitSeverityLabel,
+                accent: waitSeverityColor,
+                systemImage: minutes > 45 ? "brain.head.profile" : "chair.lounge.fill",
+                variant: .chairs,
+                size: 100
+            )
+            .accessibilityIdentifier("waitingRoomHeroMeter")
+
             DumbCard(accent: accent, isSelected: minutes > 45) {
             VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 16) {
-            waitSeverityDial
             VStack(alignment: .leading, spacing: 4) {
             Text("WAIT SEVERITY")
             .font(.caption2.weight(.black))
@@ -82,22 +93,6 @@ struct WaitingRoomView: View {
         .onChange(of: minutes) { _, _ in
             updateResult()
         }
-    }
-
-    private var waitSeverityDial: some View {
-        ZStack {
-            Circle()
-                .stroke(accent.opacity(0.16), lineWidth: 10)
-            Circle()
-                .trim(from: 0, to: waitSeverityProgress)
-                .stroke(waitSeverityColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            Image(systemName: minutes > 45 ? "brain.head.profile" : "chair.lounge.fill")
-                .font(.title3.weight(.black))
-                .foregroundStyle(waitSeverityColor)
-        }
-        .frame(width: 84, height: 84)
-        .accessibilityHidden(true)
     }
 
     private var waitSeverityProgress: CGFloat {

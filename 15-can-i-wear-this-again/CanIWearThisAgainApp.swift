@@ -70,6 +70,8 @@ struct OutfitView: View {
 
             boundaryCard
             summaryCard
+
+            wearEvidenceRow
             rulingEditor
 
             if result != Self.emptyResult, let banner = rulingBanner {
@@ -193,6 +195,33 @@ struct OutfitView: View {
                 .foregroundStyle(CorpPalette.mutedInk)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var wearEvidenceRow: some View {
+        HStack(spacing: 12) {
+            hangerIcon(active: !hasOdor, label: "Odor", systemImage: "nose.fill")
+            hangerIcon(active: !hasStain, label: "Stain", systemImage: "drop.fill")
+            hangerIcon(active: !wasSweaty, label: "Sweat", systemImage: "figure.run")
+            hangerIcon(active: Int(wearsSinceWash) < Int(personalLimit), label: "Wears", systemImage: "tshirt.fill")
+        }
+        .accessibilityIdentifier("closetHangerRow")
+    }
+
+    private func hangerIcon(active: Bool, label: String, systemImage: String) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: "hanger")
+                .font(.caption.weight(.black))
+                .foregroundStyle(active ? accent : CorpPalette.mutedInk.opacity(0.5))
+            Image(systemName: systemImage)
+                .font(.caption2.weight(.black))
+                .foregroundStyle(active ? CorpPalette.ink : CorpPalette.warningRed)
+            Text(label.uppercased())
+                .font(.system(size: 9, weight: .black))
+                .foregroundStyle(CorpPalette.mutedInk)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(active ? accent.opacity(0.08) : CorpPalette.surface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private var rulingEditor: some View {

@@ -69,6 +69,18 @@ Compact title row: small eyebrow, `title3` title, optional subtitle, optional ma
 - Keep 44pt tap targets and Reduce Motion paths.
 - Color + icon + text for status — never color alone.
 
+## Interest primitives (customer UX)
+
+| Component | Use |
+|-----------|-----|
+| `DumbEmptyInvite` | Visual empty state with premise + optional CTA |
+| `DumbShareVerdict` | One-tap share for receipts, verdicts, autopsies |
+| `DumbHeroMeter` | Arc, chair-grid, or invoice-slip hero gauges |
+| `DumbBoundaryChip` | Dismissible first-run boundary on health/generative apps |
+| `DumbHaptics` | Light on repeat taps, verdict feedback on stamp/shake results |
+
+See [release/CUSTOMER_UX_SCORECARD.md](../release/CUSTOMER_UX_SCORECARD.md) for acceptance criteria.
+
 ## Mac verification after layout changes
 
 ```bash

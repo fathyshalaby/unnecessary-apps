@@ -42,6 +42,17 @@ struct RecoveryGoblinView: View {
                 accent: accent
             )
 
+            DumbHeroMeter(
+                progress: (tiredness + soreness) / 20,
+                valueLabel: "\(Int(tiredness + soreness))/20",
+                title: "Recovery load",
+                subtitle: "Tired \(Int(tiredness)) · sore \(Int(soreness))",
+                accent: accent,
+                systemImage: "leaf.fill",
+                variant: .arc
+            )
+            .accessibilityIdentifier("recoveryGoblinHeroMeter")
+
             healthConnectionCard
             checkInCard
 

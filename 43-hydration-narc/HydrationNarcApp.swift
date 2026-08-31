@@ -57,6 +57,13 @@ struct HydrationNarcView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "hydrationNarc.boundaryDismissed",
+                message: "Reflection and logging only—not medical guidance. Apple Health import is optional read-only.",
+                accent: accent,
+                systemImage: "drop.fill"
+            )
+
             progressCard
 
             DumbSlider(

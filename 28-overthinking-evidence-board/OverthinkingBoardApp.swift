@@ -109,6 +109,15 @@ struct OverthinkingBoardView: View {
             .disabled(cleanWorry.isEmpty)
             .accessibilityIdentifier("issueConclusionButton")
 
+            if result != Self.emptyResult && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Overthinking conclusion",
+                    accent: accent,
+                    accessibilityIdentifier: "shareOverthinkingButton"
+                )
+            }
+
             DumbResult(
                 text: result,
                 accent: accent,
@@ -173,32 +182,57 @@ struct OverthinkingBoardView: View {
                 DumbField("The worry", axis: .vertical, maxLength: 240, text: $worry)
 
                 if !cleanWorry.isEmpty {
-                    DisclosureGroup(isExpanded: $evidenceSectionsExpanded) {
-                        VStack(alignment: .leading, spacing: 13) {
-                            DumbField("Evidence supporting it", axis: .vertical, maxLength: 240, text: $evidenceFor)
-                            DumbField("Evidence against it", axis: .vertical, maxLength: 240, text: $evidenceAgainst)
-                            DumbField("A less dramatic explanation", axis: .vertical, maxLength: 240, text: $alternative)
-                            DumbField("One small next step", axis: .vertical, maxLength: 160, text: $nextStep)
-                        }
-                        .padding(.top, 8)
-                    } label: {
-                        Label(
-                            evidenceSectionsExpanded ? "Hide evidence sections" : "Add supporting and counter evidence",
-                            systemImage: "pin.fill"
-                        )
-                        .font(.subheadline.weight(.black))
-                        .foregroundStyle(CorpPalette.ink)
-                    }
+                    pinboardColumns
                 } else {
-                    Text("Start with the worry. The evidence corkboard opens once you name it.")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
+                    DumbEmptyInvite(
+                        title: "Empty corkboard",
+                        message: "Name the worry first. Evidence columns unlock once the case is pinned.",
+                        systemImage: "pin.fill",
+                        accent: accent
+                    )
                 }
 
                 Text("Drafts stay on the board until you file or erase them.")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(CorpPalette.mutedInk)
             }
+        }
+    }
+
+    private var pinboardColumns: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 10) {
+                pinColumn(title: "FOR", accent: accent) {
+                    DumbField("Evidence supporting it", axis: .vertical, maxLength: 240, text: $evidenceFor)
+                }
+                pinColumn(title: "AGAINST", accent: warningAccent) {
+                    DumbField("Evidence against it", axis: .vertical, maxLength: 240, text: $evidenceAgainst)
+                }
+            }
+            pinColumn(title: "ALT THEORY", accent: CorpPalette.violet) {
+                DumbField("A less dramatic explanation", axis: .vertical, maxLength: 240, text: $alternative)
+            }
+            pinColumn(title: "NEXT STEP", accent: CorpPalette.sunshine) {
+                DumbField("One small next step", axis: .vertical, maxLength: 160, text: $nextStep)
+            }
+        }
+        .accessibilityIdentifier("overthinkingPinboard")
+    }
+
+    private func pinColumn<Content: View>(title: String, accent: Color, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption2.weight(.black))
+                .tracking(1.1)
+                .foregroundStyle(accent)
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(accent.opacity(0.20), lineWidth: 1)
         }
     }
 

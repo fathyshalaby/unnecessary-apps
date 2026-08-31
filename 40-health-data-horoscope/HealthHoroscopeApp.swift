@@ -58,6 +58,25 @@ struct HealthHoroscopeView: View {
             )
 
             disclaimerCard
+
+            DumbBoundaryChip(
+                storageKey: "healthHoroscope.boundaryDismissed",
+                message: "Fictional horoscope only—not medical, wellness, or predictive advice.",
+                accent: accent,
+                systemImage: "moon.stars.fill"
+            )
+
+            DumbHeroMeter(
+                progress: min((effectiveSteps / 8000 + effectiveSleep / 8) / 2, 1),
+                valueLabel: "Cosmic load",
+                title: "Constellation input",
+                subtitle: "\(Int(effectiveSteps.rounded())) steps · \(String(format: "%.1f", effectiveSleep)) hr sleep",
+                accent: accent,
+                systemImage: "sparkles",
+                variant: .arc
+            )
+            .accessibilityIdentifier("healthHoroscopeHeroMeter")
+
             healthConnectionCard
             cosmicReadoutCard
 

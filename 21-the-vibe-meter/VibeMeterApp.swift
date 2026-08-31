@@ -71,42 +71,17 @@ struct VibeMeterView: View {
     }
 
     private var heroMeterCard: some View {
-        DumbCard(accent: accent, isSelected: score > 60) {
-            HStack(spacing: 20) {
-                ZStack {
-                    Circle()
-                        .stroke(accent.opacity(0.14), lineWidth: 12)
-                    Circle()
-                        .trim(from: 0, to: CGFloat(score) / 100)
-                        .stroke(accent, style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                    Text("\(score)")
-                        .font(.system(.largeTitle, design: .rounded).weight(.black))
-                        .foregroundStyle(accent)
-                        .contentTransition(.numericText())
-                }
-                .frame(width: 112, height: 112)
-                .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("LIVE VIBE READING")
-                        .font(.caption2.weight(.black))
-                        .tracking(1.1)
-                        .foregroundStyle(accent)
-                    Text("\(score)/100")
-                        .font(.system(.title, design: .rounded).weight(.black))
-                        .foregroundStyle(CorpPalette.ink)
-                        .contentTransition(.numericText())
-                    Text(score > 60 ? "Shoe-removal territory" : "Email-address energy")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Vibe score")
-                .accessibilityValue("\(score) out of 100")
-            }
-        }
+        DumbHeroMeter(
+            progress: Double(score) / 100,
+            valueLabel: "\(score)/100",
+            title: "Live vibe reading",
+            subtitle: score > 60 ? "Shoe-removal territory" : "Email-address energy",
+            accent: accent,
+            systemImage: "gauge.with.dots.needle.67percent",
+            variant: .arc,
+            size: 112
+        )
+        .accessibilityIdentifier("vibeHeroMeter")
     }
 
     private var score: Int {

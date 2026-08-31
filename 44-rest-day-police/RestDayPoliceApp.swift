@@ -47,6 +47,13 @@ struct RestDayPoliceView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "restDayPolice.boundaryDismissed",
+                message: "Fictional citation only—not fitness or medical guidance.",
+                accent: accent,
+                systemImage: "figure.cooldown"
+            )
+
             healthConnectionCard
             streakCard
 
@@ -151,38 +158,17 @@ struct RestDayPoliceView: View {
     }
 
     private var streakCard: some View {
-        DumbCard(accent: accent, isSelected: effectiveStreak > 5) {
-            HStack(alignment: .top, spacing: 14) {
-                ZStack {
-                    Circle()
-                        .fill(accent.opacity(0.13))
-                        .frame(width: 82, height: 82)
-                    Text("\(effectiveStreak)")
-                        .font(.system(.largeTitle, design: .rounded).weight(.black))
-                        .foregroundStyle(accent)
-                }
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(healthStreak == nil ? "MANUAL DOSSIER" : "ACTIVITY DOSSIER")
-                        .font(.caption2.weight(.black))
-                        .tracking(1.1)
-                        .foregroundStyle(accent)
-                    Text("days in a row")
-                        .font(.title3.weight(.black))
-                        .foregroundStyle(CorpPalette.ink)
-                    Text(effectiveStreak > 5 ? "The paperwork is becoming suspicious." : "No excessive-consistency citation yet.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                    Text("Streak counts consecutive calendar days with a logged workout, counting back from today or yesterday if today is empty. Fictional citation only.")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer(minLength: 0)
-            }
-        }
+        DumbHeroMeter(
+            progress: min(Double(effectiveStreak) / 14, 1),
+            valueLabel: "\(effectiveStreak) days",
+            title: healthStreak == nil ? "Manual dossier" : "Activity dossier",
+            subtitle: effectiveStreak > 5 ? "The paperwork is becoming suspicious" : "No excessive-consistency citation yet",
+            accent: accent,
+            systemImage: "figure.cooldown",
+            variant: .arc,
+            size: 96
+        )
         .accessibilityIdentifier("restDayPoliceInput")
-        .accessibilityElement(children: .combine)
-        .accessibilityValue("\(effectiveStreak) training days in a row")
     }
 
     private var notificationCard: some View {

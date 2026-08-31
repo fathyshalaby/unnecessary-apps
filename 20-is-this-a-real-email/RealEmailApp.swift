@@ -101,6 +101,10 @@ struct RealEmailView: View {
 
             editorCard
 
+            if !email.isEmpty {
+                fogPreviewCard
+            }
+
             Text("Analysis stays on this device and clears when you leave.")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(CorpPalette.mutedInk)
@@ -111,6 +115,15 @@ struct RealEmailView: View {
 
             if let analysis {
                 metricsCard(analysis)
+            }
+
+            if analysis != nil && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: shareAutopsyText,
+                    subject: "Email fog autopsy",
+                    accent: accent,
+                    accessibilityIdentifier: "shareEmailAutopsyButton"
+                )
             }
 
             DumbResult(
@@ -208,6 +221,46 @@ struct RealEmailView: View {
             }
         }
         .accessibilityIdentifier("emailEditor")
+    }
+
+    private var fogPreviewCard: some View {
+        DumbCard(accent: accent) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("FOG PREVIEW")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(CorpPalette.mutedInk)
+                Text(highlightedFogPreview)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(CorpPalette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("emailFogPreview")
+            }
+        }
+    }
+
+    private var highlightedFogPreview: AttributedString {
+        var attributed = AttributedString(email)
+        let lower = email.lowercased()
+        for term in Self.fogTerms {
+            var searchStart = lower.startIndex
+            while searchStart < lower.endIndex,
+                  let range = lower.range(of: term, range: searchStart..<lower.endIndex) {
+                if let attrRange = Range(range, in: attributed) {
+                    attributed[attrRange].backgroundColor = accent.opacity(0.28)
+                    attributed[attrRange].foregroundColor = CorpPalette.ink
+                }
+                searchStart = range.upperBound
+            }
+        }
+        return attributed
+    }
+
+    private var shareAutopsyText: String {
+        guard let analysis else { return result }
+        var lines = [result, "", "Clarity: \(analysis.clarityScore)/100", fogSummary(analysis)]
+        lines.append(contentsOf: analysis.recommendations.map { "• \($0)" })
+        return lines.joined(separator: "\n")
     }
 
     @ViewBuilder

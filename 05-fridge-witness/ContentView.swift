@@ -144,12 +144,20 @@ struct FridgeWitnessView: View {
     }
 
     private var evidenceEditor: some View {
-        DumbCard(accent: accent) {
+        DumbCard(accent: accent, isSelected: !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("FILE REAL EVIDENCE")
-                    .font(.caption2.weight(.black))
-                    .tracking(1.2)
-                    .foregroundStyle(CorpPalette.mutedInk)
+                HStack(spacing: 10) {
+                    Text("FILE REAL EVIDENCE")
+                        .font(.caption2.weight(.black))
+                        .tracking(1.2)
+                        .foregroundStyle(CorpPalette.mutedInk)
+                    Spacer()
+                    Image(systemName: itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "lightbulb" : "lightbulb.max.fill")
+                        .font(.title3.weight(.black))
+                        .foregroundStyle(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? accent.opacity(0.35) : CorpPalette.sunshine)
+                        .symbolEffect(.pulse, isActive: !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .accessibilityHidden(true)
+                }
                 DumbField("Food or container name", maxLength: 100, text: $itemName)
                 DumbSlider(
                     title: "Quantity",
