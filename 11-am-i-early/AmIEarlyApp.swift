@@ -19,7 +19,7 @@ private struct ArrivalRecord: Codable, Identifiable {
 
 @main
 struct AmIEarlyApp: App {
-    var body: some Scene { WindowGroup { AmIEarlyView() } }
+    var body: some Scene { WindowGroup { AmIEarlyView().dumbNativeEntry(scheme: "app11amiearly") { _, _ in } } }
 }
 
 struct AmIEarlyView: View {
@@ -39,26 +39,24 @@ struct AmIEarlyView: View {
     private let accent = CorpPalette.parkGreen
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PUNCTUALITY SERVICES",
-            title: "Am I early?",
-            subtitle: "A social question disguised as a signed number.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent, experience: .meter) {
+            AppHeader(
+                eyebrow: "PUNCTUALITY SERVICES",
+                title: "Am I early?",
+                subtitle: "A social question disguised as a signed number.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "amIEarly.boundaryDismissed",
+                message: "Self-reported arrival times only — not calendar sync or GPS.",
+                accent: accent,
+                systemImage: "clock.fill"
+            )
+
             summaryCard
             arrivalEditor
-
-            DumbAction(
-                title: "Issue & file punctuality verdict",
-                accent: accent,
-                systemImage: "clock.badge.checkmark",
-                action: issueVerdict
-            )
-            .accessibilityIdentifier("punctualityButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "clock.fill")
-                .accessibilityIdentifier("punctualityResult")
+            historyCard
 
             Button(action: resetCurrentReport) {
                 Label("Reset current report", systemImage: "arrow.counterclockwise")
@@ -71,8 +69,6 @@ struct AmIEarlyView: View {
             .accessibilityIdentifier("resetPunctualityButton")
             .accessibilityHint("Resets the current occasion and offset without deleting filed history.")
 
-            historyCard
-
             Button {
                 showEraseConfirmation = true
             } label: {
@@ -84,6 +80,31 @@ struct AmIEarlyView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentReport)
             .accessibilityIdentifier("erasePunctualityDataButton")
+        } bottomBar: {
+            DumbAction(
+                title: "Issue & file punctuality verdict",
+                accent: accent,
+                systemImage: "clock.badge.checkmark",
+                action: issueVerdict
+            )
+            .accessibilityIdentifier("punctualityButton")
+
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "clock.fill",
+                reactionStyle: isActiveVerdict ? .stamp : .bounce
+            )
+            .accessibilityIdentifier("punctualityResult")
+
+            if result != Self.emptyResult && !result.hasPrefix("Arrival changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Punctuality verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "sharePunctualityButton"
+                )
+            }
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: minutes) { _, _ in invalidateVerdict() }
@@ -102,18 +123,57 @@ struct AmIEarlyView: View {
 
     private var summaryCard: some View {
         DumbCard(accent: accent, isSelected: !history.isEmpty) {
-            HStack(spacing: 10) {
-                summaryMetric(value: history.count, label: "filed")
-                Divider()
-                summaryMetric(value: notLateCount, label: "not late")
-                Divider()
-                summaryMetric(value: lateCount, label: "late")
+            VStack(spacing: 14) {
+                offsetGauge
+
+                HStack(spacing: 10) {
+                    summaryMetric(value: history.count, label: "filed")
+                    Divider()
+                    summaryMetric(value: notLateCount, label: "not late")
+                    Divider()
+                    summaryMetric(value: lateCount, label: "late")
+                }
             }
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("punctualitySummary")
         .accessibilityLabel("Punctuality history summary")
-        .accessibilityValue("\(history.count) filed, \(notLateCount) not late, \(lateCount) late")
+        .accessibilityValue("\(Int(minutes)) minute offset, \(history.count) filed, \(notLateCount) not late, \(lateCount) late")
+    }
+
+    private var offsetGauge: some View {
+        DumbHeroMeter(
+            progress: offsetGaugeProgress,
+            valueLabel: offsetDescription,
+            title: "Current offset",
+            subtitle: "Late ← on time → early",
+            accent: accent,
+            systemImage: "clock.fill",
+            variant: .arc,
+            size: 96
+        )
+    }
+
+    private var offsetGaugeProgress: CGFloat {
+        CGFloat((minutes + 30) / 90)
+    }
+
+    private var offsetGaugeLabel: String {
+        let offset = Int(minutes)
+        if offset > 0 { return "+\(offset)" }
+        if offset < 0 { return "\(offset)" }
+        return "0"
+    }
+
+    private var offsetDescription: String {
+        let offset = Int(minutes)
+        if offset > 0 { return "\(offset) minutes early" }
+        if offset < 0 { return "\(-offset) minutes late" }
+        return "Exactly on time"
+    }
+
+    private var isActiveVerdict: Bool {
+        result != Self.emptyResult && !result.hasPrefix("Arrival changed.")
     }
 
     private func summaryMetric(value: Int, label: String) -> some View {
@@ -176,10 +236,13 @@ struct AmIEarlyView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No arrivals have testified yet.", systemImage: "clock.badge.questionmark")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyPunctualityHistory")
+                    DumbEmptyInvite(
+                        title: "No arrivals on file",
+                        message: "Issue a punctuality verdict after your next appointment.",
+                        systemImage: "clock.badge.questionmark",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyPunctualityHistory")
                 } else {
                     ForEach(visibleHistory) { record in
                         VStack(alignment: .leading, spacing: 6) {
@@ -241,7 +304,7 @@ struct AmIEarlyView: View {
 
     private var hasCurrentReport: Bool {
         !occasion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || minutes != 12
+            || minutes != 0
             || result != Self.emptyResult
     }
 
@@ -289,7 +352,7 @@ struct AmIEarlyView: View {
 
     private func resetCurrentReport() {
         occasion = ""
-        minutes = 12
+        minutes = 0
         result = Self.emptyResult
     }
 
@@ -302,7 +365,7 @@ struct AmIEarlyView: View {
         history = []
         showAllHistory = false
         occasion = ""
-        minutes = 12
+        minutes = 0
         result = Self.emptyResult
         persistHistory()
     }

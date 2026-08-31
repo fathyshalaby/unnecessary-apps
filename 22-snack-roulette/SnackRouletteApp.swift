@@ -16,7 +16,7 @@ private struct SnackPick: Codable, Identifiable {
 @main
 struct SnackRouletteApp: App {
     var body: some Scene {
-        WindowGroup { SnackRouletteView() }
+        WindowGroup { SnackRouletteView().dumbNativeEntry(scheme: "app22snackroulette") { _, _ in } }
     }
 }
 
@@ -32,17 +32,28 @@ struct SnackRouletteView: View {
     @State private var hasLoaded = false
     @State private var showAllHistory = false
     @State private var showEraseConfirmation = false
+    @State private var wheelRotation: Double = 0
 
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PANTRY GAMBLING",
-            title: "Snack roulette",
-            subtitle: "A decision engine for people standing in front of an open cupboard.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent, experience: .game) {
+            AppHeader(
+                eyebrow: "PANTRY GAMBLING",
+                title: "Snack roulette",
+                subtitle: "A decision engine for an open cupboard.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "snackRoulette.boundaryDismissed",
+                message: "Random snack picker — not nutrition, allergy, or dietary guidance.",
+                accent: accent,
+                systemImage: "circle.dotted.and.circle"
+            )
+
+            spinWheelStage
+
             DumbCard(accent: accent, isSelected: !snackChoices.isEmpty) {
                 VStack(alignment: .leading, spacing: 8) {
                     DumbField(
@@ -59,22 +70,15 @@ struct SnackRouletteView: View {
                         .accessibilityValue("\(snackChoices.count)")
                 }
             }
-            DumbAction(
-                title: "Spin the snack",
-                accent: accent,
-                systemImage: "shuffle",
-                action: spin
-            )
-            .disabled(snackChoices.isEmpty)
-            .accessibilityIdentifier("spinSnackButton")
 
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "circle.dotted.and.circle",
-                reactionStyle: .shake
-            )
-            .accessibilityIdentifier("snackResult")
+            if snackChoices.isEmpty {
+                DumbEmptyInvite(
+                    title: "Pantry empty",
+                    message: "List snacks separated by commas to unlock the wheel.",
+                    systemImage: "fork.knife",
+                    accent: accent
+                )
+            }
 
             historyCard
 
@@ -89,6 +93,32 @@ struct SnackRouletteView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && snacks.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .accessibilityIdentifier("clearSnackHistoryButton")
+        } bottomBar: {
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "circle.dotted.and.circle",
+                reactionStyle: .shake
+            )
+            .accessibilityIdentifier("snackResult")
+
+            if result != "The wheel is still." && !result.hasPrefix("Pantry changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Snack roulette verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSnackRouletteButton"
+                )
+            }
+
+            DumbAction(
+                title: snackChoices.isEmpty ? "Add snacks to spin" : "Spin the snack",
+                accent: accent,
+                systemImage: "shuffle",
+                action: spin
+            )
+            .disabled(snackChoices.isEmpty)
+            .accessibilityIdentifier("spinSnackButton")
         }
         .onAppear(perform: restoreState)
         .onChange(of: snacks) { _, _ in
@@ -118,6 +148,45 @@ struct SnackRouletteView: View {
             .filter { seen.insert($0.lowercased()).inserted }
     }
 
+    private var spinWheelStage: some View {
+        DumbCard(accent: accent, isSelected: !snackChoices.isEmpty) {
+            VStack(spacing: 12) {
+                Text("THE WHEEL")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(CorpPalette.mutedInk)
+                ZStack {
+                    Circle()
+                        .stroke(accent.opacity(0.12), lineWidth: 14)
+                    if snackChoices.isEmpty {
+                        Image(systemName: "circle.dotted")
+                            .font(.largeTitle.weight(.black))
+                            .foregroundStyle(accent.opacity(0.35))
+                    } else {
+                        ForEach(Array(snackChoices.enumerated()), id: \.offset) { index, snack in
+                            let angle = Double(index) / Double(snackChoices.count) * 360
+                            Text(String(snack.prefix(8)))
+                                .font(.caption2.weight(.black))
+                                .foregroundStyle(CorpPalette.ink)
+                                .rotationEffect(.degrees(angle + 90))
+                                .offset(y: -56)
+                                .rotationEffect(.degrees(-angle - 90))
+                        }
+                        Circle()
+                            .fill(accent)
+                            .frame(width: 16, height: 16)
+                    }
+                }
+                .frame(width: 140, height: 140)
+                .rotationEffect(.degrees(wheelRotation))
+                .animation(reduceMotion ? nil : .spring(response: 0.8, dampingFraction: 0.62), value: wheelRotation)
+                .accessibilityIdentifier("snackWheelStage")
+                .accessibilityLabel(snackChoices.isEmpty ? "Snack wheel waiting for pantry" : "Snack wheel with \(snackChoices.count) options")
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
     private var historyCard: some View {
         DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 12) {
@@ -135,9 +204,12 @@ struct SnackRouletteView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No snack has accepted its destiny yet.", systemImage: "questionmark.circle")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No spins yet",
+                        message: "Add snacks and spin the wheel to see fate’s picks here.",
+                        systemImage: "questionmark.circle",
+                        accent: accent
+                    )
                 } else {
                     ForEach(visibleHistory) { pick in
                         HStack(spacing: 10) {
@@ -194,6 +266,8 @@ struct SnackRouletteView: View {
         let choice = (candidates.isEmpty ? snackChoices : candidates).randomElement() ?? snackChoices[0]
         result = "The wheel has chosen: \(choice). Fate is nutritionally neutral."
         storedResult = result
+        wheelRotation += reduceMotion ? 0 : Double.random(in: 720...1440)
+        DumbHaptics.medium()
         history.insert(SnackPick(name: choice), at: 0)
         history = Array(history.prefix(20))
         persistHistory()

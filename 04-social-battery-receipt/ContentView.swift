@@ -53,37 +53,35 @@ struct SocialBatteryReceiptView: View {
     private let accent = CorpPalette.violet
 
     var body: some View {
-        DumbShell(
-            eyebrow: "SOCIAL BATTERY",
-            title: "Thank you for socializing.",
-            subtitle: "A receipt for the social energy you actually felt—not a personality prediction.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent, experience: .receipt) {
+            AppHeader(
+                eyebrow: "SOCIAL BATTERY",
+                title: "Thank you for socializing.",
+                subtitle: "A receipt for the social energy you actually felt—not a personality prediction.",
+                accent: accent
+            )
+
             boundaryCard
             summaryCard
             receiptEditor
 
-            DumbAction(
-                title: "Print & file emotional receipt",
-                accent: accent,
-                systemImage: "receipt.fill",
-                action: makeReceipt
-            )
-            .accessibilityIdentifier("printReceiptButton")
-
-            DumbResult(
-                text: receipt,
-                accent: accent,
-                systemImage: batterySymbol,
-                reactionStyle: .stamp
-            )
+            socialReceiptPaper
             .accessibilityIdentifier("socialBatteryResult")
 
+            if receipt != Self.emptyReceipt && !receipt.hasPrefix("Event changed") {
+                DumbShareVerdict(
+                    text: receipt,
+                    subject: "Social battery receipt",
+                    accent: accent,
+                    systemImage: "square.and.arrow.up",
+                    accessibilityIdentifier: "shareSocialReceiptButton"
+                )
+            }
+
             Button(action: resetCurrentReceipt) {
-                Label("Void current receipt", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Void current receipt", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -94,16 +92,26 @@ struct SocialBatteryReceiptView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every receipt", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every receipt", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentReceipt)
             .accessibilityIdentifier("eraseSocialBatteryDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Print & file emotional receipt",
+            accent: accent,
+            systemImage: "receipt.fill",
+            action: makeReceipt
+            )
+            .accessibilityIdentifier("printReceiptButton")
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: eventName) { _, _ in invalidateReceipt() }
@@ -202,10 +210,13 @@ struct SocialBatteryReceiptView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No social event has submitted expenses.", systemImage: "receipt")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptySocialBatteryHistory")
+                    DumbEmptyInvite(
+                        title: "No receipts filed yet",
+                        message: "After your next event, print a receipt to start the archive.",
+                        systemImage: "receipt",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySocialBatteryHistory")
                 } else {
                     ForEach(visibleHistory) { record in
                         VStack(alignment: .leading, spacing: 6) {
@@ -272,6 +283,45 @@ struct SocialBatteryReceiptView: View {
         case 6...8: return "battery.75percent"
         default: return "battery.100percent"
         }
+    }
+
+    private var socialReceiptPaper: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("SOCIAL BATTERY RECEIPT")
+                        .font(.caption.weight(.black).monospaced())
+                        .tracking(1.2)
+                    Text("FILED FOR THIS EVENT ONLY")
+                        .font(.caption2.weight(.bold).monospaced())
+                        .foregroundStyle(CorpPalette.mutedInk)
+                }
+                Spacer()
+                Image(systemName: batterySymbol)
+                    .font(.title2.weight(.black))
+                    .foregroundStyle(accent)
+                    .accessibilityHidden(true)
+            }
+            Rectangle()
+                .fill(accent)
+                .frame(height: 2)
+            Text(receipt)
+                .font(.system(.subheadline, design: .monospaced).weight(.bold))
+                .foregroundStyle(CorpPalette.ink)
+                .fixedSize(horizontal: false, vertical: true)
+                .contentTransition(.opacity)
+        }
+        .padding(DumbSpacing.md)
+        .background(CorpPalette.receiptCream, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .stroke(CorpPalette.ink.opacity(0.08), lineWidth: 1)
+        )
+        .rotationEffect(.degrees(receipt == Self.emptyReceipt ? 0 : -0.6))
+        .shadow(color: .black.opacity(0.06), radius: 2, y: 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Social battery receipt")
+        .accessibilityValue(receipt)
     }
 
     private var hasCurrentReceipt: Bool {

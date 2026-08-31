@@ -73,7 +73,7 @@ private struct EmailAnalysis {
 @main
 struct RealEmailApp: App {
     var body: some Scene {
-        WindowGroup { RealEmailView() }
+        WindowGroup { RealEmailView().dumbNativeEntry(scheme: "app20realemail") { _, _ in } }
     }
 }
 
@@ -91,24 +91,47 @@ struct RealEmailView: View {
     private let accent = CorpPalette.bathroomBlue
 
     var body: some View {
-        DumbShell(
-            eyebrow: "INBOX FORENSICS",
-            title: "Is this a real email?",
-            subtitle: "Detecting paragraphs that could have been one sentence.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent, experience: .workbench) {
+            AppHeader(
+                eyebrow: "INBOX FORENSICS",
+                title: "Corporate fog detector",
+                subtitle: "Clarity estimate for bloated paragraphs—not inbox verification.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "realEmail.boundaryDismissed",
+                message: "Paste-only analysis — does not read, send, or access your email account.",
+                accent: accent,
+                systemImage: "eye.slash.fill"
+            )
+
             editorCard
 
-            DumbAction(
-                title: "Perform email autopsy",
-                accent: accent,
-                systemImage: "stethoscope",
-                action: analyze
-            )
-            .disabled(email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityIdentifier("analyzeEmailButton")
-            .accessibilityHint("Checks the current text against the visible writing rules.")
+            if !email.isEmpty {
+                fogPreviewCard
+            }
+
+            Text("Analysis stays on this device and clears when you leave.")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .accessibilityIdentifier("emailSessionBanner")
+
+            if let analysis {
+                metricsCard(analysis)
+            }
+
+            if analysis != nil && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: shareAutopsyText,
+                    subject: "Email fog autopsy",
+                    accent: accent,
+                    accessibilityIdentifier: "shareEmailAutopsyButton"
+                )
+            }
 
             DumbResult(
                 text: result,
@@ -117,10 +140,6 @@ struct RealEmailView: View {
                 reactionStyle: .shake
             )
             .accessibilityIdentifier("emailVerdict")
-
-            if let analysis {
-                metricsCard(analysis)
-            }
 
             Button {
                 clearEvidence()
@@ -134,6 +153,31 @@ struct RealEmailView: View {
             .disabled(email.isEmpty && analysis == nil)
             .accessibilityIdentifier("clearEmailButton")
             .accessibilityHint("Removes the pasted email from this screen.")
+
+            DumbNativeTip(
+                "Share from Mail",
+                detail: "Use the share sheet in Mail or Notes to send text here for a fog autopsy.",
+                systemImage: "square.and.arrow.down",
+                accent: accent
+            )
+        } bottomBar: {
+            DumbAction(
+                title: "Perform email autopsy",
+                accent: accent,
+                systemImage: "stethoscope",
+                action: analyze
+            )
+            .disabled(email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("analyzeEmailButton")
+            .accessibilityHint("Checks the current text against the visible writing rules.")
+        }
+        .onAppear {
+            if let shared = DumbSharedPayload.consume(for: .realEmail) {
+                email = shared
+            }
+        }
+        .onDisappear {
+            clearEvidence()
         }
     }
 
@@ -147,7 +191,7 @@ struct RealEmailView: View {
 
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $email)
-                        .frame(minHeight: 150)
+                        .frame(minHeight: 200)
                         .scrollContentBackground(.hidden)
                         .padding(8)
                         .background(CorpPalette.canvas, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
@@ -184,6 +228,46 @@ struct RealEmailView: View {
             }
         }
         .accessibilityIdentifier("emailEditor")
+    }
+
+    private var fogPreviewCard: some View {
+        DumbCard(accent: accent) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("FOG PREVIEW")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(CorpPalette.mutedInk)
+                Text(highlightedFogPreview)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(CorpPalette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("emailFogPreview")
+            }
+        }
+    }
+
+    private var highlightedFogPreview: AttributedString {
+        var attributed = AttributedString(email)
+        let lower = email.lowercased()
+        for term in Self.fogTerms {
+            var searchStart = lower.startIndex
+            while searchStart < lower.endIndex,
+                  let range = lower.range(of: term, range: searchStart..<lower.endIndex) {
+                if let attrRange = Range(range, in: attributed) {
+                    attributed[attrRange].backgroundColor = accent.opacity(0.28)
+                    attributed[attrRange].foregroundColor = CorpPalette.ink
+                }
+                searchStart = range.upperBound
+            }
+        }
+        return attributed
+    }
+
+    private var shareAutopsyText: String {
+        guard let analysis else { return result }
+        var lines = [result, "", "Clarity: \(analysis.clarityScore)/100", fogSummary(analysis)]
+        lines.append(contentsOf: analysis.recommendations.map { "• \($0)" })
+        return lines.joined(separator: "\n")
     }
 
     @ViewBuilder

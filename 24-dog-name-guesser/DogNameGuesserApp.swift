@@ -5,7 +5,7 @@ import ImageIO
 import UIKit
 import DumbKit
 
-@main struct DogNameGuesserApp: App { var body: some Scene { WindowGroup { DogNameGuesserView() } } }
+@main struct DogNameGuesserApp: App { var body: some Scene { WindowGroup { DogNameGuesserView().dumbNativeEntry(scheme: "app24dognameguesser") { _, _ in } } } }
 struct DogNameGuesserView: View {
     @AppStorage("dogName.fluff") private var fluff = 5.0
     @AppStorage("dogName.seriousness") private var seriousness = 5.0
@@ -20,60 +20,93 @@ struct DogNameGuesserView: View {
     private let accent = CorpPalette.courtroomNavy
 
     var body: some View {
-        DumbShell(
-            eyebrow: "CANINE NOMENCLATURE",
-            title: "Dog name guesser",
-            subtitle: "The dog will not confirm anything. That is part of the test.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "CANINE NOMENCLATURE",
+                title: "Dog name guesser",
+                subtitle: "The dog will not confirm anything. That is part of the test.",
+                accent: accent,
+                showsMascot: false
+            )
+
+            DumbBoundaryChip(
+                storageKey: "dogNameGuesser.boundaryDismissed",
+                message: "Photo-based name guesses for fun — the dog cannot verify results.",
+                accent: accent,
+                systemImage: "camera.fill"
+            )
+
+            if let banner = VisionSupport.deviceBannerMessage {
+            Text(banner)
+            .font(.caption.weight(.bold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .accessibilityIdentifier("visionDeviceBanner")
+            }
+
             cameraStage
 
             DumbCard(accent: accent, isSelected: !guess.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        DumbStatusPill("NAME LAB", systemImage: "text.badge.checkmark", accent: accent)
-                        Spacer()
-                        Text("TWO DIALS")
-                            .font(.caption2.weight(.black).monospaced())
-                            .foregroundStyle(CorpPalette.mutedInk)
-                    }
-                    DumbSlider(title: "Fluff", value: $fluff, range: 0...10, step: 1, accent: accent)
-                    DumbSlider(title: "Seriousness", value: $seriousness, range: 0...10, step: 1, accent: accent)
-                    DumbField("Your guess", maxLength: 60, text: $guess)
-                    if let suggestedName {
-                        Button {
-                            guess = suggestedName
-                        } label: {
-                            Label("Use committee suggestion: \(suggestedName)", systemImage: "wand.and.stars")
-                                .font(.subheadline.weight(.black))
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                        }
-                        .foregroundStyle(accent)
-                        .buttonStyle(DumbPressStyle())
-                        .accessibilityIdentifier("useDogSuggestionButton")
-                    }
-                    Text("Tune the official nonsense, then make your accusation.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
+            VStack(alignment: .leading, spacing: 14) {
+            HStack {
+            DumbStatusPill("NAME LAB", systemImage: "text.badge.checkmark", accent: accent)
+            Spacer()
+            Text("TWO DIALS")
+            .font(.caption2.weight(.black).monospaced())
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
+            DumbSlider(title: "Fluff", value: $fluff, range: 0...10, step: 1, accent: accent)
+            DumbSlider(title: "Seriousness", value: $seriousness, range: 0...10, step: 1, accent: accent)
+            DumbField("Your guess", maxLength: 60, text: $guess)
+            if let suggestedName {
+            Button {
+            guess = suggestedName
+            } label: {
+            Label("Use committee suggestion: \(suggestedName)", systemImage: "wand.and.stars")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("useDogSuggestionButton")
+            }
+            Text("Tune the official nonsense, then make your accusation.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
             }
             .accessibilityIdentifier("dogNameInputs")
 
-            DumbAction(title: "Present the name", accent: accent, systemImage: "pawprint.fill", action: presentName)
-                .accessibilityIdentifier("presentDogNameButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "person.text.rectangle.fill", reactionStyle: .stamp)
-
             Button(action: reset) {
-                Label("Reset the accusation", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the accusation", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetDogNameButton")
+
+        } bottomBar: {
+            DumbAction(title: "Present the name", accent: accent, systemImage: "pawprint.fill", action: presentName)
+            .accessibilityIdentifier("presentDogNameButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "person.text.rectangle.fill", reactionStyle: .stamp)
+
+            if result != "The dog is awaiting your accusation." && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Dog name verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareDogNameButton"
+                )
+            }
+
         }
+        .onChange(of: fluff) { _, _ in invalidateVerdict() }
+        .onChange(of: seriousness) { _, _ in invalidateVerdict() }
+        .onChange(of: guess) { _, _ in invalidateVerdict() }
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
             Task { await analyze(item) }
@@ -172,6 +205,11 @@ struct DogNameGuesserView: View {
         .accessibilityIdentifier("dogEvidenceStage")
     }
 
+    private func invalidateVerdict() {
+        guard result != "The dog is awaiting your accusation." else { return }
+        result = "Evidence changed. Present the name again."
+    }
+
     private func presentName() {
         let cleanGuess = guess.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanGuess.isEmpty else {
@@ -254,6 +292,13 @@ struct DogNameGuesserView: View {
                 photo = image
                 photoFinding = finding
                 suggestedName = dogDetected ? proposedName : nil
+                if guess.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, dogDetected {
+                    guess = proposedName
+                }
+                if dogDetected {
+                    let name = guess.trimmingCharacters(in: .whitespacesAndNewlines)
+                    result = name.isEmpty ? finding : "Preview: \(name). \(finding)"
+                }
             }
         } catch {
             await MainActor.run {

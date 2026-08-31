@@ -2,18 +2,18 @@
 
 ## Direction
 
-The collection now has a deliberately playful visual system for unofficial problems: warm candy-paper, ink-black rounded typography, high-energy accent colors, soft white cards, chunky pill buttons, and character-led moments. The interaction target is closer to Duolingo or Dumb Ways to Die: one obvious thing to do, a funny consequence, and a mascot with a job.
+Each app should feel like its own tiny product — not a recolored form. Shared **controls** live in DumbKit; **layout** is per app. See [docs/CUSTOM_APP_DESIGN.md](../docs/CUSTOM_APP_DESIGN.md) and [release/CUSTOMER_UX_SCORECARD.md](../release/CUSTOMER_UX_SCORECARD.md).
 
-The parent brand is the **Unnecessary Apps Corp** civic seal: a chair, laurel, tiny pigeon, and red flag. Each app gets its own deadpan mascot mark, while the shared shell keeps the collection recognizable.
+The playful system still applies: warm canvas, ink-black type, accent colors, mascots with a job, and one obvious primary action. Map apps (02, 23, 29), Meeting Bingo, and Do Not Text Them break the old hero template.
+
+The parent brand is the **Unnecessary Apps Corp** civic seal: a chair, laurel, tiny pigeon, and red flag. Each app gets its own deadpan mascot mark.
 
 ## What is working
 
-- Oversized rounded headlines make every app understandable within one glance.
-- A large mascot moment gives each app an immediate emotional hook.
-- One chunky primary action creates a simple game-like loop.
-- Soft-depth cards and small status pills keep the interface friendly rather than administrative.
-- The deadpan corporate voice remains in short labels such as `NONSENSE DEPT.` and `OFFICIAL RESULT`.
-- Apps 11–44 use the refreshed `shared/DumbKit.swift` shell; Chair Finder is the first custom screen rebuilt against the new system.
+- All **44 shipping apps** use custom layouts (`AppCanvas`, map-first, intervention, or game board) — no mandatory `DumbShell`.
+- Shared interest primitives: `DumbEmptyInvite`, `DumbShareVerdict`, `DumbHeroMeter`, `DumbBoundaryChip`, lane-tuned haptics.
+- First-lane apps have distinct first-viewport geometry (spin wheel, pinboard columns, fog preview, hero timer dial, share receipts).
+- I/O usability pass complete — sticky actions, stale invalidation, session bars ([release/IO_USABILITY_AUDIT.md](../release/IO_USABILITY_AUDIT.md)).
 
 ## Asset system
 
@@ -22,18 +22,16 @@ The parent brand is the **Unnecessary Apps Corp** civic seal: a chair, laurel, t
 - Per-app source marks: `assets/app-icons/`
 - Per-app Xcode assets: each numbered folder contains `Assets.xcassets/AppIcon.appiconset` and `AppMascot.imageset`.
 
-The generated marks use one subject, one ridiculous prop, a heavy editorial outline, transparent background, and no readable text. The AppIcon copy is normalized to Apple’s full iPhone/iPad/App Store size set; the source artwork remains in `assets/app-icons` for future art direction.
-
 ## Product review notes
 
-The strongest first-release candidates are:
+Strong first-release candidates:
 
-1. **Chair Finder** — instantly legible, highly shareable, and visually representative of the brand.
+1. **Chair Finder** — instantly legible, highly shareable, visually representative of the brand.
 2. **Public Bathroom Quality Map** — practical enough to earn repeat use while remaining absurd.
-3. **Do Not Text Them** — a universal emotional trigger with a clean one-action interaction.
-4. **Receipt Emotional Damage** — the most naturally screenshot-able result screen.
+3. **Do Not Text Them** — universal emotional trigger with a clean one-action interaction.
+4. **Receipt Emotional Damage** — screenshot-able result with share export.
 
-For the first TestFlight, release one flagship target rather than shipping all 44 at once. This gives us a clean signal on onboarding, icon recognition, retention, and which flavor of nonsense people actually share. App01 Chair Finder is the recommended pilot.
+For TestFlight, stagger releases rather than shipping all 44 at once.
 
 ## Guardrails before public release
 
@@ -45,4 +43,6 @@ For the first TestFlight, release one flagship target rather than shipping all 4
 
 ## Next design pass
 
-The refreshed shell and mascot badge are now implemented and verified on App11; Chair Finder is the flagship visual reference. The next worthwhile pass is focused polish on the first five release candidates: test the copy at larger Dynamic Type sizes, tighten the empty states, and add App Store screenshots that show the joke immediately.
+- Mac screenshot pass at AX5 Dynamic Type for first-lane apps.
+- App Store frames: premise → action → payoff (see scorecard checklist).
+- HOLD apps (38, 40) and Recovery Goblin stay out of public cohort until retention loops are signed off.

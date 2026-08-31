@@ -49,14 +49,21 @@ struct HydrationNarcView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "BOTTLE OVERSIGHT",
-            title: "Hydration narc",
-            subtitle: "A one-tap water ledger with a very small attitude problem.",
-            accent: accent,
-            personality: .office,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "BOTTLE OVERSIGHT",
+                title: "Hydration narc",
+                subtitle: "One-tap ledger with optional Health import and a daily nudge.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "hydrationNarc.boundaryDismissed",
+                message: "Reflection and logging only—not medical guidance. Apple Health import is optional read-only.",
+                accent: accent,
+                systemImage: "drop.fill"
+            )
+
             progressCard
 
             DumbSlider(
@@ -68,15 +75,6 @@ struct HydrationNarcView: View {
             )
             .accessibilityIdentifier("hydrationGoalSlider")
 
-            DumbAction(
-                title: "Log one serving",
-                accent: accent,
-                systemImage: "drop.fill",
-                action: logOneServing
-            )
-            .disabled(servings >= 24)
-            .accessibilityIdentifier("logGlassButton")
-
             Button(action: undoOneServing) {
                 Label("Undo last serving", systemImage: "minus.circle.fill")
                     .font(.subheadline.weight(.black))
@@ -87,15 +85,6 @@ struct HydrationNarcView: View {
             .disabled(servings <= 0)
             .accessibilityIdentifier("undoGlassButton")
 
-            Button(action: reportToBottle) {
-                Label("Report to the bottle", systemImage: "megaphone.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("reportButton")
-
             DumbResult(
                 text: result,
                 accent: accent,
@@ -103,6 +92,15 @@ struct HydrationNarcView: View {
                 reactionStyle: .bounce
             )
             .accessibilityIdentifier("hydrationResult")
+
+            if result != Self.emptyResult {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Hydration ledger update",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHydrationButton"
+                )
+            }
 
             healthConnectionCard
             notificationCard
@@ -120,13 +118,37 @@ struct HydrationNarcView: View {
             .disabled(servings <= 0)
             .accessibilityIdentifier("resetHydrationButton")
             .accessibilityHint("Asks for confirmation before clearing today’s serving count.")
+
+            DumbNativeTip(
+                "Siri & Shortcuts",
+                detail: "Say “Log water in Hydration Narc” or add the Shortcuts action for a one-tap serving without hunting for the icon.",
+                systemImage: "drop.fill",
+                accent: accent
+            )
+        } bottomBar: {
+            DumbAction(
+                title: "Log one serving",
+                accent: accent,
+                systemImage: "drop.fill",
+                action: logOneServing
+            )
+            .disabled(servings >= 24)
+            .accessibilityIdentifier("logGlassButton")
+        }
+        .dumbNativeEntry(scheme: "app43hydrationnarc") { action, _ in
+            if action == "log" {
+                logOneServing()
+            }
         }
         .onAppear {
             loadAndRollDay()
             loadNudgeDate()
             if healthConnected { importHealthWater() }
+            syncWidgetSnapshot()
         }
+        .onChange(of: servings) { _, _ in syncWidgetSnapshot() }
         .onChange(of: goal) { _, _ in
+            syncWidgetSnapshot()
             reportToBottle()
         }
         .onChange(of: dailyNudgeEnabled) { _, enabled in
@@ -298,9 +320,12 @@ struct HydrationNarcView: View {
                 }
 
                 if history.isEmpty {
-                    Label("Yesterday has filed no paperwork.", systemImage: "calendar")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No ledger days yet",
+                        message: "Log servings today — yesterday’s summary appears here tomorrow.",
+                        systemImage: "calendar",
+                        accent: accent
+                    )
                 } else {
                     ForEach(history) { day in
                         HStack {
@@ -323,6 +348,13 @@ struct HydrationNarcView: View {
 
     private var progress: CGFloat {
         CGFloat(min(max(servings / max(goal, 1), 0), 1))
+    }
+
+    private func syncWidgetSnapshot() {
+        DumbWidgetSync.publish(.hydration, values: [
+            "servings": "\(Int(servings.rounded()))",
+            "goal": "\(Int(goal.rounded()))",
+        ])
     }
 
     private func logOneServing() {

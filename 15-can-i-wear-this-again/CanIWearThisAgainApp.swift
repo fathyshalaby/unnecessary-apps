@@ -35,7 +35,7 @@ private struct ClosetRuling: Codable, Identifiable {
 
 @main
 struct CanIWearThisAgainApp: App {
-    var body: some Scene { WindowGroup { OutfitView() } }
+    var body: some Scene { WindowGroup { OutfitView().dumbNativeEntry(scheme: "app15caniwearthisagain") { _, _ in } } }
 }
 
 struct OutfitView: View {
@@ -60,37 +60,38 @@ struct OutfitView: View {
     private let accent = CorpPalette.coral
 
     var body: some View {
-        DumbShell(
-            eyebrow: "WARDROBE COMPLIANCE",
-            title: "Wear it again?",
-            subtitle: "Your rules, your evidence, your suspiciously formal closet ruling.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "WARDROBE COMPLIANCE",
+                title: "Wear it again?",
+                subtitle: "Your rules, your evidence, your suspiciously formal closet ruling.",
+                accent: accent
+            )
+
             boundaryCard
             summaryCard
+
+            wearEvidenceRow
             rulingEditor
 
-            DumbAction(
-                title: "Issue & file closet ruling",
-                accent: accent,
-                systemImage: "tshirt.fill",
-                action: issueRuling
-            )
-            .accessibilityIdentifier("askClosetButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "checkmark.seal.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("closetRulingResult")
+            if result != Self.emptyResult, let banner = rulingBanner {
+            DumbCard(accent: accent, isSelected: true) {
+            HStack(spacing: 12) {
+            Image(systemName: banner.approved ? "checkmark.seal.fill" : "washer.fill")
+            .font(.title2.weight(.black))
+            .foregroundStyle(banner.approved ? accent : CorpPalette.warningRed)
+            Text(banner.title)
+            .font(.system(.title3, design: .rounded).weight(.black))
+            .foregroundStyle(CorpPalette.ink)
+            }
+            }
+            .accessibilityIdentifier("closetRulingBanner")
+            }
 
             Button(action: resetCurrentRuling) {
-                Label("Reset current evidence", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset current evidence", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -101,16 +102,43 @@ struct OutfitView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every wardrobe ruling", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every wardrobe ruling", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentRuling)
             .accessibilityIdentifier("eraseWardrobeDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Issue & file closet ruling",
+            accent: accent,
+            systemImage: "tshirt.fill",
+            action: issueRuling
+            )
+            .accessibilityIdentifier("askClosetButton")
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "checkmark.seal.fill",
+            reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("closetRulingResult")
+
+            if result != Self.emptyResult && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Closet ruling",
+                    accent: accent,
+                    accessibilityIdentifier: "shareClosetRulingButton"
+                )
+            }
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: daysSinceWear) { _, _ in invalidateRuling() }
@@ -178,6 +206,33 @@ struct OutfitView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private var wearEvidenceRow: some View {
+        HStack(spacing: 12) {
+            hangerIcon(active: !hasOdor, label: "Odor", systemImage: "nose.fill")
+            hangerIcon(active: !hasStain, label: "Stain", systemImage: "drop.fill")
+            hangerIcon(active: !wasSweaty, label: "Sweat", systemImage: "figure.run")
+            hangerIcon(active: Int(wearsSinceWash) < Int(personalLimit), label: "Wears", systemImage: "tshirt.fill")
+        }
+        .accessibilityIdentifier("closetHangerRow")
+    }
+
+    private func hangerIcon(active: Bool, label: String, systemImage: String) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: "hanger")
+                .font(.caption.weight(.black))
+                .foregroundStyle(active ? accent : CorpPalette.mutedInk.opacity(0.5))
+            Image(systemName: systemImage)
+                .font(.caption2.weight(.black))
+                .foregroundStyle(active ? CorpPalette.ink : CorpPalette.warningRed)
+            Text(label.uppercased())
+                .font(.system(size: 9, weight: .black))
+                .foregroundStyle(CorpPalette.mutedInk)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(active ? accent.opacity(0.08) : CorpPalette.surface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
     private var rulingEditor: some View {
         DumbCard(accent: accent, isSelected: hasOdor || hasStain || wasSweaty) {
             VStack(alignment: .leading, spacing: 14) {
@@ -192,29 +247,10 @@ struct OutfitView: View {
                     text: $itemName
                 )
 
-                DumbSlider(
-                    title: "Completed wears since washing",
-                    value: $wearsSinceWash,
-                    range: 0...10,
-                    step: 1,
-                    accent: accent
-                )
-                DumbSlider(
-                    title: "Your maximum wears before washing",
-                    value: $personalLimit,
-                    range: 1...10,
-                    step: 1,
-                    accent: accent
-                )
-                DumbSlider(
-                    title: "Days since last wear",
-                    value: $daysSinceWear,
-                    range: 0...14,
-                    step: 1,
-                    accent: accent
-                )
-
-                Divider()
+                Text("CONDITION EVIDENCE")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(CorpPalette.mutedInk)
 
                 conditionToggle(
                     "Odor noticed",
@@ -234,8 +270,43 @@ struct OutfitView: View {
                     isOn: $wasSweaty,
                     identifier: "sweatyWearToggle"
                 )
+
+                Divider()
+
+                DumbSlider(
+                    title: "Completed wears since washing",
+                    value: $wearsSinceWash,
+                    range: 0...10,
+                    step: 1,
+                    accent: accent
+                )
+                DumbSlider(
+                    title: "Your maximum wears before washing",
+                    value: $personalLimit,
+                    range: 1...10,
+                    step: 1,
+                    accent: accent
+                )
+                DumbSlider(
+                    title: "Days since last wear (social context only)",
+                    value: $daysSinceWear,
+                    range: 0...14,
+                    step: 1,
+                    accent: accent
+                )
             }
         }
+    }
+
+    private var rulingBanner: (approved: Bool, title: String)? {
+        guard result != Self.emptyResult else { return nil }
+        if result.localizedCaseInsensitiveContains("laundry") || result.localizedCaseInsensitiveContains("wash") {
+            return (false, "LAUNDRY")
+        }
+        if result.localizedCaseInsensitiveContains("approved") || result.localizedCaseInsensitiveContains("wear again") {
+            return (true, "APPROVED")
+        }
+        return nil
     }
 
     private func conditionToggle(
@@ -275,10 +346,13 @@ struct OutfitView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No garment has faced judgment yet.", systemImage: "tshirt")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyClosetHistory")
+                    DumbEmptyInvite(
+                        title: "No garments judged",
+                        message: "File honest closet evidence to start the ruling archive.",
+                        systemImage: "tshirt",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyClosetHistory")
                 } else {
                     ForEach(visibleHistory) { ruling in
                         VStack(alignment: .leading, spacing: 6) {

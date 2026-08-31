@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct HealthHoroscopeApp: App {
     var body: some Scene {
-        WindowGroup { HealthHoroscopeView() }
+        WindowGroup { HealthHoroscopeView().dumbNativeEntry(scheme: "app40healthhoroscope") { _, _ in } }
     }
 }
 
@@ -49,40 +49,70 @@ struct HealthHoroscopeView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "TOTALLY FICTIONAL WELLNESS ASTROLOGY",
-            title: "Health data horoscope",
-            subtitle: "Your numbers get a constellation. The planets stay out of medicine.",
-            accent: accent,
-            personality: .chaotic,
-            experience: .oracle
-        ) {
-            disclaimerCard
-            healthConnectionCard
-            cosmicReadoutCard
+        AppCanvas(accent: accent, experience: .oracle) {
+            AppHeader(
+                eyebrow: "TOTALLY FICTIONAL WELLNESS ASTROLOGY",
+                title: "Health data horoscope",
+                subtitle: "Your numbers get a constellation. The planets stay out of medicine.",
+                accent: accent
+            )
 
-            DumbAction(
-                title: "Consult the planets",
+            disclaimerCard
+
+            DumbBoundaryChip(
+                storageKey: "healthHoroscope.boundaryDismissed",
+                message: "Fictional horoscope only—not medical, wellness, or predictive advice.",
+                accent: accent,
+                systemImage: "moon.stars.fill"
+            )
+
+            DumbHeroMeter(
+                progress: min((effectiveSteps / 8000 + effectiveSleep / 8) / 2, 1),
+                valueLabel: "Cosmic load",
+                title: "Constellation input",
+                subtitle: "\(Int(effectiveSteps.rounded())) steps · \(String(format: "%.1f", effectiveSleep)) hr sleep",
                 accent: accent,
                 systemImage: "sparkles",
-                action: consultPlanets
+                variant: .arc
             )
-            .accessibilityIdentifier("consultHealthHoroscopeButton")
+            .accessibilityIdentifier("healthHoroscopeHeroMeter")
 
-            DumbResult(text: result, accent: accent, systemImage: "moon.stars.fill", reactionStyle: .bounce)
-                .accessibilityIdentifier("healthHoroscopeResult")
+            healthConnectionCard
+            cosmicReadoutCard
 
             notificationCard
             manualInputsCard
 
             Button(action: reset) {
-                Label("Reset the constellation", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the constellation", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetHealthHoroscopeButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Consult the planets",
+            accent: accent,
+            systemImage: "sparkles",
+            action: consultPlanets
+            )
+            .accessibilityIdentifier("consultHealthHoroscopeButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "moon.stars.fill", reactionStyle: .bounce)
+            .accessibilityIdentifier("healthHoroscopeResult")
+
+            if result != "The stars are waiting for numbers." && !result.hasPrefix("The numbers shifted") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Health horoscope",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHealthHoroscopeButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()
@@ -107,6 +137,15 @@ struct HealthHoroscopeView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: steps) { _, _ in invalidateOracle() }
+        .onChange(of: sleep) { _, _ in invalidateOracle() }
+        .onChange(of: healthSteps) { _, _ in invalidateOracle() }
+        .onChange(of: healthSleepHours) { _, _ in invalidateOracle() }
+    }
+
+    private func invalidateOracle() {
+        guard result != "The stars are waiting for numbers." else { return }
+        result = "The numbers shifted. Consult the planets again."
     }
 
     private var disclaimerCard: some View {
@@ -186,8 +225,18 @@ struct HealthHoroscopeView: View {
                         .foregroundStyle(accent)
                 }
                 HStack(spacing: 12) {
-                    metric(title: "STEPS", value: "\(Int(effectiveSteps.rounded()))", icon: "figure.walk")
-                    metric(title: "SLEEP", value: String(format: "%.1fh", effectiveSleep), icon: "bed.double.fill")
+                    metric(
+                        title: "STEPS",
+                        value: "\(Int(effectiveSteps.rounded()))",
+                        icon: "figure.walk",
+                        source: healthSteps != nil ? "Apple Health" : "Manual"
+                    )
+                    metric(
+                        title: "SLEEP",
+                        value: String(format: "%.1fh", effectiveSleep),
+                        icon: "bed.double.fill",
+                        source: healthSleepHours != nil ? "Apple Health" : "Manual"
+                    )
                 }
                 Text(healthSteps == nil && healthSleepHours == nil ? "Manual numbers are fine. No health claim is hiding behind the glitter." : "Imported values are shown as supplied; incomplete data is possible.")
                     .font(.caption.weight(.semibold))
@@ -197,10 +246,14 @@ struct HealthHoroscopeView: View {
         .accessibilityIdentifier("healthHoroscopeInputs")
     }
 
-    private func metric(title: String, value: String, icon: String) -> some View {
+    private func metric(title: String, value: String, icon: String, source: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Image(systemName: icon)
-                .foregroundStyle(accent)
+            HStack {
+                Image(systemName: icon)
+                    .foregroundStyle(accent)
+                Spacer()
+                DumbStatusPill(source.uppercased(), systemImage: source == "Apple Health" ? "heart.text.square.fill" : "hand.raised.fill", accent: accent)
+            }
             Text(title)
                 .font(.caption2.weight(.black))
                 .tracking(0.9)

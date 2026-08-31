@@ -39,43 +39,17 @@ struct FridgeWitnessView: View {
     private let accent = CorpPalette.parkGreen
 
     var body: some View {
-        DumbShell(
-            eyebrow: "CASE FILE 0042",
-            title: "The fridge is a witness.",
-            subtitle: "An inventory for the food you actually put there.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "CASE FILE 0042",
+                title: "The fridge is a witness.",
+                subtitle: "An inventory for the food you actually put there.",
+                accent: accent
+            )
+
             boundaryCard
             summaryCard
             evidenceEditor
-
-            DumbAction(
-                title: "File fridge evidence",
-                accent: accent,
-                systemImage: "archivebox.fill",
-                action: addItem
-            )
-            .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityIdentifier("fileFridgeEvidenceButton")
-
-            Button(action: interrogate) {
-                Label("Interrogate current inventory", systemImage: "person.crop.circle.badge.questionmark")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(items.isEmpty)
-            .accessibilityIdentifier("interrogateFridgeButton")
-
-            DumbResult(
-                text: statement,
-                accent: accent,
-                systemImage: "quote.bubble.fill",
-                reactionStyle: .shake
-            )
-            .accessibilityIdentifier("fridgeWitnessStatement")
 
             inventoryCard
 
@@ -90,6 +64,34 @@ struct FridgeWitnessView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(items.isEmpty && statement == Self.emptyStatement)
             .accessibilityIdentifier("eraseFridgeDataButton")
+
+        } bottomBar: {
+            DumbAction(
+                title: "File fridge evidence",
+                accent: accent,
+                systemImage: "archivebox.fill",
+                action: addItem
+            )
+            .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("fileFridgeEvidenceButton")
+
+            DumbResult(
+                text: statement,
+                accent: accent,
+                systemImage: "quote.bubble.fill",
+                reactionStyle: .shake
+            )
+            .accessibilityIdentifier("fridgeWitnessStatement")
+
+            if statement != Self.emptyStatement && !statement.hasPrefix("Inventory changed") {
+                DumbShareVerdict(
+                    text: statement,
+                    subject: "Fridge witness statement",
+                    accent: accent,
+                    accessibilityIdentifier: "shareFridgeStatementButton"
+                )
+            }
+
         }
         .onAppear(perform: restoreInventory)
         .confirmationDialog(
@@ -151,12 +153,20 @@ struct FridgeWitnessView: View {
     }
 
     private var evidenceEditor: some View {
-        DumbCard(accent: accent) {
+        DumbCard(accent: accent, isSelected: !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("FILE REAL EVIDENCE")
-                    .font(.caption2.weight(.black))
-                    .tracking(1.2)
-                    .foregroundStyle(CorpPalette.mutedInk)
+                HStack(spacing: 10) {
+                    Text("FILE REAL EVIDENCE")
+                        .font(.caption2.weight(.black))
+                        .tracking(1.2)
+                        .foregroundStyle(CorpPalette.mutedInk)
+                    Spacer()
+                    Image(systemName: itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "lightbulb" : "lightbulb.max.fill")
+                        .font(.title3.weight(.black))
+                        .foregroundStyle(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? accent.opacity(0.35) : CorpPalette.sunshine)
+                        .symbolEffect(.pulse, isActive: !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .accessibilityHidden(true)
+                }
                 DumbField("Food or container name", maxLength: 100, text: $itemName)
                 DumbSlider(
                     title: "Quantity",
@@ -209,10 +219,13 @@ struct FridgeWitnessView: View {
                 }
 
                 if items.isEmpty {
-                    Label("No fictional cucumber. Add what is really there.", systemImage: "refrigerator")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyFridgeInventory")
+                    DumbEmptyInvite(
+                        title: "The fridge is empty",
+                        message: "Add what is really there — no fictional cucumbers.",
+                        systemImage: "refrigerator",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyFridgeInventory")
                 } else {
                     ForEach(sortedItems) { item in
                         VStack(alignment: .leading, spacing: 7) {
@@ -317,12 +330,15 @@ struct FridgeWitnessView: View {
         }
         itemName = ""
         quantity = 1
-        statement = "Evidence filed. Interrogate the inventory for a current statement."
         persistInventory()
+        interrogate()
     }
 
     private func interrogate() {
-        guard !items.isEmpty else { return }
+        guard !items.isEmpty else {
+            statement = Self.emptyStatement
+            return
+        }
         let overdue = items.filter { statusLabel(for: $0) == "Overdue reminder" }.count
         let dueSoon = items.filter { statusLabel(for: $0) == "Due within 3 days" }.count
         statement = "FRIDGE WITNESS STATEMENT — \(items.count) item \(items.count == 1 ? "type" : "types"), \(totalUnits) total \(totalUnits == 1 ? "unit" : "units"). \(overdue) overdue reminders; \(dueSoon) due within three days. Your reminders—not a freshness or safety verdict."
@@ -353,14 +369,14 @@ struct FridgeWitnessView: View {
         } else {
             items.remove(at: index)
         }
-        statement = "Inventory changed. Interrogate again for a fresh statement."
         persistInventory()
+        interrogate()
     }
 
     private func discard(_ item: FridgeItem) {
         items.removeAll { $0.id == item.id }
-        statement = items.isEmpty ? Self.emptyStatement : "Inventory changed. Interrogate again for a fresh statement."
         persistInventory()
+        interrogate()
     }
 
     private func eraseAllData() {

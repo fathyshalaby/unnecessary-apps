@@ -18,90 +18,138 @@ struct DoNotTextThemView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        DumbShell(
-            eyebrow: "DO NOT TEXT THEM",
-            title: "Put the phone down.",
-            subtitle: "Your dignity has requested a cooling-off period.",
-            accent: CorpPalette.emergencyRed,
-            personality: .dramatic
-        ) {
-            DumbCard {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("DRAFT EVIDENCE")
-                            .font(.caption2.weight(.black))
-                            .tracking(1.2)
-                            .foregroundStyle(CorpPalette.mutedInk)
-                        Spacer()
-                        Text("\(message.count)/2,000")
-                            .font(.caption2.monospacedDigit().weight(.bold))
-                            .foregroundStyle(CorpPalette.mutedInk)
-                    }
-                    TextEditor(text: $message)
-                        .frame(minHeight: 150)
-                        .scrollContentBackground(.hidden)
-                        .padding(8)
-                        .background(CorpPalette.canvas, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
-                        .focused($draftIsFocused)
-                        .accessibilityLabel("Draft evidence")
-                        .accessibilityHint("Enter the message you are considering sending. Maximum 2,000 characters.")
-                        .accessibilityIdentifier("draftEditor")
-                        .onChange(of: message) { _, newValue in
-                            guard newValue.count > 2_000 else { return }
-                            message = String(newValue.prefix(2_000))
+        ZStack {
+            CorpPalette.canvas.ignoresSafeArea()
+            LinearGradient(
+                colors: [CorpPalette.emergencyRed.opacity(0.16), CorpPalette.canvas.opacity(0.4), CorpPalette.canvas],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: DumbSpacing.lg) {
+                    interventionHeader
+
+                    DumbBoundaryChip(
+                        storageKey: "doNotTextThem.boundaryDismissed",
+                        message: "Drafts stay on your device — nothing is sent, stored in the cloud, or shared.",
+                        accent: CorpPalette.emergencyRed,
+                        systemImage: "hand.raised.fill"
+                    )
+
+                    DumbCard {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("DRAFT EVIDENCE")
+                                    .font(.caption2.weight(.black))
+                                    .tracking(1.2)
+                                    .foregroundStyle(CorpPalette.mutedInk)
+                                Spacer()
+                                Text("\(message.count)/2,000")
+                                    .font(.caption2.monospacedDigit().weight(.bold))
+                                    .foregroundStyle(CorpPalette.mutedInk)
+                            }
+                            TextEditor(text: $message)
+                                .frame(minHeight: 200)
+                                .scrollContentBackground(.hidden)
+                                .padding(8)
+                                .background(CorpPalette.canvas, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+                                .focused($draftIsFocused)
+                                .accessibilityLabel("Draft evidence")
+                                .accessibilityHint("Enter the message you are considering sending. Maximum 2,000 characters.")
+                                .accessibilityIdentifier("draftEditor")
+                                .onChange(of: message) { _, newValue in
+                                    guard newValue.count > 2_000 else { return }
+                                    message = String(newValue.prefix(2_000))
+                                }
+                            Label("Write it here. Nothing gets sent.", systemImage: "hand.raised.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(CorpPalette.mutedInk)
                         }
-                    Label("Write it here. Nothing gets sent.", systemImage: "hand.raised.fill")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
+                    }
+
+                    if remaining > 0 {
+                        countdownCard
+                            .transition(.scale(scale: 0.96).combined(with: .opacity))
+                    }
+
+                    Button {
+                        deleteEvidence()
+                    } label: {
+                        Label("Delete evidence", systemImage: "trash.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(CorpPalette.emergencyRed)
+                    .buttonStyle(DumbPressStyle())
+                    .disabled(message.isEmpty && remaining == 0)
+                    .accessibilityIdentifier("deleteEvidenceButton")
+
+                    rescueStats
+
+                    DumbNativeTip(
+                        "Siri & Shortcuts",
+                        detail: "Say “Start intervention in Do Not Text Them,” add the Shortcuts action, or Handoff a draft from another device.",
+                        systemImage: "hand.raised.fill",
+                        accent: CorpPalette.emergencyRed
+                    )
                 }
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.top, DumbSpacing.sm)
+                .padding(.bottom, DumbSpacing.xxl)
             }
+            .scrollIndicators(.hidden)
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                VStack(spacing: DumbSpacing.sm) {
+                    DumbAction(
+                        title: remaining > 0 ? "Breathe. \(remaining)s" : "Start the cool-off",
+                        accent: CorpPalette.emergencyRed,
+                        systemImage: "shield.fill"
+                    ) {
+                        startIntervention()
+                    }
+                    .disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || remaining > 0)
+                    .accessibilityIdentifier("startInterventionButton")
 
-            if remaining > 0 {
-                countdownCard
-                    .transition(.scale(scale: 0.96).combined(with: .opacity))
+                    DumbResult(
+                        text: status,
+                        accent: CorpPalette.emergencyRed,
+                        systemImage: "hand.raised.fill",
+                        reactionStyle: .shake
+                    )
+
+                    if status != "The tribunal is ready." && status != "Cool-off aborted. The draft remains yours—use wisely." {
+                        DumbShareVerdict(
+                            text: status,
+                            subject: "Do not text them — intervention",
+                            accent: CorpPalette.emergencyRed,
+                            accessibilityIdentifier: "shareInterventionStatusButton"
+                        )
+                    }
+                }
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.vertical, DumbSpacing.sm)
+                .background(CorpPalette.canvas.opacity(0.96))
             }
-
-            DumbAction(
-                title: remaining > 0 ? "Breathe. \(remaining)s" : "Start intervention",
-                accent: CorpPalette.emergencyRed,
-                systemImage: "shield.fill"
-            ) {
-                startIntervention()
+        }
+        .tint(CorpPalette.emergencyRed)
+        .environment(\.dumbExperienceStyle, .timer)
+        .dumbNativeEntry(scheme: "app03donottextthem", onRoute: handleNativeRoute)
+        .dumbHandoffDraft(
+            "corp.unecessary.app03.draft",
+            title: "Do Not Text Them draft",
+            isActive: !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            payload: ["message": message]
+        ) { userInfo in
+            if let restored = userInfo["message"], !restored.isEmpty {
+                message = restored
             }
-            .disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || remaining > 0)
-            .accessibilityIdentifier("startInterventionButton")
-
-            DumbResult(
-                text: status,
-                accent: CorpPalette.emergencyRed,
-                systemImage: "hand.raised.fill",
-                reactionStyle: .shake
-            )
-
-            Button {
-                deleteEvidence()
-            } label: {
-                Label("Delete evidence", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(CorpPalette.emergencyRed)
-            .buttonStyle(DumbPressStyle())
-            .disabled(message.isEmpty && remaining == 0)
-            .accessibilityIdentifier("deleteEvidenceButton")
-
-            rescueStats
-
-            DumbCharacterStage(
-                accent: CorpPalette.emergencyRed,
-                title: remaining > 0 ? "Intervention in progress" : "Dignity protection officer",
-                caption: mascotCaption,
-                reactionTrigger: interventionRevision,
-                reactionStyle: .shake
-            )
         }
         .onAppear {
             resumeIntervention()
+            syncWidgetSnapshot()
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
@@ -116,6 +164,34 @@ struct DoNotTextThemView: View {
         .onDisappear {
             countdownTask?.cancel()
             countdownTask = nil
+        }
+    }
+
+    private var interventionHeader: some View {
+        HStack(alignment: .top, spacing: DumbSpacing.sm) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("DO NOT TEXT THEM")
+                    .font(.caption.weight(.black))
+                    .tracking(1.4)
+                    .foregroundStyle(CorpPalette.emergencyRed)
+                Text("Put the phone down.")
+                    .font(.system(.title, design: .rounded).weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .accessibilityAddTraits(.isHeader)
+                Text("Your dignity has requested a cooling-off period.")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(CorpPalette.mutedInk)
+            }
+            Spacer(minLength: 0)
+            Image("AppMascot", bundle: .main)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 56, height: 56)
+                .padding(6)
+                .background(CorpPalette.emergencyRed.opacity(0.12), in: Circle())
+                .overlay(Circle().stroke(CorpPalette.emergencyRed.opacity(0.22), lineWidth: 2))
+                .rotationEffect(.degrees(-6))
+                .accessibilityHidden(true)
         }
     }
 
@@ -194,6 +270,14 @@ struct DoNotTextThemView: View {
                         .font(.headline.weight(.black))
                         .foregroundStyle(CorpPalette.ink)
                         .contentTransition(.opacity)
+                    Button(action: abortIntervention) {
+                        Label("Abort cool-off", systemImage: "xmark.circle.fill")
+                            .font(.caption.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                    }
+                    .foregroundStyle(CorpPalette.emergencyRed)
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("abortInterventionButton")
                 }
             }
         }
@@ -216,6 +300,26 @@ struct DoNotTextThemView: View {
         }
     }
 
+    private func syncWidgetSnapshot() {
+        DumbWidgetSync.publish(.doNotTextThem, values: [
+            "remaining": "\(remaining)",
+            "active": remaining > 0 ? "1" : "0",
+        ])
+    }
+
+    private func handleNativeRoute(_ action: String, _ payload: String) {
+        switch action {
+        case "start":
+            if !payload.isEmpty {
+                message = payload
+            }
+            guard !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, remaining == 0 else { return }
+            startIntervention()
+        default:
+            break
+        }
+    }
+
     private func startIntervention() {
         countdownTask?.cancel()
         draftIsFocused = false
@@ -228,6 +332,7 @@ struct DoNotTextThemView: View {
             status = "Step 1: You do not miss them. You miss being perceived."
             interventionRevision += 1
         }
+        syncWidgetSnapshot()
         notificationTask?.cancel()
         notificationTask = Task { @MainActor in
             await scheduleCompletionNotification(id: notificationID, fireDate: expiration)
@@ -274,6 +379,20 @@ struct DoNotTextThemView: View {
                 status = "Step 3: Your future self has entered the room."
             }
         }
+        syncWidgetSnapshot()
+    }
+
+    private func abortIntervention() {
+        cancelCompletionNotification()
+        countdownTask?.cancel()
+        countdownTask = nil
+        deadline = nil
+        withAnimation(reduceMotion ? nil : DumbMotion.playful) {
+            remaining = 0
+            status = "Cool-off aborted. The draft remains yours—use wisely."
+            interventionRevision += 1
+        }
+        syncWidgetSnapshot()
     }
 
     private func completeIntervention() {
@@ -287,6 +406,7 @@ struct DoNotTextThemView: View {
             status = "Intervention complete. Delete it. Be mysterious."
             interventionRevision += 1
         }
+        syncWidgetSnapshot()
     }
 
     private func deleteEvidence() {
@@ -331,6 +451,7 @@ struct DoNotTextThemView: View {
         content.title = "Cooling-off complete"
         content.body = "The tribunal has released the draft for review."
         content.sound = .default
+        content.userInfo = [DumbNativeRoute.userInfoKey: "open:"]
         let trigger = UNTimeIntervalNotificationTrigger(
             timeInterval: max(1, fireDate.timeIntervalSinceNow),
             repeats: false

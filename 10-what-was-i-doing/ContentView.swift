@@ -43,22 +43,25 @@ struct WhatWasIDoingView: View {
     private let contexts = ["Opened phone", "Entered a room", "Switched task", "Got interrupted", "Other"]
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MEMORY SERVICES",
-            title: "What was I doing?",
-            subtitle: "A tiny black box for the exact moment your purpose evaporated.",
-            accent: accent,
-            personality: .chaotic
-        ) {
-            counterCard
-            incidentEditor
-            DumbAction(
-                title: "Log forgotten mission",
-                accent: accent,
-                systemImage: "questionmark.diamond.fill",
-                action: recordIncident
+        AppCanvas(accent: accent, experience: .journal) {
+            AppHeader(
+                eyebrow: "MEMORY SERVICES",
+                title: "What was I doing?",
+                subtitle: "A tiny black box for when your purpose evaporates.",
+                accent: accent
             )
-            .accessibilityIdentifier("forgotButton")
+
+            DumbBoundaryChip(
+                storageKey: "whatWasIDoing.boundaryDismissed",
+                message: "Private incident log — not screen-time tracking or productivity scoring.",
+                accent: accent,
+                systemImage: "brain.head.profile"
+            )
+
+            counterCard
+            timelineStrip
+            incidentEditor
+            incidentLog
 
             DumbResult(
                 text: lastEvent,
@@ -68,7 +71,14 @@ struct WhatWasIDoingView: View {
             )
             .accessibilityIdentifier("memoryLogResult")
 
-            incidentLog
+            if !incidents.isEmpty && lastEvent != "No incidents recorded. Suspiciously focused." {
+                DumbShareVerdict(
+                    text: lastEvent,
+                    subject: "Memory incident log",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMemoryLogButton"
+                )
+            }
 
             Button {
                 showEvidenceActions = true
@@ -82,6 +92,14 @@ struct WhatWasIDoingView: View {
             .disabled(incidents.isEmpty)
             .accessibilityIdentifier("resetEvidenceButton")
             .accessibilityHint("Opens controls to erase today’s incidents or the entire history.")
+        } bottomBar: {
+            DumbAction(
+                title: "I forgot why",
+                accent: accent,
+                systemImage: "questionmark.diamond.fill",
+                action: recordIncident
+            )
+            .accessibilityIdentifier("forgotButton")
         }
         .onAppear(perform: loadIncidents)
         .confirmationDialog(
@@ -177,6 +195,32 @@ struct WhatWasIDoingView: View {
         .accessibilityValue("\(todayCount)")
     }
 
+    private var timelineStrip: some View {
+        Group {
+            if !recentIncidents.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(recentIncidents.prefix(6)) { incident in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(incident.context)
+                                    .font(.caption.weight(.black))
+                                    .foregroundStyle(CorpPalette.ink)
+                                    .lineLimit(1)
+                                Text(incident.date.formatted(date: .omitted, time: .shortened))
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(CorpPalette.mutedInk)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
+                    }
+                }
+                .accessibilityIdentifier("memoryTimelineStrip")
+            }
+        }
+    }
+
     private var incidentLog: some View {
         DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 12) {
@@ -194,9 +238,12 @@ struct WhatWasIDoingView: View {
                 }
 
                 if recentIncidents.isEmpty {
-                    Label("The log is beautifully empty.", systemImage: "sparkles")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No lapses logged",
+                        message: "When your brain leaves the room, tap below and file what you remember.",
+                        systemImage: "brain.head.profile",
+                        accent: accent
+                    )
                 } else {
                     ForEach(recentIncidents) { incident in
                         VStack(alignment: .leading, spacing: 7) {

@@ -4,7 +4,7 @@ import DumbKit
 
 @main
 struct MedievalAdviceApp: App {
-    var body: some Scene { WindowGroup { MedievalAdviceView() } }
+    var body: some Scene { WindowGroup { MedievalAdviceView().dumbNativeEntry(scheme: "app19medievaladvice") { _, _ in } } }
 }
 
 struct MedievalAdviceView: View {
@@ -13,6 +13,7 @@ struct MedievalAdviceView: View {
     @State private var isGenerating = false
     @State private var modelStatus = "The village is ready."
     @State private var activeGenerationID: UUID?
+    @State private var fallbackTask: Task<Void, Never>?
 
     private let accent = CorpPalette.courtroomNavy
 
@@ -21,54 +22,77 @@ struct MedievalAdviceView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "VILLAGE CONSULTANCY",
-            title: "Ask the peasant",
-            subtitle: "He has no qualifications but strong opinions.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "VILLAGE CONSULTANCY",
+                title: "Ask the peasant",
+                subtitle: "He has no qualifications but strong opinions.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "medievalAdvice.boundaryDismissed",
+                message: "Fictional peasant wisdom — not professional, medical, or life advice.",
+                accent: accent,
+                systemImage: "person.fill.questionmark"
+            )
+
             oracleDesk
 
-            DumbAction(
-                title: isGenerating ? "Consulting the peasant…" : "Seek village wisdom",
-                accent: accent,
-                systemImage: "person.fill.questionmark",
-                action: seekWisdom
-            )
-            .accessibilityIdentifier("seekWisdomButton")
-
-            DumbResult(text: answer, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
-                .accessibilityIdentifier("peasantAnswer")
-
-            HStack(spacing: 8) {
-                if isGenerating {
-                    ProgressView()
-                        .tint(accent)
-                }
-                Text(modelStatus)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
+            Text(modelStatus)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
             .accessibilityIdentifier("modelStatus")
 
             Button {
-                question = ""
-                answer = "The peasant is sharpening a stick."
-                isGenerating = false
-                activeGenerationID = nil
-                modelStatus = "The village is ready."
+            question = ""
+            answer = "The peasant is sharpening a stick."
+            isGenerating = false
+            activeGenerationID = nil
+            fallbackTask?.cancel()
+            fallbackTask = nil
+            modelStatus = "The village is ready."
             } label: {
-                Label("Send the peasant home", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Send the peasant home", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetPeasantButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: isGenerating ? "Consulting the peasant…" : "Seek village wisdom",
+            accent: accent,
+            systemImage: "person.fill.questionmark",
+            isLoading: isGenerating,
+            action: seekWisdom
+            )
+            .disabled(isGenerating)
+            .accessibilityIdentifier("seekWisdomButton")
+
+            DumbResult(text: answer, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
+            .accessibilityIdentifier("peasantAnswer")
+
+            if answer != "The peasant is sharpening a stick." && !answer.hasPrefix("The question changed") {
+                DumbShareVerdict(
+                    text: answer,
+                    subject: "Peasant advice",
+                    accent: accent,
+                    accessibilityIdentifier: "sharePeasantAdviceButton"
+                )
+            }
+
         }
+        .onChange(of: question) { _, _ in invalidateAnswer() }
+    }
+
+    private func invalidateAnswer() {
+        guard answer != "The peasant is sharpening a stick." else { return }
+        answer = "The question changed. Ask the peasant again."
+        modelStatus = "The village needs a fresh question."
     }
 
     private var oracleDesk: some View {
@@ -122,6 +146,7 @@ struct MedievalAdviceView: View {
         isGenerating = true
         let generationID = UUID()
         activeGenerationID = generationID
+        fallbackTask?.cancel()
         modelStatus = "Sending a runner to the village…"
         Task {
             let generated: String?
@@ -134,6 +159,8 @@ struct MedievalAdviceView: View {
             }
             await MainActor.run {
                 guard activeGenerationID == generationID else { return }
+                fallbackTask?.cancel()
+                fallbackTask = nil
                 if let generated {
                     answer = generated
                     modelStatus = "The village has spoken."
@@ -145,13 +172,15 @@ struct MedievalAdviceView: View {
                 activeGenerationID = nil
             }
         }
-        Task {
+        fallbackTask = Task {
             try? await Task.sleep(for: .seconds(12))
+            guard !Task.isCancelled else { return }
             await MainActor.run {
                 guard activeGenerationID == generationID, isGenerating else { return }
                 answer = fallbackAdvice(for: cleanQuestion)
                 isGenerating = false
                 activeGenerationID = nil
+                fallbackTask = nil
                 modelStatus = "The backup peasant took the case."
             }
         }

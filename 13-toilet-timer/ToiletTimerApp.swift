@@ -157,23 +157,16 @@ struct ToiletTimerView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "BATHROOM OPERATIONS",
-            title: "Toilet timer",
-            subtitle: "How long is too long? The answer is now bureaucratically quantified.",
-            accent: accent,
-            personality: .dramatic
-        ) {
-            boundaryCard
-            timerCard
-
-            DumbAction(
-                title: isRunning ? "Stop & assess the situation" : "Start stall timer",
-                accent: accent,
-                systemImage: isRunning ? "stopwatch.fill" : "timer",
-                action: toggleTimer
+        AppCanvas(accent: accent, experience: .timer) {
+            AppHeader(
+                eyebrow: "BATHROOM OPERATIONS",
+                title: "Toilet timer",
+                subtitle: "How long is too long? Now bureaucratically quantified.",
+                accent: accent
             )
-            .accessibilityIdentifier("assessBathroomButton")
+
+            heroTimerDial
+            boundaryCard
 
             if !isRunning {
                 manualEstimateCard
@@ -186,6 +179,15 @@ struct ToiletTimerView: View {
                 reactionStyle: .shake
             )
             .accessibilityIdentifier("toiletTimerResult")
+
+            if result != Self.emptyResult && !result.hasPrefix("Timer running") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Bathroom timer report",
+                    accent: accent,
+                    accessibilityIdentifier: "shareToiletTimerButton"
+                )
+            }
 
             Button(action: resetCurrentSession) {
                 Label("Dismiss current complaint", systemImage: "arrow.counterclockwise")
@@ -211,6 +213,26 @@ struct ToiletTimerView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(sessions.isEmpty)
             .accessibilityIdentifier("clearToiletHistoryButton")
+
+            DumbNativeTip(
+                "Siri & Lock Screen",
+                detail: "Say “Start stall timer,” use Shortcuts, or watch the session on your Lock Screen and Dynamic Island.",
+                systemImage: "timer",
+                accent: accent
+            )
+        } bottomBar: {
+            DumbAction(
+                title: isRunning ? "Stop & assess the situation" : "Start stall timer",
+                accent: accent,
+                systemImage: isRunning ? "stopwatch.fill" : "timer",
+                action: toggleTimer
+            )
+            .accessibilityIdentifier("assessBathroomButton")
+        }
+        .dumbNativeEntry(scheme: "app13toilettimer") { action, _ in
+            if action == "start", !isRunning {
+                beginLiveSession()
+            }
         }
         .onAppear(perform: restoreState)
         .onChange(of: scenePhase) { _, _ in
@@ -245,26 +267,22 @@ struct ToiletTimerView: View {
         }
     }
 
-    private var timerCard: some View {
-        DumbCard(accent: accent, isSelected: isRunning || recordedSeconds > 0) {
-            TimelineView(.periodic(from: .now, by: 0.5)) { context in
-                let elapsed = displayedSeconds(at: context.date)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(isRunning ? "STALL SESSION LIVE" : recordedSeconds > 0 ? "LAST ASSESSED SESSION" : "TIMER STANDING BY")
-                        .font(.caption.weight(.black))
-                        .tracking(1.2)
-                        .foregroundStyle(accent)
-
-                    Text(formattedDuration(elapsed))
-                        .font(.system(.largeTitle, design: .rounded).weight(.black))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                        .accessibilityIdentifier("liveTimerReadout")
-                        .accessibilityValue("\(Int(elapsed.rounded(.down))) seconds")
-
-                    ProgressView(value: min(elapsed / 1_200, 1))
-                        .tint(accent)
-                        .accessibilityLabel("Bathroom session progress toward twenty minutes")
+    private var heroTimerDial: some View {
+        TimelineView(.periodic(from: .now, by: 0.5)) { context in
+            let elapsed = displayedSeconds(at: context.date)
+            DumbCard(accent: accent, isSelected: isRunning || recordedSeconds > 0) {
+                VStack(spacing: DumbSpacing.md) {
+                    DumbHeroMeter(
+                        progress: min(elapsed / 1_200, 1),
+                        valueLabel: formattedDuration(elapsed),
+                        title: isRunning ? "Stall session live" : recordedSeconds > 0 ? "Last assessed session" : "Timer standing by",
+                        subtitle: isRunning ? "Lock Screen timer active when available" : "Tap start below",
+                        accent: accent,
+                        systemImage: isRunning ? "stopwatch.fill" : "timer",
+                        variant: .arc,
+                        size: 128
+                    )
+                    .accessibilityIdentifier("liveTimerReadout")
                 }
             }
         }
@@ -310,10 +328,13 @@ struct ToiletTimerView: View {
                 }
 
                 if sessions.isEmpty {
-                    Label("No complaints on file.", systemImage: "doc")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyToiletHistory")
+                    DumbEmptyInvite(
+                        title: "No complaints filed",
+                        message: "Start a stall timer or assess an estimate to open the log.",
+                        systemImage: "doc",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyToiletHistory")
                 } else {
                     ForEach(sessions.prefix(10)) { session in
                         HStack(spacing: 10) {

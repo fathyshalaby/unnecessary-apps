@@ -30,7 +30,7 @@ private struct GratitudeEntry: Codable, Identifiable {
 @main
 struct TinyGratitudeApp: App {
     var body: some Scene {
-        WindowGroup { TinyGratitudeView() }
+        WindowGroup { TinyGratitudeView().dumbNativeEntry(scheme: "app18tinygratitude") { _, _ in } }
     }
 }
 
@@ -50,16 +50,48 @@ struct TinyGratitudeView: View {
     private let kinds = ["Tiny comfort", "Someone helped", "Something worked", "I showed up", "Other"]
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MINOR BLESSINGS DEPARTMENT",
-            title: "Tiny gratitude",
-            subtitle: "Big gratitude is exhausting. Small gratitude is manageable.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent, experience: .journal) {
+            AppHeader(
+                eyebrow: "MINOR BLESSINGS DEPARTMENT",
+                title: "Tiny gratitude",
+                subtitle: "Big gratitude is exhausting. Small gratitude is manageable.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "tinyGratitude.boundaryDismissed",
+                message: "Private journal only — not therapy, mindfulness coaching, or social sharing.",
+                accent: accent,
+                systemImage: "sun.max.fill"
+            )
+
             summaryCard
             editorCard
+            archiveCard
 
+            Button(action: resurfaceEntry) {
+                Label("Resurface one tiny win", systemImage: "sparkles")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(entries.isEmpty)
+            .accessibilityIdentifier("resurfaceGratitudeButton")
+
+            Button {
+                showArchiveActions = true
+            } label: {
+                Label("Manage the tiny archive", systemImage: "archivebox.fill")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(entries.isEmpty)
+            .accessibilityIdentifier("clearArchiveButton")
+            .accessibilityHint("Opens controls for resurfacing or erasing saved entries.")
+        } bottomBar: {
             DumbAction(
                 title: "Archive this miracle",
                 accent: accent,
@@ -77,20 +109,14 @@ struct TinyGratitudeView: View {
             )
             .accessibilityIdentifier("gratitudeResult")
 
-            archiveCard
-
-            Button {
-                showArchiveActions = true
-            } label: {
-                Label("Manage the tiny archive", systemImage: "archivebox.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            if result != "No tiny blessing recorded." {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Tiny gratitude win",
+                    accent: accent,
+                    accessibilityIdentifier: "shareGratitudeButton"
+                )
             }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(entries.isEmpty)
-            .accessibilityIdentifier("clearArchiveButton")
-            .accessibilityHint("Opens controls for resurfacing or erasing saved entries.")
         }
         .onAppear(perform: restoreArchive)
         .confirmationDialog(
@@ -184,9 +210,12 @@ struct TinyGratitudeView: View {
                 }
 
                 if entries.isEmpty {
-                    Label("Nothing microscopic yet.", systemImage: "sun.horizon.fill")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "Archive waiting",
+                        message: "One tiny win is enough. Type it below and file the miracle.",
+                        systemImage: "sun.max.fill",
+                        accent: accent
+                    )
                 } else {
                     ForEach(visibleEntries) { savedEntry in
                         VStack(alignment: .leading, spacing: 7) {

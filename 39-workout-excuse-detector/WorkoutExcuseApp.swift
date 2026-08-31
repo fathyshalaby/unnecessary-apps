@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct WorkoutExcuseApp: App {
     var body: some Scene {
-        WindowGroup { WorkoutExcuseView() }
+        WindowGroup { WorkoutExcuseView().dumbNativeEntry(scheme: "app39workoutexcuse") { _, _ in } }
     }
 }
 
@@ -44,40 +44,69 @@ struct WorkoutExcuseView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "EXCUSE FORENSICS",
-            title: "Workout excuse detector",
-            subtitle: "A playful cross-examination of the sentence you told yourself.",
-            accent: accent,
-            personality: .chaotic,
-            experience: .meter
-        ) {
+        AppCanvas(accent: accent, experience: .meter) {
+            AppHeader(
+                eyebrow: "EXCUSE FORENSICS",
+                title: "Workout excuse detector",
+                subtitle: "A playful cross-examination of the sentence you told yourself.",
+                accent: accent
+            )
+
+            DumbHeroMeter(
+                progress: min(effectiveMinutes / 45, 1),
+                valueLabel: "\(Int(effectiveMinutes.rounded())) min",
+                title: "Movement on record",
+                subtitle: healthWorkoutMinutes == nil ? "Manual or Health evidence" : "From Apple Health today",
+                accent: accent,
+                systemImage: "figure.run",
+                variant: .arc
+            )
+            .accessibilityIdentifier("workoutExcuseHeroMeter")
+
+            DumbBoundaryChip(
+                storageKey: "workoutExcuse.boundaryDismissed",
+                message: "Jokes only—not training, medical, or coaching advice.",
+                accent: accent,
+                systemImage: "figure.run"
+            )
+
             caseCard
             healthConnectionCard
             evidenceCard
-
-            DumbAction(
-                title: "Run the detector",
-                accent: accent,
-                systemImage: "magnifyingglass",
-                action: runDetector
-            )
-            .accessibilityIdentifier("runWorkoutExcuseButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "doc.text.magnifyingglass", reactionStyle: .shake)
-                .accessibilityIdentifier("workoutExcuseResult")
 
             notificationCard
             manualMovementCard
 
             Button(action: reset) {
-                Label("Reset the case", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the case", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetWorkoutExcuseButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Run the detector",
+            accent: accent,
+            systemImage: "magnifyingglass",
+            action: runDetector
+            )
+            .accessibilityIdentifier("runWorkoutExcuseButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "doc.text.magnifyingglass", reactionStyle: .shake)
+            .accessibilityIdentifier("workoutExcuseResult")
+
+            if result != "No excuse submitted. The detector is hungry." && !result.hasPrefix("Case evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Workout excuse verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareWorkoutExcuseButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()
@@ -102,6 +131,14 @@ struct WorkoutExcuseView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: excuse) { _, _ in invalidateVerdict() }
+        .onChange(of: minutes) { _, _ in invalidateVerdict() }
+        .onChange(of: healthWorkoutMinutes) { _, _ in invalidateVerdict() }
+    }
+
+    private func invalidateVerdict() {
+        guard result != "No excuse submitted. The detector is hungry." else { return }
+        result = "Case evidence changed. Run the detector again."
     }
 
     private var caseCard: some View {
@@ -259,13 +296,34 @@ struct WorkoutExcuseView: View {
     }
 
     private func runDetector() {
-        guard !excuse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        let cleanExcuse = excuse.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanExcuse.isEmpty else {
             result = "No excuse submitted. The detector cannot cross-examine an empty sentence."
             return
         }
-        result = effectiveMinutes > 10
-            ? "The evidence shows \(Int(effectiveMinutes.rounded())) minutes of movement. Your excuse is downgraded to ‘technically true.’"
-            : "The evidence is weak. The excuse has been admitted into the record."
+        let lower = cleanExcuse.lowercased()
+        let movement = Int(effectiveMinutes.rounded())
+
+        if movement > 10 {
+            if lower.contains("tired") || lower.contains("exhaust") {
+                result = "The evidence shows \(movement) minutes of movement despite ‘tired.’ The excuse is downgraded to ‘dramatic but technically possible.’"
+            } else if lower.contains("injur") || lower.contains("hurt") || lower.contains("sore") {
+                result = "Movement was logged, but the injury story stays on file. The detector recommends gentle honesty, not a lecture."
+            } else if lower.contains("busy") || lower.contains("meeting") || lower.contains("work") {
+                result = "\(movement) minutes of movement suggest the calendar and the excuse are negotiating. Verdict: partially compatible."
+            } else {
+                result = "The evidence shows \(movement) minutes of movement. Your excuse is downgraded to ‘technically true.’"
+            }
+            return
+        }
+
+        if lower.contains("rain") || lower.contains("weather") {
+            result = "Weather defense noted with only \(movement) minutes of movement. The sky cannot be cross-examined, but the record stands."
+        } else if lower.contains("later") || lower.contains("tomorrow") {
+            result = "A future-workout promise with \(movement) minutes today. The detector files this under ‘pending fiction.’"
+        } else {
+            result = "The evidence is weak (\(movement) min). The excuse has been admitted into the record without endorsement."
+        }
     }
 
     private func reset() {

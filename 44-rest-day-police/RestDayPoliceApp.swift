@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct RestDayPoliceApp: App {
     var body: some Scene {
-        WindowGroup { RestDayPoliceView() }
+        WindowGroup { RestDayPoliceView().dumbNativeEntry(scheme: "app44restdaypolice") { _, _ in } }
     }
 }
 
@@ -39,39 +39,57 @@ struct RestDayPoliceView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "RECOVERY ENFORCEMENT",
-            title: "Rest day police",
-            subtitle: "A fictional citation for taking your foot off the accelerator.",
-            accent: accent,
-            personality: .dramatic,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "RECOVERY ENFORCEMENT",
+                title: "Rest day police",
+                subtitle: "A fictional citation for taking your foot off the accelerator.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "restDayPolice.boundaryDismissed",
+                message: "Fictional citation only—not fitness or medical guidance.",
+                accent: accent,
+                systemImage: "figure.cooldown"
+            )
+
             healthConnectionCard
             streakCard
-
-            DumbAction(
-                title: "Issue citation",
-                accent: accent,
-                systemImage: "figure.cooldown",
-                action: issueCitation
-            )
-            .accessibilityIdentifier("issueRestDayCitationButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "checkmark.shield.fill", reactionStyle: .stamp)
-                .accessibilityIdentifier("restDayPoliceResult")
 
             notificationCard
             manualFallbackCard
 
             Button(action: reset) {
-                Label("Reset the docket", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the docket", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetRestDayPoliceButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Issue citation",
+            accent: accent,
+            systemImage: "figure.cooldown",
+            action: issueCitation
+            )
+            .accessibilityIdentifier("issueRestDayCitationButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "checkmark.shield.fill", reactionStyle: .stamp)
+            .accessibilityIdentifier("restDayPoliceResult")
+
+            if result != "No training record. No officers dispatched." && !result.hasPrefix("Streak changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Rest day citation",
+                    accent: accent,
+                    accessibilityIdentifier: "shareRestDayCitationButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()
@@ -96,6 +114,13 @@ struct RestDayPoliceView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: streak) { _, _ in invalidateCitation() }
+        .onChange(of: healthStreak) { _, _ in invalidateCitation() }
+    }
+
+    private func invalidateCitation() {
+        guard result != "No training record. No officers dispatched." else { return }
+        result = "Streak changed. Issue a fresh citation."
     }
 
     private var healthConnectionCard: some View {
@@ -142,34 +167,17 @@ struct RestDayPoliceView: View {
     }
 
     private var streakCard: some View {
-        DumbCard(accent: accent, isSelected: effectiveStreak > 5) {
-            HStack(alignment: .top, spacing: 14) {
-                ZStack {
-                    Circle()
-                        .fill(accent.opacity(0.13))
-                        .frame(width: 82, height: 82)
-                    Text("\(effectiveStreak)")
-                        .font(.system(.largeTitle, design: .rounded).weight(.black))
-                        .foregroundStyle(accent)
-                }
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(healthStreak == nil ? "MANUAL DOSSIER" : "ACTIVITY DOSSIER")
-                        .font(.caption2.weight(.black))
-                        .tracking(1.1)
-                        .foregroundStyle(accent)
-                    Text("days in a row")
-                        .font(.title3.weight(.black))
-                        .foregroundStyle(CorpPalette.ink)
-                    Text(effectiveStreak > 5 ? "The paperwork is becoming suspicious." : "No excessive-consistency citation yet.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
-                Spacer(minLength: 0)
-            }
-        }
+        DumbHeroMeter(
+            progress: min(Double(effectiveStreak) / 14, 1),
+            valueLabel: "\(effectiveStreak) days",
+            title: healthStreak == nil ? "Manual dossier" : "Activity dossier",
+            subtitle: effectiveStreak > 5 ? "The paperwork is becoming suspicious" : "No excessive-consistency citation yet",
+            accent: accent,
+            systemImage: "figure.cooldown",
+            variant: .arc,
+            size: 96
+        )
         .accessibilityIdentifier("restDayPoliceInput")
-        .accessibilityElement(children: .combine)
-        .accessibilityValue("\(effectiveStreak) training days in a row")
     }
 
     private var notificationCard: some View {

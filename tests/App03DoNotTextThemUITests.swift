@@ -697,9 +697,6 @@ final class App03DoNotTextThemUITests: XCTestCase {
         }
 
         XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "emptyFridgeInventory").firstMatch.waitForExistence(timeout: 5), "First use should contain no seeded fictional evidence")
-        let interrogate = app.buttons["interrogateFridgeButton"]
-        XCTAssertTrue(interrogate.waitForExistence(timeout: 8), "Fridge Witness should expose interrogation")
-        XCTAssertFalse(interrogate.isEnabled, "An empty inventory should not fabricate a witness statement")
 
         let name = app.textFields["Food or container name"]
         XCTAssertTrue(name.waitForExistence(timeout: 5), "Fridge Witness should accept real user-owned inventory")
@@ -717,6 +714,10 @@ final class App03DoNotTextThemUITests: XCTestCase {
         XCTAssertTrue(file.isEnabled, "A valid food name should enable filing")
         file.tap()
 
+        let statement = app.descendants(matching: .any).matching(identifier: "fridgeWitnessStatement").firstMatch
+        XCTAssertTrue(statement.waitForExistence(timeout: 5), "Filing evidence should auto-generate a witness statement")
+        XCTAssertTrue((statement.value as? String)?.contains("1 item type, 1 total unit") ?? false, "The first filed item should appear in the auto-generated statement")
+
         let inventoryCount = app.descendants(matching: .any).matching(identifier: "fridgeInventoryCount").firstMatch
         XCTAssertTrue(inventoryCount.waitForExistence(timeout: 5), "The local inventory should expose its item-type count")
         XCTAssertEqual(inventoryCount.value as? String, "1", "The first real item should create one inventory row")
@@ -732,12 +733,11 @@ final class App03DoNotTextThemUITests: XCTestCase {
         XCTAssertEqual(inventoryCount.value as? String, "1", "A case-insensitive matching item and reminder should merge rather than duplicate")
         XCTAssertEqual(itemQuantity.value as? String, "2", "Merged evidence should add the reset one-unit quantity")
 
-        interrogate.tap()
-        let statement = app.descendants(matching: .any).matching(identifier: "fridgeWitnessStatement").firstMatch
-        XCTAssertTrue(statement.waitForExistence(timeout: 5), "Inventory interrogation should expose a truthful statement")
-        XCTAssertTrue((statement.value as? String)?.contains("1 item type, 2 total units") ?? false, "The statement should use actual inventory totals")
-        XCTAssertTrue((statement.value as? String)?.contains("due within three days") ?? false, "The default tomorrow reminder should enter the attention window")
-        XCTAssertTrue((statement.value as? String)?.contains("not a freshness or safety verdict") ?? false, "The statement should preserve the food-safety boundary")
+        let updatedStatement = app.descendants(matching: .any).matching(identifier: "fridgeWitnessStatement").firstMatch
+        XCTAssertTrue(updatedStatement.waitForExistence(timeout: 5), "Inventory changes should refresh the witness statement")
+        XCTAssertTrue((updatedStatement.value as? String)?.contains("1 item type, 2 total units") ?? false, "The statement should use actual inventory totals")
+        XCTAssertTrue((updatedStatement.value as? String)?.contains("due within three days") ?? false, "The default tomorrow reminder should enter the attention window")
+        XCTAssertTrue((updatedStatement.value as? String)?.contains("not a freshness or safety verdict") ?? false, "The statement should preserve the food-safety boundary")
 
         app.terminate()
         app.launch()

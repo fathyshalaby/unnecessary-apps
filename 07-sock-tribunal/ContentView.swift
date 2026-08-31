@@ -74,23 +74,22 @@ struct SockTribunalView: View {
     private let navy = CorpPalette.courtroomNavy
 
     var body: some View {
-        DumbShell(
-            eyebrow: "THE SOCK TRIBUNAL",
-            title: "The laundry docket",
-            subtitle: "File real missing socks, track the search, and record reunions. Justice may be laundered.",
-            accent: accent,
-            personality: .office
-        ) {
-            filingDesk
-
-            DumbAction(
-                title: "File case & issue order",
-                accent: accent,
-                systemImage: "building.columns.fill",
-                action: fileCase
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "THE SOCK TRIBUNAL",
+                title: "The laundry docket",
+                subtitle: "File real missing socks, track the search, and record reunions. Justice may be laundered.",
+                accent: accent
             )
-            .disabled(cleanName.isEmpty)
-            .accessibilityIdentifier("fileSockCaseButton")
+
+            DumbBoundaryChip(
+                storageKey: "sockTribunal.boundaryDismissed",
+                message: "A personal sock ledger — not laundry service or smart-home tracking.",
+                accent: accent,
+                systemImage: "washer.fill"
+            )
+
+            filingDesk
 
             courtOrder
 
@@ -98,29 +97,49 @@ struct SockTribunalView: View {
             summaryCard
 
             if hasDraft {
-                Button(action: clearDraft) {
-                    Label("Clear filing desk", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline.weight(.black))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .foregroundStyle(navy)
-                .buttonStyle(DumbPressStyle())
-                .accessibilityIdentifier("clearSockDraftButton")
+            Button(action: clearDraft) {
+            Label("Clear filing desk", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(navy)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("clearSockDraftButton")
             }
 
             docket
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Expunge complete sock archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Expunge complete sock archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(CorpPalette.warningRed)
             .buttonStyle(DumbPressStyle())
             .disabled(cases.isEmpty && !hasDraft && latestOrder == Self.waitingOrder)
             .accessibilityIdentifier("eraseSockArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "File case & issue order",
+            accent: accent,
+            systemImage: "building.columns.fill",
+            action: fileCase
+            )
+            .disabled(cleanName.isEmpty)
+            .accessibilityIdentifier("fileSockCaseButton")
+
+            if latestOrder != Self.waitingOrder {
+                DumbShareVerdict(
+                    text: latestOrder,
+                    subject: "Sock tribunal order",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSockOrderButton"
+                )
+            }
+
         }
         .onAppear {
             restoreCases()
@@ -335,10 +354,13 @@ struct SockTribunalView: View {
                 }
 
                 if cases.isEmpty {
-                    Label("No sock has entered evidence.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptySockDocket")
+                    DumbEmptyInvite(
+                        title: "Docket empty",
+                        message: "File a real missing-sock case to convene the court.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySockDocket")
                 } else {
                     ForEach(Array(visibleCases.enumerated()), id: \.element.id) { index, sockCase in
                         if index > 0 { Divider() }
@@ -421,7 +443,7 @@ struct SockTribunalView: View {
         Button(action: action) {
             Label(title, systemImage: image)
                 .font(.caption.weight(.black))
-                .frame(maxWidth: .infinity, minHeight: 36)
+                .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
         }
         .foregroundStyle(navy)
         .buttonStyle(.bordered)

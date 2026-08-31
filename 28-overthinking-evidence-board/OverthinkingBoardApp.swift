@@ -33,7 +33,7 @@ private struct ReflectionCase: Codable, Identifiable {
 
 @main
 struct OverthinkingBoardApp: App {
-    var body: some Scene { WindowGroup { OverthinkingBoardView() } }
+    var body: some Scene { WindowGroup { OverthinkingBoardView().dumbNativeEntry(scheme: "app28overthinkingboard") { _, _ in } } }
 }
 
 struct OverthinkingBoardView: View {
@@ -52,36 +52,23 @@ struct OverthinkingBoardView: View {
     @State private var hasLoaded = false
     @State private var showAllCases = false
     @State private var showArchiveActions = false
+    @State private var evidenceSectionsExpanded = false
 
-    private let accent = CorpPalette.emergencyRed
+    private let accent = CorpPalette.evidenceMint
+    private let warningAccent = CorpPalette.emergencyRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PERSONAL INVESTIGATIONS",
-            title: "Overthinking evidence board",
-            subtitle: "Not therapy. Just a corkboard with better typography.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent, experience: .journal) {
+            AppHeader(
+                eyebrow: "PERSONAL INVESTIGATIONS",
+                title: "Overthinking evidence board",
+                subtitle: "Not therapy. Just a corkboard with better typography.",
+                accent: accent
+            )
+
             safetyCard
             boardEditor
-
-            DumbAction(
-                title: "Issue a provisional conclusion",
-                accent: accent,
-                systemImage: "magnifyingglass",
-                action: issueConclusion
-            )
-            .disabled(cleanWorry.isEmpty)
-            .accessibilityIdentifier("issueConclusionButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "pin.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("overthinkingResult")
+            caseArchive
 
             Button(action: clearCurrentBoard) {
                 Label("Clear current board", systemImage: "rectangle.portrait.and.arrow.right")
@@ -94,8 +81,6 @@ struct OverthinkingBoardView: View {
             .accessibilityIdentifier("clearOverthinkingButton")
             .accessibilityHint("Clears the current draft without deleting archived cases.")
 
-            caseArchive
-
             Button {
                 showArchiveActions = true
             } label: {
@@ -107,9 +92,53 @@ struct OverthinkingBoardView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(cases.isEmpty)
             .accessibilityIdentifier("manageOverthinkingArchiveButton")
+
+            DumbNativeTip(
+                "Share from anywhere",
+                detail: "Share selected text from Notes or Messages to pin it on the evidence board.",
+                systemImage: "square.and.arrow.down",
+                accent: accent
+            )
+        } bottomBar: {
+            DumbAction(
+                title: "Issue a provisional conclusion",
+                accent: accent,
+                systemImage: "magnifyingglass",
+                action: issueConclusion
+            )
+            .disabled(cleanWorry.isEmpty)
+            .accessibilityIdentifier("issueConclusionButton")
+
+            if result != Self.emptyResult && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Overthinking conclusion",
+                    accent: accent,
+                    accessibilityIdentifier: "shareOverthinkingButton"
+                )
+            }
+
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "pin.fill",
+                reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("overthinkingResult")
         }
-        .onAppear(perform: restoreCases)
-        .onChange(of: worry) { _, _ in invalidateConclusion() }
+        .onAppear {
+            restoreCases()
+            if let shared = DumbSharedPayload.consume(for: .overthinking) {
+                worry = shared
+                evidenceSectionsExpanded = true
+            }
+        }
+        .onChange(of: worry) { _, newValue in
+            if !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                evidenceSectionsExpanded = true
+            }
+            invalidateConclusion()
+        }
         .onChange(of: evidenceFor) { _, _ in invalidateConclusion() }
         .onChange(of: evidenceAgainst) { _, _ in invalidateConclusion() }
         .onChange(of: alternative) { _, _ in invalidateConclusion() }
@@ -127,12 +156,12 @@ struct OverthinkingBoardView: View {
     }
 
     private var safetyCard: some View {
-        DumbCard(accent: accent) {
+        DumbCard(accent: warningAccent) {
             VStack(alignment: .leading, spacing: 7) {
                 DumbStatusPill(
                     "EVERYDAY WORRIES ONLY",
                     systemImage: "exclamationmark.shield.fill",
-                    accent: accent
+                    accent: warningAccent
                 )
                 Text("This board sorts the evidence you enter. It is a thinking tool, not a truth machine or crisis service.")
                     .font(.subheadline.weight(.bold))
@@ -151,15 +180,59 @@ struct OverthinkingBoardView: View {
                     .foregroundStyle(CorpPalette.mutedInk)
 
                 DumbField("The worry", axis: .vertical, maxLength: 240, text: $worry)
-                DumbField("Evidence supporting it", axis: .vertical, maxLength: 240, text: $evidenceFor)
-                DumbField("Evidence against it", axis: .vertical, maxLength: 240, text: $evidenceAgainst)
-                DumbField("A less dramatic explanation", axis: .vertical, maxLength: 240, text: $alternative)
-                DumbField("One small next step", axis: .vertical, maxLength: 160, text: $nextStep)
+
+                if !cleanWorry.isEmpty {
+                    pinboardColumns
+                } else {
+                    DumbEmptyInvite(
+                        title: "Empty corkboard",
+                        message: "Name the worry first. Evidence columns unlock once the case is pinned.",
+                        systemImage: "pin.fill",
+                        accent: accent
+                    )
+                }
 
                 Text("Drafts stay on the board until you file or erase them.")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(CorpPalette.mutedInk)
             }
+        }
+    }
+
+    private var pinboardColumns: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 10) {
+                pinColumn(title: "FOR", accent: accent) {
+                    DumbField("Evidence supporting it", axis: .vertical, maxLength: 240, text: $evidenceFor)
+                }
+                pinColumn(title: "AGAINST", accent: warningAccent) {
+                    DumbField("Evidence against it", axis: .vertical, maxLength: 240, text: $evidenceAgainst)
+                }
+            }
+            pinColumn(title: "ALT THEORY", accent: CorpPalette.violet) {
+                DumbField("A less dramatic explanation", axis: .vertical, maxLength: 240, text: $alternative)
+            }
+            pinColumn(title: "NEXT STEP", accent: CorpPalette.sunshine) {
+                DumbField("One small next step", axis: .vertical, maxLength: 160, text: $nextStep)
+            }
+        }
+        .accessibilityIdentifier("overthinkingPinboard")
+    }
+
+    private func pinColumn<Content: View>(title: String, accent: Color, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption2.weight(.black))
+                .tracking(1.1)
+                .foregroundStyle(accent)
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(accent.opacity(0.20), lineWidth: 1)
         }
     }
 
@@ -180,10 +253,13 @@ struct OverthinkingBoardView: View {
                 }
 
                 if cases.isEmpty {
-                    Label("No closed cases. Remarkably peaceful.", systemImage: "archivebox")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyOverthinkingArchive")
+                    DumbEmptyInvite(
+                        title: "No closed cases",
+                        message: "Issue a provisional conclusion to archive your first investigation.",
+                        systemImage: "archivebox",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyOverthinkingArchive")
                 } else {
                     ForEach(visibleCases) { savedCase in
                         VStack(alignment: .leading, spacing: 7) {
@@ -334,6 +410,7 @@ struct OverthinkingBoardView: View {
         alternative = ""
         nextStep = ""
         result = Self.emptyResult
+        evidenceSectionsExpanded = false
     }
 
     private func delete(_ savedCase: ReflectionCase) {

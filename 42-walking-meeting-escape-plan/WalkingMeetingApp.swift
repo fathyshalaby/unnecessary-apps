@@ -1,9 +1,12 @@
 import SwiftUI
 import DumbKit
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 @main
 struct WalkingMeetingApp: App {
-    var body: some Scene { WindowGroup { WalkingMeetingView() } }
+    var body: some Scene { WindowGroup { WalkingMeetingView().dumbNativeEntry(scheme: "app42walkingmeeting") { _, _ in } } }
 }
 
 private enum WalkCheckpoint: String, Codable, CaseIterable, Identifiable {
@@ -93,20 +96,74 @@ struct WalkingMeetingView: View {
     private let yellow = CorpPalette.sunshine
 
     var body: some View {
-        DumbShell(
-            eyebrow: "WALKING MEETING FIELD UNIT",
-            title: "Take this meeting outside.",
-            subtitle: "Time a real walk, keep the agenda moving, and return with an actual decision.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "WALKING MEETING FIELD UNIT",
+                title: "Take this meeting outside.",
+                subtitle: "Time a real walk, keep the agenda moving, and return with an actual decision.",
+                accent: accent
+            )
+
             boundaryCard
             lifetimeSummary
 
             if let activeMeeting {
-                activeCard(activeMeeting)
+            activeCard(activeMeeting)
             } else {
-                planningCard
+            planningCard
+
+            }
+
+            fieldBrief
+
+            if latestBrief != Self.waitingBrief {
+                DumbShareVerdict(
+                    text: latestBrief,
+                    subject: "Walking meeting brief",
+                    accent: accent,
+                    accessibilityIdentifier: "shareWalkingBriefButton"
+                )
+            }
+
+            historyCard
+
+            Button { showEraseConfirmation = true } label: {
+            Label("Erase complete walking archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(activeMeeting == nil && history.isEmpty && !hasDraft && latestBrief == Self.waitingBrief)
+            .accessibilityIdentifier("eraseWalkingArchiveButton")
+
+        } bottomBar: {
+            if activeMeeting != nil {
+                HStack(spacing: 10) {
+                    Button {
+                        finish(.completed)
+                    } label: {
+                        Label("Finish meeting", systemImage: "checkmark.circle.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(CorpPalette.actionInk)
+                    .background(green, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("finishWalkingMeetingButton")
+
+                    Button {
+                        finish(.endedEarly)
+                    } label: {
+                        Label("End early", systemImage: "xmark.circle.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(accent)
+                    .buttonStyle(DumbPressStyle())
+                    .accessibilityIdentifier("endWalkingMeetingEarlyButton")
+                }
+            } else {
                 DumbAction(
                     title: "Start walking meeting",
                     accent: accent,
@@ -117,18 +174,6 @@ struct WalkingMeetingView: View {
                 .accessibilityIdentifier("startWalkingMeetingButton")
             }
 
-            fieldBrief
-            historyCard
-
-            Button { showEraseConfirmation = true } label: {
-                Label("Erase complete walking archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(activeMeeting == nil && history.isEmpty && !hasDraft && latestBrief == Self.waitingBrief)
-            .accessibilityIdentifier("eraseWalkingArchiveButton")
         }
         .onAppear { restoreState(); refreshNotificationStatus() }
         .onChange(of: reminderEnabled) { _, enabled in
@@ -234,11 +279,6 @@ struct WalkingMeetingView: View {
                     }
                     checkpointList(meeting)
                     noteComposer(meeting)
-
-                    HStack(spacing: 10) {
-                        outcomeButton("Finish meeting", color: green) { finish(.completed) }
-                        outcomeButton("End early", color: CorpPalette.warningRed) { finish(.endedEarly) }
-                    }
                 }
             }
         }
@@ -273,7 +313,7 @@ struct WalkingMeetingView: View {
                         Image(systemName: completed ? "checkmark.circle.fill" : "circle")
                     }
                     .foregroundStyle(completed ? CorpPalette.actionInk : CorpPalette.ink)
-                    .padding(.horizontal, 13).frame(minHeight: 42)
+                    .padding(.horizontal, 13).frame(minHeight: DumbMetrics.minimumTapTarget)
                     .background(completed ? green : accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .buttonStyle(DumbPressStyle())
@@ -288,7 +328,7 @@ struct WalkingMeetingView: View {
         VStack(alignment: .leading, spacing: 8) {
             DumbField("Decision or note", maxLength: 240, text: $noteDraft)
             Button { addNote() } label: {
-                Label("Add timestamped note", systemImage: "plus.circle.fill").font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 38)
+                Label("Add timestamped note", systemImage: "plus.circle.fill").font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
             }
             .buttonStyle(.bordered).tint(accent).disabled(cleanNoteDraft.isEmpty)
             .accessibilityIdentifier("addWalkingNoteButton")
@@ -302,7 +342,7 @@ struct WalkingMeetingView: View {
     }
 
     private func outcomeButton(_ title: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) { Text(title).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: 40) }
+        Button(action: action) { Text(title).font(.caption.weight(.black)).frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget) }
             .buttonStyle(.borderedProminent).tint(color)
     }
 
@@ -355,9 +395,13 @@ struct WalkingMeetingView: View {
                         .accessibilityIdentifier("walkingHistoryCount").accessibilityValue("\(history.count)")
                 }
                 if history.isEmpty {
-                    Label("No completed walking meeting yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyWalkingHistory")
+                    DumbEmptyInvite(
+                        title: "No walks completed yet",
+                        message: "Plan a walking meeting and finish it to log the field brief.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyWalkingHistory")
                 } else {
                     ForEach(Array(visibleHistory.enumerated()), id: \.element.id) { index, record in
                         if index > 0 { Divider() }
@@ -412,6 +456,9 @@ struct WalkingMeetingView: View {
         persistActive()
         if meeting.reminderEnabled { scheduleEndReminder(for: meeting) }
         clearDraft(keepBrief: true)
+        #if canImport(ActivityKit)
+        Task { await WalkingLivePresentation.begin(meeting: meeting) }
+        #endif
     }
 
     private func toggle(_ checkpoint: WalkCheckpoint) {
@@ -446,6 +493,9 @@ struct WalkingMeetingView: View {
             ? "WALK COMPLETE — \(record.title): \(record.completedCheckpoints.count)/3 checkpoints and \(record.notes.count) field notes."
             : "WALK ENDED EARLY — \(record.title) after \(formatDuration(record.actualSeconds)). Progress was preserved without pretending it finished."
         persistActive(); persistHistory()
+        #if canImport(ActivityKit)
+        Task { await WalkingLivePresentation.finish(sessionID: meeting.id) }
+        #endif
     }
 
     private func delete(_ record: WalkingMeetingRecord) {
@@ -514,6 +564,27 @@ struct WalkingMeetingView: View {
         storedHistory = encoded
     }
 }
+
+#if canImport(ActivityKit)
+private enum WalkingLivePresentation {
+    static func begin(meeting: ActiveWalkingMeeting) async {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let attributes = WalkingMeetingActivityAttributes(meetingTitle: meeting.title, sessionID: meeting.id)
+        let state = WalkingMeetingActivityAttributes.ContentState(elapsedMinutes: 0, status: meeting.objective)
+        _ = try? Activity.request(
+            attributes: attributes,
+            content: ActivityContent(state: state, staleDate: nil),
+            pushType: nil
+        )
+    }
+
+    static func finish(sessionID: UUID) async {
+        for activity in Activity<WalkingMeetingActivityAttributes>.activities where activity.attributes.sessionID == sessionID {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
+    }
+}
+#endif
 
 #if canImport(PreviewsMacros)
 #Preview { WalkingMeetingView() }

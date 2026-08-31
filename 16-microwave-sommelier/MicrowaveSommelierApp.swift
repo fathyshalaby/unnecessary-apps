@@ -33,7 +33,7 @@ private struct HeatConversion: Codable, Identifiable {
 
 @main
 struct MicrowaveSommelierApp: App {
-    var body: some Scene { WindowGroup { MicrowaveView() } }
+    var body: some Scene { WindowGroup { MicrowaveView().dumbNativeEntry(scheme: "app16microwavesommelier") { _, _ in } } }
 }
 
 struct MicrowaveView: View {
@@ -47,6 +47,7 @@ struct MicrowaveView: View {
     @AppStorage("microwaveSommelier.wattage") private var microwaveWattage = 800.0
     @AppStorage("microwaveSommelier.result") private var result = Self.emptyResult
     @AppStorage("microwaveSommelier.history") private var storedHistory = "[]"
+    @State private var packageTimeEntry = "4:00"
 
     @State private var history: [HeatConversion] = []
     @State private var hasLoaded = false
@@ -56,37 +57,28 @@ struct MicrowaveView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "CULINARY HEAT SCIENCE",
-            title: "Microwave sommelier",
-            subtitle: "Translate package timing between wattages, with unnecessary ceremony.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "CULINARY HEAT SCIENCE",
+                title: "Microwave sommelier",
+                subtitle: "Translate package timing between wattages, with unnecessary ceremony.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "microwaveSommelier.boundaryDismissed",
+                message: "Math for microwave timing — not food safety or cooking advice.",
+                accent: accent,
+                systemImage: "microwave.fill"
+            )
+
             formulaCard
             conversionEditor
 
-            DumbAction(
-                title: "Convert & file the pairing",
-                accent: accent,
-                systemImage: "microwave.fill",
-                action: convertHeat
-            )
-            .disabled(totalPackageSeconds == 0)
-            .accessibilityIdentifier("pairHeatButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "timer",
-                reactionStyle: .bounce
-            )
-            .accessibilityIdentifier("microwaveConversionResult")
-
             Button(action: resetCurrentConversion) {
-                Label("Reset current pairing", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset current pairing", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -96,18 +88,49 @@ struct MicrowaveView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every conversion", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every conversion", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentConversion)
             .accessibilityIdentifier("eraseMicrowaveDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Convert & file the pairing",
+            accent: accent,
+            systemImage: "microwave.fill",
+            action: convertHeat
+            )
+            .disabled(totalPackageSeconds == 0)
+            .accessibilityIdentifier("pairHeatButton")
+
+            if result != Self.emptyResult && !result.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Microwave conversion",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMicrowaveButton"
+                )
+            }
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "timer",
+            reactionStyle: .bounce
+            )
+            .accessibilityIdentifier("microwaveConversionResult")
+
         }
-        .onAppear(perform: restoreHistory)
+        .onAppear {
+            restoreHistory()
+            syncPackageTimeEntryFromSliders()
+        }
         .onChange(of: food) { _, _ in invalidateConversion() }
         .onChange(of: packageMinutes) { _, _ in invalidateConversion() }
         .onChange(of: packageSeconds) { _, _ in invalidateConversion() }
@@ -150,6 +173,23 @@ struct MicrowaveView: View {
                     .foregroundStyle(CorpPalette.mutedInk)
 
                 DumbField("What are you heating (optional)", maxLength: 100, text: $food)
+
+                DumbField("Package time (mm:ss)", maxLength: 8, text: $packageTimeEntry)
+                    .accessibilityIdentifier("microwavePackageTimeField")
+                    .onChange(of: packageTimeEntry) { _, value in
+                        applyPackageTimeEntry(value)
+                    }
+
+                if totalPackageSeconds > 0, microwaveWattage > 0 {
+                    let preview = roundedToFive(
+                        Double(totalPackageSeconds) * packageWattage / microwaveWattage
+                    )
+                    Text("Live preview: \(clockTime(totalPackageSeconds)) at \(Int(packageWattage)) W → \(clockTime(preview)) at \(Int(microwaveWattage)) W (rounded to 5 sec)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(accent)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 DumbSlider(
                     title: "Package minutes",
                     value: $packageMinutes,
@@ -157,6 +197,7 @@ struct MicrowaveView: View {
                     step: 1,
                     accent: accent
                 )
+                .onChange(of: packageMinutes) { _, _ in syncPackageTimeEntryFromSliders() }
                 DumbSlider(
                     title: "Package extra seconds",
                     value: $packageSeconds,
@@ -164,6 +205,7 @@ struct MicrowaveView: View {
                     step: 15,
                     accent: accent
                 )
+                .onChange(of: packageSeconds) { _, _ in syncPackageTimeEntryFromSliders() }
                 DumbSlider(
                     title: "Package instruction wattage",
                     value: $packageWattage,
@@ -203,10 +245,13 @@ struct MicrowaveView: View {
                 }
 
                 if history.isEmpty {
-                    Label("The conversion cellar is empty.", systemImage: "wineglass")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyMicrowaveHistory")
+                    DumbEmptyInvite(
+                        title: "The cellar is empty",
+                        message: "Convert a microwave pairing to start the archive.",
+                        systemImage: "wineglass",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyMicrowaveHistory")
                 } else {
                     ForEach(visibleHistory) { conversion in
                         VStack(alignment: .leading, spacing: 6) {
@@ -305,6 +350,27 @@ struct MicrowaveView: View {
         String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 
+    private func syncPackageTimeEntryFromSliders() {
+        packageTimeEntry = clockTime(totalPackageSeconds)
+    }
+
+    private func applyPackageTimeEntry(_ value: String) {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if trimmed.contains(":") {
+            let parts = trimmed.split(separator: ":", maxSplits: 1)
+            guard parts.count == 2,
+                  let minutes = Int(parts[0]),
+                  let seconds = Int(parts[1]),
+                  minutes >= 0, seconds >= 0, seconds < 60 else { return }
+            packageMinutes = Double(min(minutes, 15))
+            packageSeconds = Double(min((seconds / 15) * 15, 45))
+        } else if let minutesOnly = Int(trimmed), minutesOnly >= 0 {
+            packageMinutes = Double(min(minutesOnly, 15))
+            packageSeconds = 0
+        }
+    }
+
     private func invalidateConversion() {
         guard result != Self.emptyResult else { return }
         result = "Pairing changed. Convert a fresh microwave time."
@@ -316,6 +382,7 @@ struct MicrowaveView: View {
         packageSeconds = 0
         packageWattage = 1000
         microwaveWattage = 800
+        packageTimeEntry = "4:00"
         result = Self.emptyResult
     }
 

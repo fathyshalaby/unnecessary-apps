@@ -5,10 +5,11 @@ import UIKit
 import ImageIO
 import DumbKit
 
-@main struct PigeonOrSeagullApp: App { var body: some Scene { WindowGroup { PigeonView() } } }
+@main struct PigeonOrSeagullApp: App { var body: some Scene { WindowGroup { PigeonView().dumbNativeEntry(scheme: "app12pigeonorseagull") { _, _ in } } } }
 struct PigeonView: View {
     @AppStorage("birdGuess.nearWater") private var nearWater = false
     @AppStorage("birdGuess.looksAngry") private var looksAngry = true
+    @AppStorage("birdGuess.wingsOperational") private var wingsOperational = false
     @AppStorage("birdGuess.result") private var result = "The bird is withholding evidence."
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var photo: UIImage?
@@ -19,51 +20,85 @@ struct PigeonView: View {
     private let accent = CorpPalette.bathroomBlue
 
     var body: some View {
-        DumbShell(
-            eyebrow: "ORNITHOLOGICAL EMERGENCY",
-            title: "Pigeon or seagull?",
-            subtitle: "Please describe the creature. Do not approach it.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent, experience: .camera) {
+            AppHeader(
+                eyebrow: "ORNITHOLOGICAL EMERGENCY",
+                title: "Pigeon or seagull?",
+                subtitle: "Please describe the creature. Do not approach it.",
+                accent: accent,
+                showsMascot: false
+            )
+
+            DumbBoundaryChip(
+                storageKey: "pigeonOrSeagull.boundaryDismissed",
+                message: "Photo-based field ID for laughs — not wildlife expertise or safety advice.",
+                accent: accent,
+                systemImage: "camera.fill"
+            )
+
+            if let banner = VisionSupport.deviceBannerMessage {
+            Text(banner)
+            .font(.caption.weight(.bold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .accessibilityIdentifier("visionDeviceBanner")
+            }
+
             scannerStage
 
-            DumbCard(accent: accent, isSelected: nearWater || looksAngry) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        DumbStatusPill("FIELD SCANNER", systemImage: "scope", accent: accent)
-                        Spacer()
-                        Text(visionRuling == nil ? "READY" : "RULING FOUND")
-                            .font(.caption2.weight(.black).monospaced())
-                            .foregroundStyle(visionRuling == nil ? CorpPalette.mutedInk : accent)
-                    }
-                    Toggle("Near a body of water", isOn: $nearWater)
-                    Toggle("Looks like it owes you money", isOn: $looksAngry)
-                    Text("Use the checklist only when the bird refuses to pose.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .padding(.top, 8)
-                }
+            DumbCard(accent: accent, isSelected: nearWater || looksAngry || wingsOperational) {
+            VStack(alignment: .leading, spacing: 4) {
+            HStack {
+            DumbStatusPill("FIELD SCANNER", systemImage: "scope", accent: accent)
+            Spacer()
+            Text(visionRuling == nil ? "READY" : "RULING FOUND")
+            .font(.caption2.weight(.black).monospaced())
+            .foregroundStyle(visionRuling == nil ? CorpPalette.mutedInk : accent)
+            }
+            Toggle("Near a body of water", isOn: $nearWater)
+            Toggle("Looks like it owes you money", isOn: $looksAngry)
+            Toggle("Wings look aggressively operational", isOn: $wingsOperational)
+            Text("Use the checklist only when the bird refuses to pose.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .padding(.top, 8)
+            }
             }
             .accessibilityIdentifier("birdObservationInputs")
 
-            DumbAction(title: "Identify bird", accent: accent, systemImage: "bird.fill", action: identify)
-                .accessibilityIdentifier("identifyBirdButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "binoculars.fill", reactionStyle: .bounce)
-
             Button(action: reset) {
-                Label("Reset the evidence", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the evidence", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetBirdGuessButton")
+
+        } bottomBar: {
+            DumbAction(title: "Identify bird", accent: accent, systemImage: "bird.fill", action: identify)
+            .accessibilityIdentifier("identifyBirdButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "binoculars.fill", reactionStyle: .bounce)
+
+            if result != "The bird is withholding evidence." && !result.hasPrefix("Analyzing") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Bird ruling",
+                    accent: accent,
+                    accessibilityIdentifier: "shareBirdRulingButton"
+                )
+            }
+
         }
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
             Task { await analyze(item) }
+        }
+        .onChange(of: visionRuling) { _, ruling in
+            if let ruling { result = ruling }
         }
         .sheet(isPresented: $showingCamera) {
             DumbCameraPicker(
@@ -94,7 +129,7 @@ struct PigeonView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 196)
+                            .frame(height: 240)
                             .clipped()
                             .accessibilityLabel("Selected bird photo")
                     } else {
@@ -169,11 +204,11 @@ struct PigeonView: View {
             return
         }
 
-        result = nearWater && looksAngry
+        result = nearWater && (looksAngry || wingsOperational)
             ? "Seagull. It has a plan and your lunch is in it."
             : nearWater
                 ? "Probably seagull. Water is a strong clue."
-                : looksAngry
+                : (looksAngry || wingsOperational)
                     ? "Pigeon. An urban professional."
                     : "Pigeon. Congratulations, it is simply shaped like that."
     }
@@ -181,6 +216,7 @@ struct PigeonView: View {
     private func reset() {
         nearWater = false
         looksAngry = true
+        wingsOperational = false
         result = "The bird is withholding evidence."
         selectedPhoto = nil
         photo = nil
@@ -245,6 +281,7 @@ struct PigeonView: View {
                 photo = image
                 photoFinding = "Bureau notes: \(joinedLabels)."
                 visionRuling = ruling
+                result = ruling
             }
         } catch {
             await MainActor.run {

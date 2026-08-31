@@ -26,13 +26,21 @@ struct ApologyDraftView: View {
     private let tones = ["Sincere-ish", "Formal", "Text message", "Dramatic"]
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MINOR CRIMES OFFICE",
-            title: "Apology draft generator",
-            subtitle: "For when the crime was tiny but the silence is now enormous.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "MINOR CRIMES OFFICE",
+                title: "Apology draft generator",
+                subtitle: "For when the crime was tiny but the silence is now enormous.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "apologyDraft.boundaryDismissed",
+                message: "Drafts a message — does not send it or repair relationships for you.",
+                accent: accent,
+                systemImage: "envelope.fill"
+            )
+
             DumbCard(accent: accent, isSelected: !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
                 VStack(alignment: .leading, spacing: 14) {
                     DumbField(
@@ -43,38 +51,28 @@ struct ApologyDraftView: View {
                     )
 
                     tonePicker
+
+                    if crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Describe the tiny crime before the department can draft.")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(CorpPalette.mutedInk)
+                    }
                 }
             }
             .accessibilityIdentifier("crimeEditor")
 
-            DumbAction(
-                title: isGenerating ? "Consulting the apology department…" : "Draft a \(tone.lowercased()) apology",
-                accent: accent,
-                systemImage: "pencil.and.scribble",
-                action: generateDraft
-            )
-            .accessibilityIdentifier("generateApologyButton")
+            Text(modelStatus)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CorpPalette.mutedInk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("modelStatus")
 
-            DumbResult(
-                text: draft,
-                accent: accent,
-                systemImage: copied ? "checkmark.circle.fill" : "doc.text.fill",
-                reactionStyle: .stamp
+            DumbNativeTip(
+                "Siri & Share",
+                detail: "Say “Draft an apology,” share text in from another app, or send the finished draft through the share sheet.",
+                systemImage: "square.and.pencil",
+                accent: accent
             )
-            .accessibilityIdentifier("apologyDraft")
-
-            HStack(spacing: 8) {
-                if isGenerating {
-                    ProgressView()
-                        .tint(accent)
-                }
-                Text(modelStatus)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("modelStatus")
 
             HStack(spacing: 12) {
                 Button {
@@ -89,6 +87,15 @@ struct ApologyDraftView: View {
                 .disabled(!hasGeneratedDraft)
                 .accessibilityIdentifier("copyDraftButton")
 
+                if hasGeneratedDraft {
+                    DumbShareVerdict(
+                        text: draft,
+                        subject: "Apology draft",
+                        accent: accent,
+                        accessibilityIdentifier: "shareApologyButton"
+                    )
+                }
+
                 Button {
                     clearCrimeScene()
                 } label: {
@@ -102,7 +109,67 @@ struct ApologyDraftView: View {
                 .accessibilityLabel("Clear apology")
                 .accessibilityIdentifier("clearApologyButton")
             }
+
+        } bottomBar: {
+            DumbAction(
+                title: isGenerating ? "Consulting the apology department…" : "Draft a \(tone.lowercased()) apology",
+                accent: accent,
+                systemImage: "pencil.and.scribble",
+                isLoading: isGenerating,
+                action: generateDraft
+            )
+            .disabled(isGenerating || crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("generateApologyButton")
+
+            DumbResult(
+                text: draft,
+                accent: accent,
+                systemImage: copied ? "checkmark.circle.fill" : "doc.text.fill",
+                reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("apologyDraft")
+
         }
+        .dumbNativeEntry(scheme: "app30apologydraft", onRoute: handleNativeRoute)
+        .dumbHandoffDraft(
+            "corp.unecessary.app30.draft",
+            title: "Apology draft",
+            isActive: !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            payload: ["crime": crime, "tone": tone]
+        ) { userInfo in
+            if let restoredCrime = userInfo["crime"], !restoredCrime.isEmpty {
+                crime = restoredCrime
+            }
+            if let restoredTone = userInfo["tone"], !restoredTone.isEmpty {
+                tone = restoredTone
+            }
+        }
+        .onAppear {
+            if let shared = DumbSharedPayload.consume(for: .apology) {
+                crime = shared
+            }
+        }
+        .onChange(of: crime) { _, _ in invalidateDraft() }
+        .onChange(of: tone) { _, _ in invalidateDraft() }
+    }
+
+    private func invalidateDraft() {
+        guard hasGeneratedDraft else { return }
+        draft = "Crime or tone changed. Draft a fresh apology."
+        copied = false
+    }
+
+    private func handleNativeRoute(_ action: String, _ payload: String) {
+        if action == "share", let shared = DumbSharedPayload.consume(for: .apology) {
+            crime = shared
+            return
+        }
+        guard action == "draft" else { return }
+        if !payload.isEmpty {
+            crime = payload
+        }
+        guard !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !isGenerating else { return }
+        generateDraft()
     }
 
     private var tonePicker: some View {

@@ -59,33 +59,34 @@ struct ReceiptDamageView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "RECEIPT DAMAGE",
-            title: "How bad was it?",
-            subtitle: "A cost-per-use reflection wearing a tiny courtroom wig.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "RECEIPT DAMAGE",
+                title: "How bad was it?",
+                subtitle: "A cost-per-use reflection wearing a tiny courtroom wig.",
+                accent: accent
+            )
+
             purchaseEditor
 
-            DumbAction(
-                title: "Issue & file emotional invoice",
-                accent: accent,
-                systemImage: "gavel.fill",
-                action: issueReport
-            )
-            .disabled(parsedAmountCents == nil)
-            .accessibilityIdentifier("issueReportButton")
-
             receiptPaper
+
+            if report != Self.emptyReport && !report.hasPrefix("Purchase changed") {
+                DumbShareVerdict(
+                    text: report,
+                    subject: "Emotional invoice",
+                    accent: accent,
+                    accessibilityIdentifier: "shareReceiptButton"
+                )
+            }
 
             boundaryCard
             summaryCard
 
             Button(action: resetCurrentReceipt) {
-                Label("Expunge current receipt", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Expunge current receipt", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -96,16 +97,27 @@ struct ReceiptDamageView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase the receipt ledger", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase the receipt ledger", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentReceipt)
             .accessibilityIdentifier("erasePurchaseDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Issue & file emotional invoice",
+            accent: accent,
+            systemImage: "gavel.fill",
+            action: issueReport
+            )
+            .disabled(parsedAmountCents == nil)
+            .accessibilityIdentifier("issueReportButton")
+
         }
         .onAppear {
             restoreHistory()
@@ -354,10 +366,13 @@ struct ReceiptDamageView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No purchase has entered evidence.", systemImage: "receipt")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyPurchaseHistory")
+                    DumbEmptyInvite(
+                        title: "Ledger empty",
+                        message: "Issue your first emotional invoice to begin the damage log.",
+                        systemImage: "receipt",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyPurchaseHistory")
                 } else {
                     ForEach(visibleHistory) { purchase in
                         VStack(alignment: .leading, spacing: 6) {

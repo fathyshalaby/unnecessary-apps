@@ -7,9 +7,7 @@ import DumbKit
 @main
 struct QuietCafeApp: App {
     var body: some Scene {
-        WindowGroup {
-            QuietCafeView()
-        }
+        WindowGroup { QuietCafeView().dumbNativeEntry(scheme: "app23quietcafe") { _, _ in } }
     }
 }
 
@@ -51,6 +49,18 @@ private struct CafeReview: Codable, Identifiable, Hashable {
         let soloScore = soloFriendly ? 10 : 4
         return Int((Double(quietness + seating + outlets + soloScore) / 4).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(index)/10",
+            "Quiet \(quietness) · Seat \(seating) · Plugs \(outlets) · \(visitPeriod.rawValue) visit",
+            soloFriendly ? "Solo table approved" : "Bring social camouflage"
+        ]
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct CafePlace: Identifiable, Hashable {
@@ -71,6 +81,13 @@ private struct CafeDraft: Identifiable {
     let id = UUID()
     let suggestedName: String
     let coordinate: CafeCoordinate
+    let existingReview: CafeReview?
+
+    init(suggestedName: String, coordinate: CafeCoordinate, existingReview: CafeReview? = nil) {
+        self.suggestedName = suggestedName
+        self.coordinate = coordinate
+        self.existingReview = existingReview
+    }
 }
 
 @MainActor
@@ -118,6 +135,34 @@ private final class CafeReviewStore {
         )
         reviews.insert(review, at: 0)
         reviews = Array(reviews.prefix(Self.maximumReviews))
+        persist()
+    }
+
+    func update(
+        id: UUID,
+        coordinate: CafeCoordinate,
+        name: String,
+        quietness: Int,
+        seating: Int,
+        outlets: Int,
+        soloFriendly: Bool,
+        visitPeriod: VisitPeriod,
+        note: String
+    ) {
+        guard let index = reviews.firstIndex(where: { $0.id == id }) else { return }
+        let existing = reviews[index]
+        reviews[index] = CafeReview(
+            id: id,
+            createdAt: existing.createdAt,
+            coordinate: coordinate,
+            name: name,
+            quietness: quietness,
+            seating: seating,
+            outlets: outlets,
+            soloFriendly: soloFriendly,
+            visitPeriod: visitPeriod,
+            note: note
+        )
         persist()
     }
 
@@ -266,17 +311,15 @@ private final class CafeLocationService: NSObject, @preconcurrency CLLocationMan
 
 struct QuietCafeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private static let fallbackRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738),
-        span: MKCoordinateSpan(latitudeDelta: 0.025, longitudeDelta: 0.025)
-    )
+    private static let regionStorageKey = "quietCafe.region"
+    private static let initialRegion = MapJournalRegionStore.load(storageKey: regionStorageKey)
 
     @State private var store = CafeReviewStore()
     @State private var searchService = CafeSearchService()
     @State private var locationService = CafeLocationService()
-    @State private var cameraPosition: MapCameraPosition = .region(fallbackRegion)
-    @State private var visibleRegion = fallbackRegion
-    @State private var mapCenter = CafeCoordinate(fallbackRegion.center)
+    @State private var cameraPosition: MapCameraPosition = .region(initialRegion)
+    @State private var visibleRegion = initialRegion
+    @State private var mapCenter = CafeCoordinate(initialRegion.center)
     @State private var presentedDraft: CafeDraft?
     @State private var showClearConfirmation = false
 
@@ -287,6 +330,14 @@ struct QuietCafeView: View {
             CorpPalette.canvas.ignoresSafeArea()
             VStack(spacing: 0) {
                 brandHeader
+                DumbBoundaryChip(
+                    storageKey: "quietCafe.boundaryDismissed",
+                    message: "Your visit notes only — not live noise levels or business hours.",
+                    accent: accent,
+                    systemImage: "cup.and.saucer.fill"
+                )
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.bottom, DumbSpacing.sm)
                 mapCard
                 cafeDesk
             }
@@ -295,16 +346,30 @@ struct QuietCafeView: View {
         .environment(\.dumbExperienceStyle, .map)
         .sheet(item: $presentedDraft) { draft in
             CafeEditorSheet(draft: draft) { name, quietness, seating, outlets, soloFriendly, visitPeriod, note in
-                store.add(
-                    coordinate: draft.coordinate,
-                    name: name,
-                    quietness: quietness,
-                    seating: seating,
-                    outlets: outlets,
-                    soloFriendly: soloFriendly,
-                    visitPeriod: visitPeriod,
-                    note: note
-                )
+                if let existing = draft.existingReview {
+                    store.update(
+                        id: existing.id,
+                        coordinate: draft.coordinate,
+                        name: name,
+                        quietness: quietness,
+                        seating: seating,
+                        outlets: outlets,
+                        soloFriendly: soloFriendly,
+                        visitPeriod: visitPeriod,
+                        note: note
+                    )
+                } else {
+                    store.add(
+                        coordinate: draft.coordinate,
+                        name: name,
+                        quietness: quietness,
+                        seating: seating,
+                        outlets: outlets,
+                        soloFriendly: soloFriendly,
+                        visitPeriod: visitPeriod,
+                        note: note
+                    )
+                }
             }
         }
         .confirmationDialog(
@@ -344,7 +409,7 @@ struct QuietCafeView: View {
                     .foregroundStyle(CorpPalette.ink)
                     .lineLimit(1)
                     .accessibilityAddTraits(.isHeader)
-                Text("Real cafés. Serious whisper standards. Absolutely unnecessary authority.")
+                Text("Private visit notes for cafés you've actually visited.")
                     .font(.caption)
                     .foregroundStyle(CorpPalette.mutedInk)
                     .lineLimit(2)
@@ -384,15 +449,10 @@ struct QuietCafeView: View {
         .onMapCameraChange(frequency: .onEnd) { context in
             visibleRegion = context.region
             mapCenter = CafeCoordinate(context.region.center)
+            MapJournalRegionStore.save(context.region, storageKey: Self.regionStorageKey)
         }
         .overlay {
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: 25, weight: .bold))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(accent, CorpPalette.surface)
-                .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+            MapJournalCrosshair(accent: accent)
         }
         .overlay(alignment: .topTrailing) {
             Button {
@@ -499,6 +559,12 @@ struct QuietCafeView: View {
                             withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.35)) {
                                 cameraPosition = .region(visibleRegion)
                             }
+                        } onEdit: {
+                            presentedDraft = CafeDraft(
+                                suggestedName: review.name,
+                                coordinate: review.coordinate,
+                                existingReview: review
+                            )
                         } onDelete: {
                             store.remove(id: review.id)
                         }
@@ -565,25 +631,35 @@ struct QuietCafeView: View {
     }
 
     private var emptyState: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "ear.badge.waveform")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(accent)
-                .frame(width: 48, height: 48)
-                .background(accent.opacity(0.13), in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text("The quiet committee has no evidence.")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                Text("Find a real café or use the map pin, then rate what it felt like when you visited.")
-                    .font(.caption)
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-        }
-        .padding(DumbSpacing.md)
-        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        DumbEmptyInvite(
+            title: "The quiet committee has no evidence",
+            message: "Find a real café or use the map pin, then rate what it felt like when you visited.",
+            systemImage: "ear.badge.waveform",
+            accent: accent
+        )
         .accessibilityIdentifier("emptyCafeLedger")
+    }
+}
+
+private struct MapJournalCrosshair: View {
+    let accent: Color
+
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(accent.opacity(0.88))
+                .frame(width: 24, height: 2)
+            Rectangle()
+                .fill(accent.opacity(0.88))
+                .frame(width: 2, height: 24)
+            Circle()
+                .fill(accent)
+                .frame(width: 6, height: 6)
+                .overlay(Circle().stroke(CorpPalette.surface, lineWidth: 1.5))
+        }
+        .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -591,6 +667,7 @@ private struct CafeReviewCard: View {
     let review: CafeReview
     let accent: Color
     let onShow: () -> Void
+    let onEdit: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
@@ -632,6 +709,13 @@ private struct CafeReviewCard: View {
                 .foregroundStyle(CorpPalette.mutedInk)
                 Spacer()
                 Button("Show", action: onShow)
+                    .font(.caption.weight(.black))
+                ShareLink(item: review.shareText, subject: Text("Café field report"), message: Text(review.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareCafeReviewButton")
+                Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {
                     Image(systemName: "trash")
@@ -680,8 +764,17 @@ private struct CafeEditorSheet: View {
     ) {
         self.draft = draft
         self.onSave = onSave
-        _name = State(initialValue: draft.suggestedName)
+        let review = draft.existingReview
+        _name = State(initialValue: review?.name ?? draft.suggestedName)
+        _quietness = State(initialValue: Double(review?.quietness ?? 7))
+        _seating = State(initialValue: Double(review?.seating ?? 7))
+        _outlets = State(initialValue: Double(review?.outlets ?? 5))
+        _soloFriendly = State(initialValue: review?.soloFriendly ?? true)
+        _visitPeriod = State(initialValue: review?.visitPeriod ?? .afternoon)
+        _note = State(initialValue: review?.note ?? "")
     }
+
+    private var isEditing: Bool { draft.existingReview != nil }
 
     var body: some View {
         NavigationStack {
@@ -751,13 +844,18 @@ private struct CafeEditorSheet: View {
                             .accessibilityIdentifier("cafeValidationMessage")
                     }
 
-                    DumbAction(title: "Save café rating", accent: accent, systemImage: "tray.and.arrow.down.fill", action: save)
+                    DumbAction(
+                        title: isEditing ? "Update café rating" : "Save café rating",
+                        accent: accent,
+                        systemImage: "tray.and.arrow.down.fill",
+                        action: save
+                    )
                         .accessibilityIdentifier("saveCafeReviewButton")
                 }
                 .padding(18)
             }
             .background(CorpPalette.canvas.ignoresSafeArea())
-            .navigationTitle("Café field report")
+            .navigationTitle(isEditing ? "Edit café report" : "Café field report")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

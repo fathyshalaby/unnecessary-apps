@@ -54,8 +54,9 @@ Keep the design system easy to evolve:
 1. **Primitive tokens** — palette, spacing, type, radii, icon sizes, motion.
 2. **Semantic tokens** — canvas, surface, ink, muted ink, accent, action, result,
    warning, and success roles.
-3. **Components** — `DumbShell`, `DumbAction`, `DumbCard`, `DumbResult`,
-   `DumbField`, `DumbCameraPicker`, and app-specific compositions.
+3. **Components** — `AppCanvas`, `AppHeader`, `DumbAction`, `DumbCard`, `DumbResult`,
+   `DumbField`, `DumbCameraPicker`, `DumbEmptyInvite`, `DumbShareVerdict`, `DumbHeroMeter`,
+   `DumbBoundaryChip`, and app-specific compositions. (`DumbShell` remains for legacy only.)
 
 Use `shared/Palette.swift` and `shared/DumbKit.swift` as implementation homes.
 Views should consume semantic tokens and shared components rather than introduce

@@ -63,83 +63,115 @@ struct ChairFinderView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MUNICIPAL SEATING BUREAU",
-            title: "Chair Finder",
-            subtitle: "Observe real chairs. File the evidence. Sit decisively.",
-            accent: accent,
-            personality: .optimistic
-        ) {
-            DumbCharacterStage(
-                assetName: "ChairInspector",
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "MUNICIPAL SEATING BUREAU",
+                title: "Chair Finder",
+                subtitle: "Observe real chairs. File the evidence. Sit decisively.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "chairFinder.boundaryDismissed",
+                message: "Ranks chairs you observed nearby — not city-wide discovery or live maps.",
                 accent: accent,
-                title: "Licensed seating inspector",
-                caption: inspectorCaption,
-                reactionTrigger: inspectionRevision,
-                reactionStyle: .bounce
+                systemImage: "chair.lounge.fill"
             )
 
             HStack {
-                DumbStatusPill("OFFICIAL CHAIR FILE", systemImage: "doc.text.fill", accent: accent)
-                Spacer()
-                Text("\(candidates.count)/\(ChairArchive.limit) OBSERVED")
-                    .font(.caption2.weight(.black))
-                    .tracking(0.8)
-                    .foregroundStyle(CorpPalette.mutedInk)
-                    .accessibilityIdentifier("chairCandidateCount")
-                    .accessibilityValue("\(candidates.count)")
+            DumbStatusPill("OFFICIAL CHAIR FILE", systemImage: "doc.text.fill", accent: accent)
+            Spacer()
+            Text("\(candidates.count)/\(ChairArchive.limit) OBSERVED")
+            .font(.caption2.weight(.black))
+            .tracking(0.8)
+            .foregroundStyle(CorpPalette.mutedInk)
+            .accessibilityIdentifier("chairCandidateCount")
+            .accessibilityValue("\(candidates.count)")
             }
 
             candidateEditor
 
-            DumbAction(
-                title: candidates.isEmpty ? "Add a chair before ranking" : "Rank my observed chairs",
-                accent: accent,
-                systemImage: "chair.lounge.fill",
-                action: inspectChairs
-            )
-            .disabled(candidates.isEmpty)
-            .accessibilityIdentifier("inspectChairButton")
-
-            DumbResult(
-                text: verdict,
-                accent: accent,
-                systemImage: "checkmark.seal.fill",
-                reactionStyle: .bounce
-            )
-            .accessibilityIdentifier("chairVerdict")
+            if let winner = candidates.first(where: { $0.id == winningChairID }) {
+            DumbCard(accent: accent, isSelected: true) {
+            HStack(spacing: 12) {
+            Image(systemName: "crown.fill")
+            .font(.title2.weight(.black))
+            .foregroundStyle(CorpPalette.verdictGold)
+            .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 3) {
+            Text("CURRENT WINNER")
+            .font(.caption2.weight(.black))
+            .tracking(1.1)
+            .foregroundStyle(accent)
+            Text("\(winner.name) · SIT \(winner.score)")
+            .font(.headline.weight(.black))
+            .foregroundStyle(CorpPalette.ink)
+            }
+            Spacer(minLength: 0)
+            }
+            }
+            .accessibilityIdentifier("chairCurrentWinner")
+            }
 
             candidateLedger
 
             Text("Build the shortlist from chairs you have actually seen. The bureau refuses to rank imaginary furniture.")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(CorpPalette.mutedInk)
-                .fixedSize(horizontal: false, vertical: true)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 12) {
-                Button(action: resetRanking) {
-                    Label("Reset ranking", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline.weight(.black))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .disabled(storedWinnerID.isEmpty)
-                .accessibilityIdentifier("resetChairFinderButton")
-
-                Button {
-                    showClearConfirmation = true
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.headline.weight(.black))
-                        .frame(width: 48, height: 44)
-                }
-                .foregroundStyle(CorpPalette.warningRed)
-                .buttonStyle(DumbPressStyle())
-                .disabled(candidates.isEmpty)
-                .accessibilityLabel("Clear all chair observations")
-                .accessibilityIdentifier("clearChairCandidatesButton")
+            Button(action: resetRanking) {
+            Label("Reset ranking", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(storedWinnerID.isEmpty)
+            .accessibilityIdentifier("resetChairFinderButton")
+
+            Button {
+            showClearConfirmation = true
+            } label: {
+            Image(systemName: "trash")
+            .font(.headline.weight(.black))
+            .frame(width: 48, height: 44)
+            }
+            .foregroundStyle(CorpPalette.warningRed)
+            .buttonStyle(DumbPressStyle())
+            .disabled(candidates.isEmpty)
+            .accessibilityLabel("Clear all chair observations")
+            .accessibilityIdentifier("clearChairCandidatesButton")
+            }
+
+        } bottomBar: {
+            DumbAction(
+            title: candidates.isEmpty ? "Add a chair before ranking" : "Rank my observed chairs",
+            accent: accent,
+            systemImage: "chair.lounge.fill",
+            action: inspectChairs
+            )
+            .disabled(candidates.isEmpty)
+            .accessibilityIdentifier("inspectChairButton")
+
+            if !storedWinnerID.isEmpty && !verdict.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: verdict,
+                    subject: "Chair ranking verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareChairVerdictButton"
+                )
+            }
+
+            DumbResult(
+            text: verdict,
+            accent: accent,
+            systemImage: "checkmark.seal.fill",
+            reactionStyle: .bounce
+            )
+            .accessibilityIdentifier("chairVerdict")
+
         }
         .confirmationDialog(
             "Erase every chair observation?",
@@ -151,6 +183,17 @@ struct ChairFinderView: View {
         } message: {
             Text("This clears the shortlist and its current ranking. It cannot be undone.")
         }
+        .onChange(of: name) { _, _ in invalidateRanking() }
+        .onChange(of: note) { _, _ in invalidateRanking() }
+        .onChange(of: comfort) { _, _ in invalidateRanking() }
+        .onChange(of: shade) { _, _ in invalidateRanking() }
+        .onChange(of: pigeonRisk) { _, _ in invalidateRanking() }
+    }
+
+    private func invalidateRanking() {
+        guard !storedWinnerID.isEmpty else { return }
+        storedWinnerID = ""
+        verdict = "Evidence changed. Rank the chairs again."
     }
 
     private var candidateEditor: some View {
@@ -206,24 +249,12 @@ struct ChairFinderView: View {
             }
 
             if candidates.isEmpty {
-                DumbCard(accent: accent) {
-                    HStack(spacing: 14) {
-                        Image(systemName: "chair.lounge")
-                            .font(.title.bold())
-                            .foregroundStyle(accent)
-                            .frame(width: 54, height: 54)
-                            .background(accent.opacity(0.12), in: Circle())
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("No furniture testimony yet.")
-                                .font(.headline.weight(.black))
-                            Text("Look around, nickname a real chair, and rate what your body can verify.")
-                                .font(.subheadline)
-                                .foregroundStyle(CorpPalette.mutedInk)
-                        }
-                    }
-                }
-                .accessibilityElement(children: .combine)
+                DumbEmptyInvite(
+                    title: "No furniture testimony yet",
+                    message: "Look around, nickname a real chair, and rate what your body can verify.",
+                    systemImage: "chair.lounge",
+                    accent: accent
+                )
                 .accessibilityIdentifier("emptyChairLedger")
             } else {
                 ForEach(candidates) { candidate in
@@ -283,15 +314,6 @@ struct ChairFinderView: View {
         .accessibilityIdentifier("chairCandidateCard")
     }
 
-    private var inspectorCaption: String {
-        guard let winner = candidates.first(where: { $0.id == winningChairID }) else {
-            return candidates.isEmpty
-                ? "Clipboard ready. Please locate actual furniture."
-                : "\(candidates.count) chair\(candidates.count == 1 ? "" : "s") await municipal judgment."
-        }
-        return "\(winner.name) has passed the official bum test."
-    }
-
     private func addCandidate() {
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -321,7 +343,10 @@ struct ChairFinderView: View {
         shade = 5
         pigeonRisk = 2
         validationMessage = ""
-        resetRanking()
+        if !storedWinnerID.isEmpty {
+            storedWinnerID = ""
+            verdict = "Shortlist updated. Tap rank again for a fresh verdict."
+        }
         inspectionRevision += 1
     }
 

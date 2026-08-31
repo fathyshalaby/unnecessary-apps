@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct LastSliceApp: App {
-    var body: some Scene { WindowGroup { LastSliceView() } }
+    var body: some Scene { WindowGroup { LastSliceView().dumbNativeEntry(scheme: "app32lastslice") { _, _ in } } }
 }
 
 private struct SliceRuling: Codable, Identifiable {
@@ -51,20 +51,76 @@ struct LastSliceView: View {
     private let gold = CorpPalette.sunshine
 
     var body: some View {
-        DumbShell(
-            eyebrow: "SHARED FOOD DIPLOMACY",
-            title: "Who gets the last one?",
-            subtitle: "A tiny fairness protocol for snacks, seats, chores, and other fragile alliances.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "SHARED FOOD DIPLOMACY",
+                title: "Who gets the last one?",
+                subtitle: "A tiny fairness protocol for snacks, seats, chores, and other fragile alliances.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "lastSlice.boundaryDismissed",
+                message: "Fairness theater for your group — not legal arbitration or payment splitting.",
+                accent: accent,
+                systemImage: "fork.knife"
+            )
+
             fairnessRule
             rulingSummary
 
             if let activeRuling {
-                tribunalCard(activeRuling)
+            tribunalCard(activeRuling)
             } else {
-                rosterCard
+            rosterCard
+
+            }
+
+            treatyCard
+
+            if treatyText != Self.waitingTreaty {
+                DumbShareVerdict(
+                    text: treatyText,
+                    subject: "Last slice treaty",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSliceTreatyButton"
+                )
+            }
+
+            historyCard
+
+            Button { showEraseConfirmation = true } label: {
+            Label("Erase complete diplomacy archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(activeRuling == nil && history.isEmpty && !hasDraft && treatyText == Self.waitingTreaty)
+            .accessibilityIdentifier("eraseSliceArchiveButton")
+
+        } bottomBar: {
+            if activeRuling != nil {
+                HStack(spacing: 10) {
+                    Button { candidatePassed() } label: {
+                        Label("They passed", systemImage: "hand.raised.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(accent)
+                    .accessibilityIdentifier("sliceCandidatePassedButton")
+
+                    Button { awardCandidate() } label: {
+                        Label("Award it", systemImage: "checkmark.seal.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: DumbMetrics.minimumTapTarget)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(accent)
+                    .accessibilityIdentifier("sliceAwardButton")
+                }
+            } else {
                 DumbAction(
                     title: "Convene fair tribunal",
                     accent: accent,
@@ -75,18 +131,6 @@ struct LastSliceView: View {
                 .accessibilityIdentifier("resolveSliceButton")
             }
 
-            treatyCard
-            historyCard
-
-            Button { showEraseConfirmation = true } label: {
-                Label("Erase complete diplomacy archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(activeRuling == nil && history.isEmpty && !hasDraft && treatyText == Self.waitingTreaty)
-            .accessibilityIdentifier("eraseSliceArchiveButton")
         }
         .onAppear(perform: restoreState)
         .confirmationDialog("Erase active ruling and all diplomacy history?", isPresented: $showEraseConfirmation, titleVisibility: .visible) {
@@ -146,9 +190,13 @@ struct LastSliceView: View {
                     .font(.caption.weight(.semibold)).foregroundStyle(CorpPalette.mutedInk)
 
                 if people.isEmpty {
-                    Label("No eligible people yet.", systemImage: "person.2.slash")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptySliceRoster")
+                    DumbEmptyInvite(
+                        title: "No eligible people yet",
+                        message: "Separate names with commas — at least two people to convene the tribunal.",
+                        systemImage: "person.2.slash",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySliceRoster")
                 } else {
                     participantChips(people)
                 }
@@ -194,7 +242,6 @@ struct LastSliceView: View {
                 tribunalHeader(ruling)
                 candidatePanel(ruling)
                 participantChips(ruling.remaining)
-                tribunalActions
                 Button("Cancel this ruling") { cancelRuling() }
                     .font(.caption.weight(.black)).foregroundStyle(CorpPalette.mutedInk)
                     .frame(maxWidth: .infinity)
@@ -249,28 +296,6 @@ struct LastSliceView: View {
         .accessibilityIdentifier("sliceCurrentCandidate")
     }
 
-    private var tribunalActions: some View {
-        HStack(spacing: 10) {
-            Button { candidatePassed() } label: {
-                Label("They passed", systemImage: "hand.raised.fill")
-                    .font(.caption.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 40)
-            }
-            .buttonStyle(.bordered)
-            .tint(accent)
-            .accessibilityIdentifier("sliceCandidatePassedButton")
-
-            Button { awardCandidate() } label: {
-                Label("Award it", systemImage: "checkmark.seal.fill")
-                    .font(.caption.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 40)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(accent)
-            .accessibilityIdentifier("sliceAwardButton")
-        }
-    }
-
     private var treatyCard: some View {
         VStack(alignment: .leading, spacing: 11) {
             HStack {
@@ -307,9 +332,13 @@ struct LastSliceView: View {
                         .accessibilityIdentifier("sliceHistoryCount").accessibilityValue("\(history.count)")
                 }
                 if history.isEmpty {
-                    Label("No completed ruling yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptySliceHistory")
+                    DumbEmptyInvite(
+                        title: "No completed ruling yet",
+                        message: "Convene a tribunal and ratify a treaty to start the archive.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySliceHistory")
                 } else {
                     ForEach(Array(visibleHistory.enumerated()), id: \.element.id) { index, record in
                         if index > 0 { Divider() }

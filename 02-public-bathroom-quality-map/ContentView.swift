@@ -34,6 +34,20 @@ private struct LooReport: Codable, Identifiable, Hashable {
         let queueRelief = 10 - queue
         return Int((Double(cleanliness + privacy + supplies + queueRelief) / 4).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(qualityIndex)/10",
+            "Clean \(cleanliness) · Privacy \(privacy) · Stock \(supplies) · Queue \(queue)/10"
+        ]
+        if changingTableObserved {
+            lines.append("Changing table observed")
+        }
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct LooPlace: Identifiable, Hashable {
@@ -54,6 +68,13 @@ private struct LooDraft: Identifiable {
     let id = UUID()
     let suggestedName: String
     let coordinate: LooCoordinate
+    let existingReport: LooReport?
+
+    init(suggestedName: String, coordinate: LooCoordinate, existingReport: LooReport? = nil) {
+        self.suggestedName = suggestedName
+        self.coordinate = coordinate
+        self.existingReport = existingReport
+    }
 }
 
 @MainActor
@@ -101,6 +122,34 @@ private final class LooReportStore {
         )
         reports.insert(report, at: 0)
         reports = Array(reports.prefix(Self.maximumReports))
+        persist()
+    }
+
+    func update(
+        id: UUID,
+        coordinate: LooCoordinate,
+        name: String,
+        cleanliness: Int,
+        privacy: Int,
+        supplies: Int,
+        queue: Int,
+        changingTableObserved: Bool,
+        note: String
+    ) {
+        guard let index = reports.firstIndex(where: { $0.id == id }) else { return }
+        let existing = reports[index]
+        reports[index] = LooReport(
+            id: id,
+            createdAt: existing.createdAt,
+            coordinate: coordinate,
+            name: name,
+            cleanliness: cleanliness,
+            privacy: privacy,
+            supplies: supplies,
+            queue: queue,
+            changingTableObserved: changingTableObserved,
+            note: note
+        )
         persist()
     }
 
@@ -245,17 +294,15 @@ private final class LooLocationService: NSObject, @preconcurrency CLLocationMana
 
 struct BathroomMapView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private static let fallbackRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738),
-        span: MKCoordinateSpan(latitudeDelta: 0.025, longitudeDelta: 0.025)
-    )
+    private static let regionStorageKey = "bathroomMap.region"
+    private static let initialRegion = MapJournalRegionStore.load(storageKey: regionStorageKey)
 
     @State private var store = LooReportStore()
     @State private var searchService = LooSearchService()
     @State private var locationService = LooLocationService()
-    @State private var cameraPosition: MapCameraPosition = .region(fallbackRegion)
-    @State private var visibleRegion = fallbackRegion
-    @State private var mapCenter = LooCoordinate(fallbackRegion.center)
+    @State private var cameraPosition: MapCameraPosition = .region(initialRegion)
+    @State private var visibleRegion = initialRegion
+    @State private var mapCenter = LooCoordinate(initialRegion.center)
     @State private var presentedDraft: LooDraft?
     @State private var showClearConfirmation = false
 
@@ -274,16 +321,30 @@ struct BathroomMapView: View {
         .environment(\.dumbExperienceStyle, .map)
         .sheet(item: $presentedDraft) { draft in
             LooEditorSheet(draft: draft) { name, cleanliness, privacy, supplies, queue, changingTableObserved, note in
-                store.add(
-                    coordinate: draft.coordinate,
-                    name: name,
-                    cleanliness: cleanliness,
-                    privacy: privacy,
-                    supplies: supplies,
-                    queue: queue,
-                    changingTableObserved: changingTableObserved,
-                    note: note
-                )
+                if let existing = draft.existingReport {
+                    store.update(
+                        id: existing.id,
+                        coordinate: draft.coordinate,
+                        name: name,
+                        cleanliness: cleanliness,
+                        privacy: privacy,
+                        supplies: supplies,
+                        queue: queue,
+                        changingTableObserved: changingTableObserved,
+                        note: note
+                    )
+                } else {
+                    store.add(
+                        coordinate: draft.coordinate,
+                        name: name,
+                        cleanliness: cleanliness,
+                        privacy: privacy,
+                        supplies: supplies,
+                        queue: queue,
+                        changingTableObserved: changingTableObserved,
+                        note: note
+                    )
+                }
             }
         }
         .confirmationDialog(
@@ -341,6 +402,14 @@ struct BathroomMapView: View {
         .padding(.horizontal, DumbSpacing.md)
         .padding(.top, DumbSpacing.sm)
         .padding(.bottom, DumbSpacing.sm)
+
+        DumbBoundaryChip(
+            storageKey: "bathroomMap.boundaryDismissed",
+            message: "User-filed reports only — not live availability, hours, or official ratings.",
+            accent: accent,
+            systemImage: "map.fill"
+        )
+        .padding(.horizontal, DumbSpacing.md)
     }
 
     private var mapCard: some View {
@@ -363,15 +432,10 @@ struct BathroomMapView: View {
         .onMapCameraChange(frequency: .onEnd) { context in
             visibleRegion = context.region
             mapCenter = LooCoordinate(context.region.center)
+            MapJournalRegionStore.save(context.region, storageKey: Self.regionStorageKey)
         }
         .overlay {
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: 25, weight: .bold))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(accent, CorpPalette.surface)
-                .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+            MapJournalCrosshair(accent: accent)
         }
         .overlay(alignment: .topTrailing) {
             Button {
@@ -478,6 +542,12 @@ struct BathroomMapView: View {
                             withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.35)) {
                                 cameraPosition = .region(visibleRegion)
                             }
+                        } onEdit: {
+                            presentedDraft = LooDraft(
+                                suggestedName: report.name,
+                                coordinate: report.coordinate,
+                                existingReport: report
+                            )
                         } onDelete: {
                             store.remove(id: report.id)
                         }
@@ -545,25 +615,35 @@ struct BathroomMapView: View {
     }
 
     private var emptyState: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "figure.wave")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(accent)
-                .frame(width: 48, height: 48)
-                .background(accent.opacity(0.13), in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text("The loo bureau has no field reports.")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                Text("Search the map or pin a place you visited. Do not trespass for bathroom journalism.")
-                    .font(.caption)
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-        }
-        .padding(DumbSpacing.md)
-        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        DumbEmptyInvite(
+            title: "The loo bureau has no field reports",
+            message: "Search the map or pin a place you visited. Do not trespass for bathroom journalism.",
+            systemImage: "figure.wave",
+            accent: accent
+        )
         .accessibilityIdentifier("emptyBathroomLedger")
+    }
+}
+
+private struct MapJournalCrosshair: View {
+    let accent: Color
+
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(accent.opacity(0.88))
+                .frame(width: 24, height: 2)
+            Rectangle()
+                .fill(accent.opacity(0.88))
+                .frame(width: 2, height: 24)
+            Circle()
+                .fill(accent)
+                .frame(width: 6, height: 6)
+                .overlay(Circle().stroke(CorpPalette.surface, lineWidth: 1.5))
+        }
+        .shadow(color: .black.opacity(0.14), radius: 2, y: 1)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -571,6 +651,7 @@ private struct LooReportCard: View {
     let report: LooReport
     let accent: Color
     let onShow: () -> Void
+    let onEdit: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
@@ -612,6 +693,13 @@ private struct LooReportCard: View {
                 .foregroundStyle(CorpPalette.mutedInk)
                 Spacer()
                 Button("Show", action: onShow)
+                    .font(.caption.weight(.black))
+                ShareLink(item: report.shareText, subject: Text("Bathroom field report"), message: Text(report.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareBathroomReportButton")
+                Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {
                     Image(systemName: "trash")
@@ -660,8 +748,17 @@ private struct LooEditorSheet: View {
     ) {
         self.draft = draft
         self.onSave = onSave
-        _name = State(initialValue: draft.suggestedName)
+        let report = draft.existingReport
+        _name = State(initialValue: report?.name ?? draft.suggestedName)
+        _cleanliness = State(initialValue: Double(report?.cleanliness ?? 6))
+        _privacy = State(initialValue: Double(report?.privacy ?? 7))
+        _supplies = State(initialValue: Double(report?.supplies ?? 6))
+        _queue = State(initialValue: Double(report?.queue ?? 3))
+        _changingTableObserved = State(initialValue: report?.changingTableObserved ?? false)
+        _note = State(initialValue: report?.note ?? "")
     }
+
+    private var isEditing: Bool { draft.existingReport != nil }
 
     var body: some View {
         NavigationStack {
@@ -716,13 +813,18 @@ private struct LooEditorSheet: View {
                             .accessibilityIdentifier("bathroomValidationMessage")
                     }
 
-                    DumbAction(title: "Save field report", accent: accent, systemImage: "tray.and.arrow.down.fill", action: save)
+                    DumbAction(
+                        title: isEditing ? "Update field report" : "Save field report",
+                        accent: accent,
+                        systemImage: "tray.and.arrow.down.fill",
+                        action: save
+                    )
                         .accessibilityIdentifier("saveBathroomReportButton")
                 }
                 .padding(18)
             }
             .background(CorpPalette.canvas.ignoresSafeArea())
-            .navigationTitle("Bathroom field report")
+            .navigationTitle(isEditing ? "Edit bathroom report" : "Bathroom field report")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

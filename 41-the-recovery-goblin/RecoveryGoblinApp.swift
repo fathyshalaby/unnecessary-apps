@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct RecoveryGoblinApp: App {
     var body: some Scene {
-        WindowGroup { RecoveryGoblinView() }
+        WindowGroup { RecoveryGoblinView().dumbNativeEntry(scheme: "app41recoverygoblin") { _, _ in } }
     }
 }
 
@@ -34,38 +34,67 @@ struct RecoveryGoblinView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "GOBLIN RECOVERY SERVICES",
-            title: "The recovery goblin",
-            subtitle: "A small creature for a kinder check-in, not a coach.",
-            accent: accent,
-            personality: .chaotic,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "GOBLIN RECOVERY SERVICES",
+                title: "The recovery goblin",
+                subtitle: "A small creature for a kinder check-in, not a coach.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "recoveryGoblin.boundaryDismissed",
+                message: "Fictional recovery chat — not medical, training, or coaching advice.",
+                accent: accent,
+                systemImage: "leaf.fill"
+            )
+
+            DumbHeroMeter(
+                progress: (tiredness + soreness) / 20,
+                valueLabel: "\(Int(tiredness + soreness))/20",
+                title: "Recovery load",
+                subtitle: "Tired \(Int(tiredness)) · sore \(Int(soreness))",
+                accent: accent,
+                systemImage: "leaf.fill",
+                variant: .arc
+            )
+            .accessibilityIdentifier("recoveryGoblinHeroMeter")
+
             healthConnectionCard
             checkInCard
-
-            DumbAction(
-                title: "Ask the goblin",
-                accent: accent,
-                systemImage: "questionmark.circle.fill",
-                action: askGoblin
-            )
-            .accessibilityIdentifier("askRecoveryGoblinButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "leaf.fill", reactionStyle: .bounce)
-                .accessibilityIdentifier("recoveryGoblinResult")
 
             notificationCard
 
             Button(action: reset) {
-                Label("Reset the goblin", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the goblin", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetRecoveryGoblinButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Ask the goblin",
+            accent: accent,
+            systemImage: "questionmark.circle.fill",
+            action: askGoblin
+            )
+            .accessibilityIdentifier("askRecoveryGoblinButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "leaf.fill", reactionStyle: .bounce)
+            .accessibilityIdentifier("recoveryGoblinResult")
+
+            if result != "The goblin is hiding behind the foam roller." && !result.hasPrefix("Your check-in changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Recovery goblin reply",
+                    accent: accent,
+                    accessibilityIdentifier: "shareRecoveryGoblinButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()
@@ -86,6 +115,14 @@ struct RecoveryGoblinView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: tiredness) { _, _ in invalidateReply() }
+        .onChange(of: soreness) { _, _ in invalidateReply() }
+        .onChange(of: healthWorkoutMinutes) { _, _ in invalidateReply() }
+    }
+
+    private func invalidateReply() {
+        guard result != "The goblin is hiding behind the foam roller." else { return }
+        result = "Your check-in changed. Ask the goblin again."
     }
 
     private var healthConnectionCard: some View {
@@ -194,6 +231,8 @@ struct RecoveryGoblinView: View {
         soreness = 6
         result = "The goblin is hiding behind the foam roller."
         healthWorkoutMinutes = nil
+        healthConnected = false
+        manualMode = false
         healthStatus = "Apple Health is optional. The goblin cannot measure recovery."
         dailyNudgeEnabled = false
         DumbLocalNotifications.cancel(identifier: Self.notificationIdentifier)

@@ -30,7 +30,7 @@ private struct EpisodeForecast: Codable, Identifiable {
 
 @main
 struct OneMoreEpisodeApp: App {
-    var body: some Scene { WindowGroup { OneMoreEpisodeView() } }
+    var body: some Scene { WindowGroup { OneMoreEpisodeView().dumbNativeEntry(scheme: "app14onemoreepisode") { _, _ in } } }
 }
 
 struct OneMoreEpisodeView: View {
@@ -52,36 +52,33 @@ struct OneMoreEpisodeView: View {
     private let accent = CorpPalette.violet
 
     var body: some View {
-        DumbShell(
-            eyebrow: "STREAMING CONSEQUENCES",
-            title: "One more episode?",
-            subtitle: "A transparent trade-off calculator for bedtime bargaining.",
-            accent: accent,
-            personality: .chaotic
-        ) {
-            assumptionCard
-            forecastEditor
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "STREAMING CONSEQUENCES",
+                title: "One more episode?",
+                subtitle: "A transparent trade-off calculator for bedtime bargaining.",
+                accent: accent
+            )
 
-            DumbAction(
-                title: "Calculate & file tomorrow",
+            assumptionCard
+
+            DumbHeroMeter(
+                progress: sleepBudgetProgress,
+                valueLabel: formatMinutes(runtimeMinutes),
+                title: "Watch time vs budget",
+                subtitle: "\(formatMinutes(remainingMinutes)) sleep budget left",
                 accent: accent,
                 systemImage: "moon.zzz.fill",
-                action: calculateTomorrow
+                variant: .arc
             )
-            .accessibilityIdentifier("calculateTomorrowButton")
+            .accessibilityIdentifier("episodeHeroMeter")
 
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "play.tv.fill",
-                reactionStyle: .bounce
-            )
-            .accessibilityIdentifier("episodeForecastResult")
+            forecastEditor
 
             Button(action: resetCurrentForecast) {
-                Label("Reset current forecast", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset current forecast", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -91,16 +88,43 @@ struct OneMoreEpisodeView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every forecast", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every forecast", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentForecast)
             .accessibilityIdentifier("eraseEpisodeDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Calculate & file tomorrow",
+            accent: accent,
+            systemImage: "moon.zzz.fill",
+            action: calculateTomorrow
+            )
+            .accessibilityIdentifier("calculateTomorrowButton")
+
+            if result != Self.emptyResult && !result.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "One more episode forecast",
+                    accent: accent,
+                    accessibilityIdentifier: "shareEpisodeForecastButton"
+                )
+            }
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "play.tv.fill",
+            reactionStyle: .bounce
+            )
+            .accessibilityIdentifier("episodeForecastResult")
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: episodes) { _, _ in invalidateForecast() }
@@ -191,10 +215,13 @@ struct OneMoreEpisodeView: View {
                 }
 
                 if history.isEmpty {
-                    Label("Tomorrow has no evidence yet.", systemImage: "moon.stars")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyEpisodeHistory")
+                    DumbEmptyInvite(
+                        title: "No forecasts filed",
+                        message: "Calculate tomorrow’s bedtime trade-off to start the archive.",
+                        systemImage: "moon.stars",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyEpisodeHistory")
                 } else {
                     ForEach(visibleHistory) { forecast in
                         VStack(alignment: .leading, spacing: 6) {
@@ -245,6 +272,23 @@ struct OneMoreEpisodeView: View {
         showAllHistory ? history : Array(history.prefix(5))
     }
 
+    private var runtimeMinutes: Int {
+        Int(episodes) * Int(minutesEach)
+    }
+
+    private var sleepBudgetMinutes: Int {
+        Int((sleepBudgetHours * 60).rounded())
+    }
+
+    private var remainingMinutes: Int {
+        max(sleepBudgetMinutes - runtimeMinutes, 0)
+    }
+
+    private var sleepBudgetProgress: Double {
+        guard sleepBudgetMinutes > 0 else { return 0 }
+        return min(Double(runtimeMinutes) / Double(sleepBudgetMinutes), 1)
+    }
+
     private var hasCurrentForecast: Bool {
         !showName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || episodes != 1
@@ -260,10 +304,19 @@ struct OneMoreEpisodeView: View {
             minutesEach: Int(minutesEach),
             sleepBudgetMinutes: Int((sleepBudgetHours * 60).rounded())
         )
+        let impliedWake = forecast.remainingMinutes
+        let regretLine: String
+        if forecast.runtimeMinutes >= forecast.sleepBudgetMinutes {
+            regretLine = "Tomorrow-you is filing a formal complaint. The chosen sleep budget is gone."
+        } else if forecast.remainingMinutes < 360 {
+            regretLine = "Tomorrow-you will negotiate with the alarm like it owes them money."
+        } else {
+            regretLine = "Tomorrow-you may survive, but the remote was definitely the villain."
+        }
         result = """
         Watch time: \(formatMinutes(forecast.runtimeMinutes)).
-        Chosen sleep budget left: \(formatMinutes(forecast.remainingMinutes)).
-        \(forecast.runtimeMinutes >= forecast.sleepBudgetMinutes ? "The episodes consume the entire chosen budget." : "That is the exact trade-off under the published assumption.")
+        Sleep budget left: \(formatMinutes(forecast.remainingMinutes)) (~\(formatMinutes(impliedWake)) before a hypothetical wake-up).
+        \(regretLine)
         """
         history.insert(forecast, at: 0)
         history = Array(history.prefix(20))

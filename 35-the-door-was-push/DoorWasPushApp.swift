@@ -3,7 +3,7 @@ import DumbKit
 
 @main
 struct DoorWasPushApp: App {
-    var body: some Scene { WindowGroup { DoorWasPushView() } }
+    var body: some Scene { WindowGroup { DoorWasPushView().dumbNativeEntry(scheme: "app35doorwaspush") { _, _ in } } }
 }
 
 private enum DoorMistake: String, Codable, CaseIterable, Identifiable {
@@ -69,51 +69,63 @@ struct DoorWasPushView: View {
     private let yellow = CorpPalette.sunshine
 
     var body: some View {
-        DumbShell(
-            eyebrow: "DOOR LITERACY INITIATIVE",
-            title: "The door was push.",
-            subtitle: "Log the real moment you fought architecture. Find out whether the signage—or you—has a pattern.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent, experience: .courtroom) {
+            AppHeader(
+                eyebrow: "DOOR LITERACY INITIATIVE",
+                title: "The door was push.",
+                subtitle: "Log the real moment you fought architecture. Find out whether the signage—or you—has a pattern.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "doorWasPush.boundaryDismissed",
+                message: "Personal incident log — not building access records or safety reporting.",
+                accent: accent,
+                systemImage: "door.left.hand.closed"
+            )
+
             filingCard
 
-            DumbAction(
-                title: editingID == nil ? "File door incident" : "Update door incident",
-                accent: accent,
-                systemImage: editingID == nil ? "door.left.hand.open" : "checkmark.seal.fill",
-                action: saveIncident
-            )
-            .disabled(cleanPlace.isEmpty)
-            .accessibilityIdentifier("saveDoorIncidentButton")
-
             if editingID != nil {
-                Button("Cancel incident editing") { clearDraft() }
-                    .font(.subheadline.weight(.black)).foregroundStyle(CorpPalette.mutedInk)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                    .accessibilityIdentifier("cancelDoorIncidentEditingButton")
+            Button("Cancel incident editing") { clearDraft() }
+            .font(.subheadline.weight(.black)).foregroundStyle(CorpPalette.mutedInk)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .accessibilityIdentifier("cancelDoorIncidentEditingButton")
             }
 
             incidentReport
-            DumbCharacterStage(
-                accent: accent,
-                title: "Independent door witness",
-                caption: witnessCaption,
-                reactionTrigger: incidentRevision,
-                reactionStyle: .shake
-            )
             lifetimeSummary
             historyCard
 
             Button { showEraseConfirmation = true } label: {
-                Label("Erase complete door archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase complete door archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(incidents.isEmpty && !hasDraft && latestReport == Self.waitingReport)
             .accessibilityIdentifier("eraseDoorArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: editingID == nil ? "File door incident" : "Update door incident",
+            accent: accent,
+            systemImage: editingID == nil ? "door.left.hand.open" : "checkmark.seal.fill",
+            action: saveIncident
+            )
+            .disabled(cleanPlace.isEmpty)
+            .accessibilityIdentifier("saveDoorIncidentButton")
+
+            if latestReport != Self.waitingReport {
+                DumbShareVerdict(
+                    text: latestReport,
+                    subject: "Door incident report",
+                    accent: accent,
+                    accessibilityIdentifier: "shareDoorReportButton"
+                )
+            }
+
         }
         .onAppear(perform: restoreState)
         .confirmationDialog("Erase every door incident?", isPresented: $showEraseConfirmation, titleVisibility: .visible) {
@@ -271,9 +283,13 @@ struct DoorWasPushView: View {
                         .accessibilityIdentifier("doorHistoryCount").accessibilityValue("\(incidents.count)")
                 }
                 if incidents.isEmpty {
-                    Label("No real door incident filed yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyDoorHistory")
+                    DumbEmptyInvite(
+                        title: "No door incidents filed",
+                        message: "Report a real push/pull embarrassment to start the witness log.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyDoorHistory")
                 } else {
                     Text(patternSummary).font(.caption.weight(.black)).foregroundStyle(accent).fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("doorPatternSummary")

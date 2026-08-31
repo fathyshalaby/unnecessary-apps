@@ -1,6 +1,24 @@
 # Screenshot assets
 
-The folder release/screenshots/iphone-6.9/ contains one exact-size portrait
+Fresh captures: run on Mac after merging the launch-readiness PR stack:
+
+```bash
+zsh tools/capture_all_apps_screenshots.sh
+```
+
+Output: `release/screenshots/iphone-6.9/App01.png` … `App44.png` at 1260×2736.
+
+For the first ten release-lane apps only:
+
+```bash
+zsh tools/capture_first_wave_screenshots.sh
+```
+
+See `release/ALL_APPS_QA.md` and `release/FIRST_WAVE_SCREENSHOTS.md`.
+
+---
+
+The folder release/screenshots/iphone-6.9/ may contain one exact-size portrait
 in-app capture for each of the 44 active local/manual apps. They are derived from the
 verified simulator QA captures and prepared at 1260x2736 for Apple's 6.9-inch
 iPhone slot.
@@ -18,6 +36,6 @@ each listing, add captions only if they improve clarity, confirm that no
 private sample text is visible, and recreate any additional device-size slots
 required by App Store Connect.
 
-Regenerate them with:
+Regenerate from legacy QA PNGs in docs/screenshots/ with:
 
     zsh tools/prepare_store_screenshots.sh

@@ -2,7 +2,7 @@ import SwiftUI
 import AVFoundation
 import DumbKit
 
-@main struct NeighborNoiseApp: App { var body: some Scene { WindowGroup { NeighborNoiseView() } } }
+@main struct NeighborNoiseApp: App { var body: some Scene { WindowGroup { NeighborNoiseView().dumbNativeEntry(scheme: "app26neighbornoise") { _, _ in } } } }
 
 private final class LocalNoiseSampler {
     private let engine = AVAudioEngine()
@@ -69,61 +69,92 @@ struct NeighborNoiseView: View {
     @State private var noiseLevel = 0.0
     @State private var microphoneStatus = "No wall testimony yet."
     @State private var sampler: LocalNoiseSampler?
+    @State private var listenRemaining = 0
+    @State private var listenTimer: Timer?
 
     private let accent = CorpPalette.sky
 
     var body: some View {
-        DumbShell(
-            eyebrow: "DOMESTIC ACOUSTICS",
-            title: "Neighbor noise translator",
-            subtitle: "Turn an unexplained thud into a category.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "DOMESTIC ACOUSTICS",
+                title: "Neighbor noise translator",
+                subtitle: "Turn an unexplained thud into a category.",
+                accent: accent
+            )
+
+            DumbBoundaryChip(
+                storageKey: "neighborNoise.boundaryDismissed",
+                message: "Entertainment only — optional 2-second mic sample or typed descriptions. Not sound monitoring.",
+                accent: accent,
+                systemImage: "waveform"
+            )
+
+            DumbHeroMeter(
+                progress: noiseLevel,
+                valueLabel: isListening ? "Listening…" : noiseLevel > 0 ? String(format: "%.0f%%", noiseLevel * 100) : "—",
+                title: "Wall noise level",
+                subtitle: isListening ? "\(listenRemaining)s remaining" : microphoneStatus,
+                accent: accent,
+                systemImage: "waveform",
+                variant: .arc,
+                size: 100
+            )
+            .accessibilityIdentifier("neighborNoiseHeroMeter")
+
             DumbCard(accent: accent) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Button {
-                        listenToWall()
-                    } label: {
-                        Label(isListening ? "Listening to the wall…" : "Listen for two seconds", systemImage: "waveform")
-                            .font(.headline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(accent)
-                    .buttonStyle(DumbPressStyle())
-                    .disabled(isListening)
-                    .accessibilityIdentifier("listenNeighborNoiseButton")
+            VStack(alignment: .leading, spacing: 12) {
+            Button {
+            listenToWall()
+            } label: {
+            Label(isListening ? "Listening to the wall…" : "Listen for two seconds", systemImage: "waveform")
+            .font(.headline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(isListening)
+            .accessibilityIdentifier("listenNeighborNoiseButton")
 
-                    ProgressView(value: noiseLevel)
-                        .tint(accent)
-                        .accessibilityLabel("Noise level")
-
-                    Text(microphoneStatus)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-
-                    DumbField("Describe the sound", axis: .vertical, maxLength: 240, text: $noise)
-                    Text("Prefer not to listen? Describe the suspicious thud yourself.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
+            DumbField("Describe the sound", axis: .vertical, maxLength: 240, text: $noise)
+            Text("Prefer not to listen? Describe the suspicious thud yourself.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
             }
             .accessibilityIdentifier("neighborNoiseInput")
 
-            DumbAction(title: "Translate noise", accent: accent, systemImage: "ear.fill", action: translate)
-                .accessibilityIdentifier("translateNeighborNoiseButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "waveform", reactionStyle: .shake)
-
             Button(action: reset) {
-                Label("Reset the wall", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the wall", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetNeighborNoiseButton")
+
+        } bottomBar: {
+            DumbAction(title: "Translate noise", accent: accent, systemImage: "ear.fill", action: translate)
+            .accessibilityIdentifier("translateNeighborNoiseButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "waveform", reactionStyle: .shake)
+
+            if result != "The wall is listening." && !result.hasPrefix("Description changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Neighbor noise translation",
+                    accent: accent,
+                    accessibilityIdentifier: "shareNeighborNoiseButton"
+                )
+            }
+
         }
+        .onChange(of: noise) { _, _ in invalidateTranslation() }
+    }
+
+    private func invalidateTranslation() {
+        guard result != "The wall is listening." else { return }
+        result = "Description changed. Translate again."
     }
 
     private func translate() {
@@ -136,7 +167,7 @@ struct NeighborNoiseView: View {
             ? "Translation: drilling. Retreat from the wall."
             : lower.contains("music")
                 ? "Translation: someone has chosen a bass line."
-                : "Translation: furniture, plumbing, or a small diplomatic incident."
+                : translation(for: lower)
     }
 
     private func listenToWall() {
@@ -171,7 +202,16 @@ struct NeighborNoiseView: View {
             sampler = newSampler
             isListening = true
             noiseLevel = 0
+            listenRemaining = 2
             microphoneStatus = "Listening… the wall has two seconds to testify."
+            listenTimer?.invalidate()
+            listenTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                listenRemaining -= 1
+                if listenRemaining <= 0 {
+                    timer.invalidate()
+                    listenTimer = nil
+                }
+            }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 finishListening()
@@ -184,20 +224,41 @@ struct NeighborNoiseView: View {
     }
 
     private func finishListening() {
+        listenTimer?.invalidate()
+        listenTimer = nil
+        listenRemaining = 0
         guard let sampler else { return }
         let level = sampler.stop()
         self.sampler = nil
         isListening = false
         noiseLevel = level
+        let description = noiseDescription(for: level)
+        noise = description
         microphoneStatus = "Testimony recorded: two seconds of suspicious wall activity."
-        result = level > 0.72
-            ? "Translation: a serious thud. The wall requests a respectful distance."
-            : level > 0.35
-                ? "Translation: furniture, plumbing, or a small diplomatic incident."
-                : "Translation: suspiciously peaceful. The wall may be asleep."
+        result = translation(for: description)
+    }
+
+    private func noiseDescription(for level: Double) -> String {
+        if level > 0.72 { return "A serious thud from the wall" }
+        if level > 0.35 { return "Furniture, plumbing, or diplomatic incident sounds" }
+        return "Suspiciously peaceful wall activity"
+    }
+
+    private func translation(for description: String) -> String {
+        let lower = description.lowercased()
+        if lower.contains("thud") || lower.contains("serious") {
+            return "Translation: a serious thud. The wall requests a respectful distance."
+        }
+        if lower.contains("peaceful") || lower.contains("asleep") {
+            return "Translation: suspiciously peaceful. The wall may be asleep."
+        }
+        return "Translation: furniture, plumbing, or a small diplomatic incident."
     }
 
     private func reset() {
+        listenTimer?.invalidate()
+        listenTimer = nil
+        listenRemaining = 0
         noise = ""
         result = "The wall is listening."
         isListening = false

@@ -5,7 +5,7 @@ import DumbKit
 @main
 struct SleepAlibiApp: App {
     var body: some Scene {
-        WindowGroup { SleepAlibiView() }
+        WindowGroup { SleepAlibiView().dumbNativeEntry(scheme: "app37sleepalibi") { _, _ in } }
     }
 }
 
@@ -39,39 +39,68 @@ struct SleepAlibiView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "REST DEFENSE COUNSEL",
-            title: "Sleep alibi",
-            subtitle: "A tiny courtroom for the morning after.",
-            accent: accent,
-            personality: .dramatic,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "REST DEFENSE COUNSEL",
+                title: "Sleep alibi",
+                subtitle: "A tiny courtroom for the morning after.",
+                accent: accent
+            )
+
+            DumbHeroMeter(
+                progress: min(effectiveHours / 9, 1),
+                valueLabel: String(format: "%.1f hr", effectiveHours),
+                title: "Sleep evidence",
+                subtitle: effectiveHours < 4 ? "Extremely dramatic testimony" : effectiveHours < 7 ? "Complicated case" : "Respectable alibi",
+                accent: accent,
+                systemImage: "moon.zzz.fill",
+                variant: .arc
+            )
+            .accessibilityIdentifier("sleepAlibiHeroMeter")
+
+            DumbBoundaryChip(
+                storageKey: "sleepAlibi.boundaryDismissed",
+                message: "Duration reflection only—not a sleep score or medical advice.",
+                accent: accent,
+                systemImage: "moon.fill"
+            )
+
             healthConnectionCard
             evidenceCard
-
-            DumbAction(
-                title: "Present my alibi",
-                accent: accent,
-                systemImage: "building.columns.fill",
-                action: generateAlibi
-            )
-            .accessibilityIdentifier("generateSleepAlibiButton")
-
-            DumbResult(text: alibi, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
-                .accessibilityIdentifier("sleepAlibiResult")
 
             notificationCard
             manualFallbackCard
 
             Button(action: reset) {
-                Label("Reset the testimony", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the testimony", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetSleepAlibiButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Present my alibi",
+            accent: accent,
+            systemImage: "building.columns.fill",
+            action: generateAlibi
+            )
+            .accessibilityIdentifier("generateSleepAlibiButton")
+
+            DumbResult(text: alibi, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
+            .accessibilityIdentifier("sleepAlibiResult")
+
+            if alibi != "The witness has not testified." && !alibi.hasPrefix("Sleep evidence changed") {
+                DumbShareVerdict(
+                    text: alibi,
+                    subject: "Sleep alibi",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSleepAlibiButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()
@@ -96,6 +125,13 @@ struct SleepAlibiView: View {
             nudgeMinute = calendar.component(.minute, from: date)
             if dailyNudgeEnabled { scheduleDailyNudge() }
         }
+        .onChange(of: hours) { _, _ in invalidateAlibi() }
+        .onChange(of: healthSleepHours) { _, _ in invalidateAlibi() }
+    }
+
+    private func invalidateAlibi() {
+        guard alibi != "The witness has not testified." else { return }
+        alibi = "Sleep evidence changed. Present a fresh alibi."
     }
 
     private var healthConnectionCard: some View {
