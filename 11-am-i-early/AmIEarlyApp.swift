@@ -26,7 +26,7 @@ struct AmIEarlyView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private static let emptyResult = "Awaiting your arrival report."
 
-    @AppStorage("amIEarly.minutes") private var minutes = 0.0
+    @AppStorage("amIEarly.minutes") private var minutes = 12.0
     @AppStorage("amIEarly.occasion") private var occasion = ""
     @AppStorage("amIEarly.result") private var result = Self.emptyResult
     @AppStorage("amIEarly.history") private var storedHistory = "[]"

@@ -52,7 +52,7 @@ struct HydrationNarcView: View {
         DumbShell(
             eyebrow: "BOTTLE OVERSIGHT",
             title: "Hydration narc",
-            subtitle: "A manual one-tap water ledger. The bottle reacts when you log—not from proactive notifications.",
+            subtitle: "A manual one-tap water ledger with optional Apple Health import and one daily nudge.",
             accent: accent,
             personality: .office,
             experience: .wellness

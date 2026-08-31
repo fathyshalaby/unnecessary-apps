@@ -10,15 +10,12 @@ BROKEN = re.compile(
 )
 
 
-def view_name(text: str) -> str | None:
-    if match := re.search(r"@main[\s\S]*?struct \w+App[\s\S]*?WindowGroup", text):
-        after = text[match.end() :]
-    else:
-        after = text
-    if match := re.search(r"struct (\w+View)\s*:", text):
-        return match.group(1)
-    if match := re.search(r"struct (\w+ContentView)\s*:", text):
-        return match.group(1)
+def view_name(app_path: Path, text: str) -> str | None:
+    for source in (text, *(p.read_text(encoding="utf-8") for p in app_path.parent.glob("*.swift") if p != app_path)):
+        if match := re.search(r"struct (\w+View)\s*:", source):
+            return match.group(1)
+        if match := re.search(r"struct (\w+ContentView)\s*:", source):
+            return match.group(1)
     return None
 
 
@@ -32,7 +29,7 @@ def main() -> None:
             continue
         if not BROKEN.search(text):
             continue
-        name = view_name(text)
+        name = view_name(path, text)
         if not name:
             print(f"skip {path} — no view name")
             continue

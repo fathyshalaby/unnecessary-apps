@@ -62,7 +62,7 @@ struct DoNotTextThemView: View {
             }
 
             DumbAction(
-                title: remaining > 0 ? "Breathe. \(remaining)s" : "Start intervention",
+                title: remaining > 0 ? "Breathe. \(remaining)s" : "Start the cool-off",
                 accent: CorpPalette.emergencyRed,
                 systemImage: "shield.fill"
             ) {
