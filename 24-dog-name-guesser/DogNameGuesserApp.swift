@@ -29,6 +29,13 @@ struct DogNameGuesserView: View {
                 showsMascot: false
             )
 
+            DumbBoundaryChip(
+                storageKey: "dogNameGuesser.boundaryDismissed",
+                message: "Photo-based name guesses for fun — the dog cannot verify results.",
+                accent: accent,
+                systemImage: "camera.fill"
+            )
+
             if let banner = VisionSupport.deviceBannerMessage {
             Text(banner)
             .font(.caption.weight(.bold))

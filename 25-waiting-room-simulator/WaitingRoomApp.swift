@@ -21,6 +21,13 @@ struct WaitingRoomView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "waitingRoom.boundaryDismissed",
+                message: "Fictional wait simulator — not appointment tracking or queue management.",
+                accent: accent,
+                systemImage: "chair.lounge.fill"
+            )
+
             DumbHeroMeter(
                 progress: waitSeverityProgress,
                 valueLabel: "\(Int(minutes)) min",
@@ -88,6 +95,15 @@ struct WaitingRoomView: View {
             .accessibilityIdentifier("continueWaitingButton")
 
             DumbResult(text: result, accent: accent, systemImage: "chair.lounge.fill", reactionStyle: .shake)
+
+            if minutes > 0 {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Waiting room status",
+                    accent: accent,
+                    accessibilityIdentifier: "shareWaitingRoomButton"
+                )
+            }
 
         }
         .onChange(of: minutes) { _, _ in

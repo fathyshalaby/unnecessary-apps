@@ -29,6 +29,13 @@ struct PigeonView: View {
                 showsMascot: false
             )
 
+            DumbBoundaryChip(
+                storageKey: "pigeonOrSeagull.boundaryDismissed",
+                message: "Photo-based field ID for laughs — not wildlife expertise or safety advice.",
+                accent: accent,
+                systemImage: "camera.fill"
+            )
+
             if let banner = VisionSupport.deviceBannerMessage {
             Text(banner)
             .font(.caption.weight(.bold))

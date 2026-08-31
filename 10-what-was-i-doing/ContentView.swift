@@ -51,6 +51,13 @@ struct WhatWasIDoingView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "whatWasIDoing.boundaryDismissed",
+                message: "Private incident log — not screen-time tracking or productivity scoring.",
+                accent: accent,
+                systemImage: "brain.head.profile"
+            )
+
             counterCard
             timelineStrip
             incidentEditor
@@ -63,6 +70,15 @@ struct WhatWasIDoingView: View {
                 reactionStyle: .bounce
             )
             .accessibilityIdentifier("memoryLogResult")
+
+            if !incidents.isEmpty && lastEvent != "No incidents recorded. Suspiciously focused." {
+                DumbShareVerdict(
+                    text: lastEvent,
+                    subject: "Memory incident log",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMemoryLogButton"
+                )
+            }
 
             Button {
                 showEvidenceActions = true

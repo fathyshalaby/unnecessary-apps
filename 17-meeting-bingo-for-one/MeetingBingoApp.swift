@@ -46,6 +46,13 @@ struct MeetingBingoView: View {
                     VStack(spacing: DumbSpacing.md) {
                         gameHeader
 
+                        DumbBoundaryChip(
+                            storageKey: "meetingBingo.boundaryDismissed",
+                            message: "Solo bingo for your own meeting — not calendar sync or call transcription.",
+                            accent: CorpPalette.courtroomNavy,
+                            systemImage: "square.grid.3x3.fill"
+                        )
+
                         if board.count == 9 {
                             LazyVGrid(
                                 columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3),

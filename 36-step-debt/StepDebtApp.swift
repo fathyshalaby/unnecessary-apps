@@ -264,6 +264,15 @@ struct StepDebtView: View {
             )
             .accessibilityIdentifier("stepDebtResult")
 
+            if result != "The step accountant is asleep." && !result.hasPrefix("Steps changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Step debt invoice",
+                    accent: accent,
+                    accessibilityIdentifier: "shareStepDebtButton"
+                )
+            }
+
         }
         .dumbNativeEntry(scheme: "app36stepdebt") { action, _ in
             if action == "stamp" {

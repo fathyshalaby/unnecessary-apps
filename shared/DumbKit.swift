@@ -340,6 +340,7 @@ public struct AppHeader: View {
                         .font(.caption)
                         .foregroundStyle(CorpPalette.mutedInk)
                         .lineLimit(2)
+                        .minimumScaleFactor(0.85)
                 }
             }
             Spacer(minLength: DumbSpacing.xs)
@@ -1140,6 +1141,8 @@ public struct DumbBoundaryChip: View {
                 Text(message)
                     .font(.caption.weight(.bold))
                     .foregroundStyle(CorpPalette.ink)
+                    .lineLimit(4)
+                    .minimumScaleFactor(0.85)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
                 Button {
@@ -1202,10 +1205,14 @@ public struct DumbEmptyInvite: View {
                 .font(.headline.weight(.black))
                 .foregroundStyle(CorpPalette.ink)
                 .multilineTextAlignment(.center)
+                .lineLimit(3)
+                .minimumScaleFactor(0.85)
             Text(message)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(CorpPalette.mutedInk)
                 .multilineTextAlignment(.center)
+                .lineLimit(4)
+                .minimumScaleFactor(0.85)
                 .fixedSize(horizontal: false, vertical: true)
             if let actionTitle, let action {
                 Button(action: action) {
@@ -1311,6 +1318,8 @@ public struct DumbHeroMeter: View {
                     .font(.caption2.weight(.black))
                     .tracking(1.1)
                     .foregroundStyle(accent)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
                 Text(valueLabel)
                     .font(.system(.title, design: .rounded).weight(.black))
                     .foregroundStyle(CorpPalette.ink)

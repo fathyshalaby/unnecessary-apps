@@ -70,6 +70,13 @@ struct QueuePersonalityView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "queuePersonality.boundaryDismissed",
+                message: "Personal queue journal — not live wait-time data or venue integrations.",
+                accent: accent,
+                systemImage: "figure.wave"
+            )
+
             formulaCard
             lifetimeSummary
 

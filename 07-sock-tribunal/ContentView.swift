@@ -82,6 +82,13 @@ struct SockTribunalView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "sockTribunal.boundaryDismissed",
+                message: "A personal sock ledger — not laundry service or smart-home tracking.",
+                accent: accent,
+                systemImage: "washer.fill"
+            )
+
             filingDesk
 
             courtOrder

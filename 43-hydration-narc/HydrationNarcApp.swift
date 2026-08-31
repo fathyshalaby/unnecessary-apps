@@ -93,6 +93,15 @@ struct HydrationNarcView: View {
             )
             .accessibilityIdentifier("hydrationResult")
 
+            if result != Self.emptyResult {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Hydration ledger update",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHydrationButton"
+                )
+            }
+
             healthConnectionCard
             notificationCard
             historyCard
@@ -311,9 +320,12 @@ struct HydrationNarcView: View {
                 }
 
                 if history.isEmpty {
-                    Label("Yesterday has filed no paperwork.", systemImage: "calendar")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No ledger days yet",
+                        message: "Log servings today — yesterday’s summary appears here tomorrow.",
+                        systemImage: "calendar",
+                        accent: accent
+                    )
                 } else {
                     ForEach(history) { day in
                         HStack {

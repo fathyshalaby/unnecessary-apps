@@ -45,6 +45,13 @@ struct SnackRouletteView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "snackRoulette.boundaryDismissed",
+                message: "Random snack picker — not nutrition, allergy, or dietary guidance.",
+                accent: accent,
+                systemImage: "circle.dotted.and.circle"
+            )
+
             spinWheelStage
 
             DumbCard(accent: accent, isSelected: !snackChoices.isEmpty) {
@@ -94,6 +101,15 @@ struct SnackRouletteView: View {
                 reactionStyle: .shake
             )
             .accessibilityIdentifier("snackResult")
+
+            if result != "The wheel is still." && !result.hasPrefix("Pantry changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Snack roulette verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSnackRouletteButton"
+                )
+            }
 
             DumbAction(
                 title: snackChoices.isEmpty ? "Add snacks to spin" : "Spin the snack",
@@ -188,9 +204,12 @@ struct SnackRouletteView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No snack has accepted its destiny yet.", systemImage: "questionmark.circle")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No spins yet",
+                        message: "Add snacks and spin the wheel to see fate’s picks here.",
+                        systemImage: "questionmark.circle",
+                        accent: accent
+                    )
                 } else {
                     ForEach(visibleHistory) { pick in
                         HStack(spacing: 10) {

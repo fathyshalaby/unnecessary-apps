@@ -23,6 +23,13 @@ struct HumanGPSView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "humanGPS.boundaryDismissed",
+                message: "Generates walking directions from landmarks — not live location sharing.",
+                accent: accent,
+                systemImage: "location.fill"
+            )
+
             DumbCard(accent: accent, isSelected: !landmark.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
             VStack(alignment: .leading, spacing: 8) {
             DumbField("Nearby landmark", maxLength: 120, text: $landmark)

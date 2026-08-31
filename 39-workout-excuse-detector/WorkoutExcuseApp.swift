@@ -98,6 +98,15 @@ struct WorkoutExcuseView: View {
             DumbResult(text: result, accent: accent, systemImage: "doc.text.magnifyingglass", reactionStyle: .shake)
             .accessibilityIdentifier("workoutExcuseResult")
 
+            if result != "No excuse submitted. The detector is hungry." && !result.hasPrefix("Case evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Workout excuse verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareWorkoutExcuseButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()

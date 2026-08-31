@@ -81,6 +81,15 @@ struct RestDayPoliceView: View {
             DumbResult(text: result, accent: accent, systemImage: "checkmark.shield.fill", reactionStyle: .stamp)
             .accessibilityIdentifier("restDayPoliceResult")
 
+            if result != "No training record. No officers dispatched." && !result.hasPrefix("Streak changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Rest day citation",
+                    accent: accent,
+                    accessibilityIdentifier: "shareRestDayCitationButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()

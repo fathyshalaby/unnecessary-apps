@@ -123,6 +123,13 @@ struct TinyMuseumView: View {
                 showsMascot: false
             )
 
+            DumbBoundaryChip(
+                storageKey: "tinyMuseum.boundaryDismissed",
+                message: "Private exhibit archive on your device — not a public museum or cloud gallery.",
+                accent: accent,
+                systemImage: "photo.on.rectangle.angled"
+            )
+
             HStack {
                 DumbStatusPill("YOUR MUSEUM", systemImage: "building.columns.fill", accent: accent)
                 Spacer()

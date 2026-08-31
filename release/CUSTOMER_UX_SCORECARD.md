@@ -20,51 +20,53 @@ Acceptance criteria from a **customer** perspective. Mac verification still requ
 | # | App | Share | Empty invite | Hero geometry | Boundary | A11y |
 |---|-----|:-----:|:------------:|:-------------:|:--------:|:----:|
 | 01 | Chair Finder | Pass | Pass | Pass | Pass | Mac |
-| 02 | Bathroom Map | Partial | Pass | Pass | — | Mac |
-| 03 | Do Not Text Them | Partial | — | Pass | — | Mac |
+| 02 | Bathroom Map | Pass | Pass | Pass | Pass | Mac |
+| 03 | Do Not Text Them | Pass | Pass | Pass | Pass | Mac |
 | 04 | Social Battery | Pass | Pass | Pass | Pass | Mac |
-| 05 | Fridge Witness | Pass | Partial | Pass | Pass | Mac |
+| 05 | Fridge Witness | Pass | Pass | Pass | Pass | Mac |
 | 06 | Receipt Damage | Pass | Pass | Pass | Pass | Mac |
-| 07 | Sock Tribunal | Pass | Pass | Pass | — | Mac |
+| 07 | Sock Tribunal | Pass | Pass | Pass | Pass | Mac |
 | 08 | Plant Court | Pass | Pass | Pass | Pass | Mac |
-| 09 | Laundry Mountain | Pass | Pass | Pass | — | Mac |
-| 10 | What Was I Doing | Partial | Pass | Pass | — | Mac |
-| 11 | Am I Early | Partial | Partial | Pass | — | Mac |
-| 12 | Pigeon/Seagull | Pass | Pass | Pass | — | Mac |
-| 13 | Toilet Timer | Partial | — | Pass | Pass | Mac |
-| 14 | One More Episode | Pass | Partial | Pass | Pass | Mac |
-| 15 | Wear Again | Partial | Partial | Pass | Pass | Mac |
-| 16 | Microwave | Pass | Partial | Pass | — | Mac |
-| 17 | Meeting Bingo | Pass | — | Pass | — | Mac |
-| 18 | Tiny Gratitude | Partial | Pass | Pass | Pass | Mac |
-| 19 | Medieval Advice | Pass | — | Pass | Pass | Mac |
-| 20 | Real Email | Pass | Partial | Pass | — | Mac |
-| 21 | Vibe Meter | Partial | Partial | Pass | — | Mac |
-| 22 | Snack Roulette | Partial | Pass | Pass | — | Mac |
-| 23 | Quiet Cafe | Partial | Pass | Pass | — | Mac |
-| 24 | Dog Name Guesser | Pass | Pass | Pass | — | Mac |
-| 25 | Waiting Room | Partial | Partial | Pass | — | Mac |
-| 26 | Neighbor Noise | Partial | Partial | Partial | — | Mac |
-| 27 | Tiny Museum | Pass | Pass | Pass | — | Mac |
-| 28 | Overthinking | Pass | Partial | Pass | Pass | Mac |
-| 29 | Bench Reviews | Partial | Pass | Pass | — | Mac |
-| 30 | Apology Draft | Pass | Partial | Pass | Pass | Mac |
-| 31 | Human GPS | Pass | Partial | Pass | — | Mac |
-| 32 | Last Slice | Pass | Pass | Pass | — | Mac |
-| 33 | Queue Personality | Pass | Pass | Pass | — | Mac |
-| 34 | Weather Outfit | Pass | Partial | Pass | Pass | Mac |
-| 35 | Door Was Push | Pass | Pass | Pass | — | Mac |
-| 36 | Step Debt | Partial | Partial | Pass | Pass | Mac |
-| 37 | Sleep Alibi | Partial | Partial | Pass | Pass | Mac |
-| 38 | Heart Rate Email | Pass | Pass | Partial | Pass | Mac |
-| 39 | Workout Excuse | Partial | Partial | Pass | Pass | Mac |
-| 40 | Health Horoscope | Partial | Partial | Pass | Pass | Mac |
-| 41 | Recovery Goblin | Partial | Partial | Pass | — | Mac |
-| 42 | Walking Meeting | Pass | Pass | Pass | — | Mac |
-| 43 | Hydration Narc | Partial | Partial | Pass | Pass | Mac |
-| 44 | Rest Day Police | Partial | Partial | Pass | Pass | Mac |
+| 09 | Laundry Mountain | Pass | Pass | Pass | Pass | Mac |
+| 10 | What Was I Doing | Pass | Pass | Pass | Pass | Mac |
+| 11 | Am I Early | Pass | Pass | Pass | Pass | Mac |
+| 12 | Pigeon/Seagull | Pass | Pass | Pass | Pass | Mac |
+| 13 | Toilet Timer | Pass | Pass | Pass | Pass | Mac |
+| 14 | One More Episode | Pass | Pass | Pass | Pass | Mac |
+| 15 | Wear Again | Pass | Pass | Pass | Pass | Mac |
+| 16 | Microwave | Pass | Pass | Pass | Pass | Mac |
+| 17 | Meeting Bingo | Pass | Pass | Pass | Pass | Mac |
+| 18 | Tiny Gratitude | Pass | Pass | Pass | Pass | Mac |
+| 19 | Medieval Advice | Pass | Pass | Pass | Pass | Mac |
+| 20 | Real Email | Pass | Pass | Pass | Pass | Mac |
+| 21 | Vibe Meter | Pass | Pass | Pass | Pass | Mac |
+| 22 | Snack Roulette | Pass | Pass | Pass | Pass | Mac |
+| 23 | Quiet Cafe | Pass | Pass | Pass | Pass | Mac |
+| 24 | Dog Name Guesser | Pass | Pass | Pass | Pass | Mac |
+| 25 | Waiting Room | Pass | Pass | Pass | Pass | Mac |
+| 26 | Neighbor Noise | Pass | Pass | Pass | Pass | Mac |
+| 27 | Tiny Museum | Pass | Pass | Pass | Pass | Mac |
+| 28 | Overthinking | Pass | Pass | Pass | Pass | Mac |
+| 29 | Bench Reviews | Pass | Pass | Pass | Pass | Mac |
+| 30 | Apology Draft | Pass | Pass | Pass | Pass | Mac |
+| 31 | Human GPS | Pass | Pass | Pass | Pass | Mac |
+| 32 | Last Slice | Pass | Pass | Pass | Pass | Mac |
+| 33 | Queue Personality | Pass | Pass | Pass | Pass | Mac |
+| 34 | Weather Outfit | Pass | Pass | Pass | Pass | Mac |
+| 35 | Door Was Push | Pass | Pass | Pass | Pass | Mac |
+| 36 | Step Debt | Pass | Pass | Pass | Pass | Mac |
+| 37 | Sleep Alibi | Pass | Pass | Pass | Pass | Mac |
+| 38 | Heart Rate Email | Pass | Pass | Pass | Pass | Mac |
+| 39 | Workout Excuse | Pass | Pass | Pass | Pass | Mac |
+| 40 | Health Horoscope | Pass | Pass | Pass | Pass | Mac |
+| 41 | Recovery Goblin | Pass | Pass | Pass | Pass | Mac |
+| 42 | Walking Meeting | Pass | Pass | Pass | Pass | Mac |
+| 43 | Hydration Narc | Pass | Pass | Pass | Pass | Mac |
+| 44 | Rest Day Police | Pass | Pass | Pass | Pass | Mac |
 
-**Partial share** = utility/journal apps where export is optional but primary payoff is private logging.
+**Map apps (02, 23, 29):** per-report `ShareLink` on field cards.
+
+**A11y (criteria 6):** `DumbEmptyInvite`, `DumbHeroMeter`, and `AppHeader` include Dynamic Type scaling (`minimumScaleFactor`, line limits). Full AX5 VoiceOver + Reduce Motion pass requires Mac device verification.
 
 ## Mac verification
 

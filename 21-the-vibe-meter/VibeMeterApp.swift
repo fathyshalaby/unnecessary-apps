@@ -23,6 +23,13 @@ struct VibeMeterView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "vibeMeter.boundaryDismissed",
+                message: "Self-reported room vibes — not environmental sensors or design advice.",
+                accent: accent,
+                systemImage: "sparkles"
+            )
+
             heroMeterCard
 
             DumbCard(accent: accent, isSelected: score > 60) {
@@ -58,6 +65,15 @@ struct VibeMeterView: View {
             .accessibilityIdentifier("measureVibeButton")
 
             DumbResult(text: result, accent: accent, systemImage: "gauge.with.dots.needle.67percent", reactionStyle: .bounce)
+
+            if result != "The room has not yet been judged." && !result.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Vibe meter reading",
+                    accent: accent,
+                    accessibilityIdentifier: "shareVibeMeterButton"
+                )
+            }
 
         }
         .onChange(of: room) { _, _ in invalidateMeasurement() }

@@ -59,6 +59,13 @@ struct LastSliceView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "lastSlice.boundaryDismissed",
+                message: "Fairness theater for your group — not legal arbitration or payment splitting.",
+                accent: accent,
+                systemImage: "fork.knife"
+            )
+
             fairnessRule
             rulingSummary
 

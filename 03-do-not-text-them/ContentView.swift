@@ -31,6 +31,13 @@ struct DoNotTextThemView: View {
                 VStack(alignment: .leading, spacing: DumbSpacing.lg) {
                     interventionHeader
 
+                    DumbBoundaryChip(
+                        storageKey: "doNotTextThem.boundaryDismissed",
+                        message: "Drafts stay on your device — nothing is sent, stored in the cloud, or shared.",
+                        accent: CorpPalette.emergencyRed,
+                        systemImage: "hand.raised.fill"
+                    )
+
                     DumbCard {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
@@ -112,6 +119,15 @@ struct DoNotTextThemView: View {
                         systemImage: "hand.raised.fill",
                         reactionStyle: .shake
                     )
+
+                    if status != "The tribunal is ready." && status != "Cool-off aborted. The draft remains yours—use wisely." {
+                        DumbShareVerdict(
+                            text: status,
+                            subject: "Do not text them — intervention",
+                            accent: CorpPalette.emergencyRed,
+                            accessibilityIdentifier: "shareInterventionStatusButton"
+                        )
+                    }
                 }
                 .padding(.horizontal, DumbSpacing.md)
                 .padding(.vertical, DumbSpacing.sm)

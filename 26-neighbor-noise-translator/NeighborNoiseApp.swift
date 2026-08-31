@@ -83,6 +83,25 @@ struct NeighborNoiseView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "neighborNoise.boundaryDismissed",
+                message: "Entertainment only — optional 2-second mic sample or typed descriptions. Not sound monitoring.",
+                accent: accent,
+                systemImage: "waveform"
+            )
+
+            DumbHeroMeter(
+                progress: noiseLevel,
+                valueLabel: isListening ? "Listening…" : noiseLevel > 0 ? String(format: "%.0f%%", noiseLevel * 100) : "—",
+                title: "Wall noise level",
+                subtitle: isListening ? "\(listenRemaining)s remaining" : microphoneStatus,
+                accent: accent,
+                systemImage: "waveform",
+                variant: .arc,
+                size: 100
+            )
+            .accessibilityIdentifier("neighborNoiseHeroMeter")
+
             DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 12) {
             Button {
@@ -96,22 +115,6 @@ struct NeighborNoiseView: View {
             .buttonStyle(DumbPressStyle())
             .disabled(isListening)
             .accessibilityIdentifier("listenNeighborNoiseButton")
-
-            if isListening {
-            Text("\(listenRemaining)s remaining")
-            .font(.caption.weight(.black))
-            .foregroundStyle(accent)
-            .monospacedDigit()
-            .accessibilityIdentifier("listenRemainingLabel")
-            }
-
-            ProgressView(value: noiseLevel)
-            .tint(accent)
-            .accessibilityLabel("Noise level")
-
-            Text(microphoneStatus)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(CorpPalette.mutedInk)
 
             DumbField("Describe the sound", axis: .vertical, maxLength: 240, text: $noise)
             Text("Prefer not to listen? Describe the suspicious thud yourself.")
@@ -135,6 +138,15 @@ struct NeighborNoiseView: View {
             .accessibilityIdentifier("translateNeighborNoiseButton")
 
             DumbResult(text: result, accent: accent, systemImage: "waveform", reactionStyle: .shake)
+
+            if result != "The wall is listening." && !result.hasPrefix("Description changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Neighbor noise translation",
+                    accent: accent,
+                    accessibilityIdentifier: "shareNeighborNoiseButton"
+                )
+            }
 
         }
         .onChange(of: noise) { _, _ in invalidateTranslation() }

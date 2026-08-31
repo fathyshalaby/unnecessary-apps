@@ -130,6 +130,15 @@ struct OutfitView: View {
             )
             .accessibilityIdentifier("closetRulingResult")
 
+            if result != Self.emptyResult && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Closet ruling",
+                    accent: accent,
+                    accessibilityIdentifier: "shareClosetRulingButton"
+                )
+            }
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: daysSinceWear) { _, _ in invalidateRuling() }
@@ -337,10 +346,13 @@ struct OutfitView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No garment has faced judgment yet.", systemImage: "tshirt")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyClosetHistory")
+                    DumbEmptyInvite(
+                        title: "No garments judged",
+                        message: "File honest closet evidence to start the ruling archive.",
+                        systemImage: "tshirt",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyClosetHistory")
                 } else {
                     ForEach(visibleHistory) { ruling in
                         VStack(alignment: .leading, spacing: 6) {

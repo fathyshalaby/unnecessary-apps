@@ -180,6 +180,15 @@ struct ToiletTimerView: View {
             )
             .accessibilityIdentifier("toiletTimerResult")
 
+            if result != Self.emptyResult && !result.hasPrefix("Timer running") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Bathroom timer report",
+                    accent: accent,
+                    accessibilityIdentifier: "shareToiletTimerButton"
+                )
+            }
+
             Button(action: resetCurrentSession) {
                 Label("Dismiss current complaint", systemImage: "arrow.counterclockwise")
                     .font(.subheadline.weight(.black))
@@ -319,10 +328,13 @@ struct ToiletTimerView: View {
                 }
 
                 if sessions.isEmpty {
-                    Label("No complaints on file.", systemImage: "doc")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyToiletHistory")
+                    DumbEmptyInvite(
+                        title: "No complaints filed",
+                        message: "Start a stall timer or assess an estimate to open the log.",
+                        systemImage: "doc",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyToiletHistory")
                 } else {
                     ForEach(sessions.prefix(10)) { session in
                         HStack(spacing: 10) {

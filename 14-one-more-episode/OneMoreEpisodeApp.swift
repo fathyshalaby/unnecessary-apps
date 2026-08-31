@@ -215,10 +215,13 @@ struct OneMoreEpisodeView: View {
                 }
 
                 if history.isEmpty {
-                    Label("Tomorrow has no evidence yet.", systemImage: "moon.stars")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyEpisodeHistory")
+                    DumbEmptyInvite(
+                        title: "No forecasts filed",
+                        message: "Calculate tomorrow’s bedtime trade-off to start the archive.",
+                        systemImage: "moon.stars",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyEpisodeHistory")
                 } else {
                     ForEach(visibleHistory) { forecast in
                         VStack(alignment: .leading, spacing: 6) {

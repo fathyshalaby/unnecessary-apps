@@ -99,6 +99,13 @@ struct RealEmailView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "realEmail.boundaryDismissed",
+                message: "Paste-only analysis — does not read, send, or access your email account.",
+                accent: accent,
+                systemImage: "eye.slash.fill"
+            )
+
             editorCard
 
             if !email.isEmpty {

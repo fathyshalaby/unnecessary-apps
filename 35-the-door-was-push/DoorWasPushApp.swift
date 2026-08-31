@@ -77,6 +77,13 @@ struct DoorWasPushView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "doorWasPush.boundaryDismissed",
+                message: "Personal incident log — not building access records or safety reporting.",
+                accent: accent,
+                systemImage: "door.left.hand.closed"
+            )
+
             filingCard
 
             if editingID != nil {

@@ -47,6 +47,13 @@ struct AmIEarlyView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "amIEarly.boundaryDismissed",
+                message: "Self-reported arrival times only — not calendar sync or GPS.",
+                accent: accent,
+                systemImage: "clock.fill"
+            )
+
             summaryCard
             arrivalEditor
             historyCard
@@ -89,6 +96,15 @@ struct AmIEarlyView: View {
                 reactionStyle: isActiveVerdict ? .stamp : .bounce
             )
             .accessibilityIdentifier("punctualityResult")
+
+            if result != Self.emptyResult && !result.hasPrefix("Arrival changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Punctuality verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "sharePunctualityButton"
+                )
+            }
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: minutes) { _, _ in invalidateVerdict() }
@@ -220,10 +236,13 @@ struct AmIEarlyView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No arrivals have testified yet.", systemImage: "clock.badge.questionmark")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyPunctualityHistory")
+                    DumbEmptyInvite(
+                        title: "No arrivals on file",
+                        message: "Issue a punctuality verdict after your next appointment.",
+                        systemImage: "clock.badge.questionmark",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyPunctualityHistory")
                 } else {
                     ForEach(visibleHistory) { record in
                         VStack(alignment: .leading, spacing: 6) {

@@ -48,6 +48,18 @@ struct HeartRateEmailView: View {
                 systemImage: "heart.fill"
             )
 
+            DumbHeroMeter(
+                progress: (bpm - 40) / 140,
+                valueLabel: "\(Int(bpm)) BPM",
+                title: "Inbox drama level",
+                subtitle: bpm > 100 ? "Elevated self-report" : "Calm correspondence",
+                accent: accent,
+                systemImage: "heart.fill",
+                variant: .arc,
+                size: 100
+            )
+            .accessibilityIdentifier("heartRateHeroMeter")
+
             DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 14) {
             DumbStatusPill("MANUAL ON PURPOSE", systemImage: "hand.raised.fill", accent: accent)

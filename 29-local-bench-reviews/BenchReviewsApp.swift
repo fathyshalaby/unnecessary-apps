@@ -39,6 +39,18 @@ private struct BenchReview: Codable, Identifiable, Hashable {
     var score: Int {
         Int((Double(comfort + shade + view) / 3).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(score)/10",
+            "Comfort \(comfort) · Shade \(shade) · View \(view)",
+            pigeonClaimed ? "Pigeon jurisdiction" : "Armrest unclaimed"
+        ]
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct BenchDraft: Identifiable {
@@ -235,6 +247,14 @@ struct BenchReviewsView: View {
             CorpPalette.canvas.ignoresSafeArea()
             VStack(spacing: 0) {
                 brandHeader
+                DumbBoundaryChip(
+                    storageKey: "benchReviews.boundaryDismissed",
+                    message: "Benches you sat on — not city-wide discovery or live occupancy.",
+                    accent: accent,
+                    systemImage: "chair.lounge.fill"
+                )
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.bottom, DumbSpacing.sm)
                 mapCard
                 reviewLedger
             }
@@ -543,6 +563,11 @@ private struct BenchReviewCard: View {
                 Spacer()
                 Button("Show on map", action: onSelect)
                     .font(.caption.weight(.black))
+                ShareLink(item: review.shareText, subject: Text("Bench field report"), message: Text(review.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareBenchReviewButton")
                 Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {

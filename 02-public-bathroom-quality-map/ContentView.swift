@@ -34,6 +34,20 @@ private struct LooReport: Codable, Identifiable, Hashable {
         let queueRelief = 10 - queue
         return Int((Double(cleanliness + privacy + supplies + queueRelief) / 4).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(qualityIndex)/10",
+            "Clean \(cleanliness) · Privacy \(privacy) · Stock \(supplies) · Queue \(queue)/10"
+        ]
+        if changingTableObserved {
+            lines.append("Changing table observed")
+        }
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct LooPlace: Identifiable, Hashable {
@@ -388,6 +402,14 @@ struct BathroomMapView: View {
         .padding(.horizontal, DumbSpacing.md)
         .padding(.top, DumbSpacing.sm)
         .padding(.bottom, DumbSpacing.sm)
+
+        DumbBoundaryChip(
+            storageKey: "bathroomMap.boundaryDismissed",
+            message: "User-filed reports only — not live availability, hours, or official ratings.",
+            accent: accent,
+            systemImage: "map.fill"
+        )
+        .padding(.horizontal, DumbSpacing.md)
     }
 
     private var mapCard: some View {
@@ -672,6 +694,11 @@ private struct LooReportCard: View {
                 Spacer()
                 Button("Show", action: onShow)
                     .font(.caption.weight(.black))
+                ShareLink(item: report.shareText, subject: Text("Bathroom field report"), message: Text(report.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareBathroomReportButton")
                 Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {

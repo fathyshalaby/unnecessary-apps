@@ -104,6 +104,15 @@ struct HealthHoroscopeView: View {
             DumbResult(text: result, accent: accent, systemImage: "moon.stars.fill", reactionStyle: .bounce)
             .accessibilityIdentifier("healthHoroscopeResult")
 
+            if result != "The stars are waiting for numbers." && !result.hasPrefix("The numbers shifted") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Health horoscope",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHealthHoroscopeButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()

@@ -219,10 +219,13 @@ struct FridgeWitnessView: View {
                 }
 
                 if items.isEmpty {
-                    Label("No fictional cucumber. Add what is really there.", systemImage: "refrigerator")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyFridgeInventory")
+                    DumbEmptyInvite(
+                        title: "The fridge is empty",
+                        message: "Add what is really there — no fictional cucumbers.",
+                        systemImage: "refrigerator",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyFridgeInventory")
                 } else {
                     ForEach(sortedItems) { item in
                         VStack(alignment: .leading, spacing: 7) {

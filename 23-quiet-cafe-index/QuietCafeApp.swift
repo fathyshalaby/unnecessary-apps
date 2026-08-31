@@ -49,6 +49,18 @@ private struct CafeReview: Codable, Identifiable, Hashable {
         let soloScore = soloFriendly ? 10 : 4
         return Int((Double(quietness + seating + outlets + soloScore) / 4).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(index)/10",
+            "Quiet \(quietness) · Seat \(seating) · Plugs \(outlets) · \(visitPeriod.rawValue) visit",
+            soloFriendly ? "Solo table approved" : "Bring social camouflage"
+        ]
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct CafePlace: Identifiable, Hashable {
@@ -318,6 +330,14 @@ struct QuietCafeView: View {
             CorpPalette.canvas.ignoresSafeArea()
             VStack(spacing: 0) {
                 brandHeader
+                DumbBoundaryChip(
+                    storageKey: "quietCafe.boundaryDismissed",
+                    message: "Your visit notes only — not live noise levels or business hours.",
+                    accent: accent,
+                    systemImage: "cup.and.saucer.fill"
+                )
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.bottom, DumbSpacing.sm)
                 mapCard
                 cafeDesk
             }
@@ -690,6 +710,11 @@ private struct CafeReviewCard: View {
                 Spacer()
                 Button("Show", action: onShow)
                     .font(.caption.weight(.black))
+                ShareLink(item: review.shareText, subject: Text("Café field report"), message: Text(review.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareCafeReviewButton")
                 Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {

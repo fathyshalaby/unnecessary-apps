@@ -253,10 +253,13 @@ struct OverthinkingBoardView: View {
                 }
 
                 if cases.isEmpty {
-                    Label("No closed cases. Remarkably peaceful.", systemImage: "archivebox")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyOverthinkingArchive")
+                    DumbEmptyInvite(
+                        title: "No closed cases",
+                        message: "Issue a provisional conclusion to archive your first investigation.",
+                        systemImage: "archivebox",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyOverthinkingArchive")
                 } else {
                     ForEach(visibleCases) { savedCase in
                         VStack(alignment: .leading, spacing: 7) {

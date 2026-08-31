@@ -92,6 +92,15 @@ struct SleepAlibiView: View {
             DumbResult(text: alibi, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
             .accessibilityIdentifier("sleepAlibiResult")
 
+            if alibi != "The witness has not testified." && !alibi.hasPrefix("Sleep evidence changed") {
+                DumbShareVerdict(
+                    text: alibi,
+                    subject: "Sleep alibi",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSleepAlibiButton"
+                )
+            }
+
         }
         .onAppear {
             loadNudgeDate()
