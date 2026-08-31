@@ -25,7 +25,34 @@ python3 tools/validate_store_metadata.py
 python3 tools/generate_xcode_project.py
 ```
 
-## Simulator UI suite
+## Mac build + UI tests
+
+```bash
+chmod +x tools/run_first_wave_mac.sh
+zsh tools/run_first_wave_mac.sh
+```
+
+Runs repo audits, builds all ten app targets, then executes the `FirstWaveUITests` scheme (10 journeys).
+
+## Screenshots
+
+See `release/FIRST_WAVE_SCREENSHOTS.md`. Capture on Mac:
+
+```bash
+chmod +x tools/capture_first_wave_screenshots.sh
+zsh tools/capture_first_wave_screenshots.sh
+```
+
+## Demo videos
+
+See `release/FIRST_WAVE_DEMO_SCRIPTS.md`. Record on Mac:
+
+```bash
+chmod +x tools/record_first_wave_demos.sh
+zsh tools/record_first_wave_demos.sh
+```
+
+## Simulator UI suite (manual alternative)
 
 The serialized UI suite in `tests/App03DoNotTextThemUITests.swift` includes journeys for all ten apps (by bundle ID). On Mac:
 

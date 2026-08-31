@@ -45,9 +45,10 @@ def main() -> int:
         return result.returncode
 
     print("\nAll first-wave folders present. Full repo audit: no blocking errors.")
-    print("\nMac verification (per app):")
-    print("  xcodebuild test -scheme UnnecessaryAppsUITests -only-testing:App03DoNotTextThemUITests")
-    print("  Filter tests by bundle ID in tests/App03DoNotTextThemUITests.swift")
+    print("\nMac pipeline:")
+    print("  zsh tools/run_first_wave_mac.sh              # build + UI tests")
+    print("  zsh tools/capture_first_wave_screenshots.sh  # App Store screenshots")
+    print("  zsh tools/record_first_wave_demos.sh         # demo videos")
     return 0
 
 

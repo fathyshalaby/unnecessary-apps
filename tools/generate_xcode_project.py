@@ -953,6 +953,38 @@ write_focused_ui_test_scheme(
     ["testPigeonClassifierIdentifiesAndResets", "testDogNameGuesserPresentsAndResets"],
 )
 write_focused_ui_test_scheme(
+    "DoNotTextUITests",
+    ["App03DoNotTextThem"],
+    ["testDraftInterventionDeleteAndPersistence"],
+)
+write_focused_ui_test_scheme(
+    "FirstWaveUITests",
+    [
+        "App20RealEmail",
+        "App03DoNotTextThem",
+        "App10WhatWasIDoing",
+        "App18TinyGratitude",
+        "App28OverthinkingBoard",
+        "App43HydrationNarc",
+        "App13ToiletTimer",
+        "App17MeetingBingo",
+        "App22SnackRoulette",
+        "App11AmIEarly",
+    ],
+    [
+        "testRealEmailAnalyzesAndClears",
+        "testDraftInterventionDeleteAndPersistence",
+        "testWhatWasIDoingRecordsAndPersists",
+        "testTinyGratitudeArchivesAndClears",
+        "testOverthinkingBoardReachesAndClearsConclusion",
+        "testHydrationNarcLogsAndResets",
+        "testToiletTimerAssessesAndResets",
+        "testMeetingBingoMarksAndPersists",
+        "testSnackRouletteSpinsAndClears",
+        "testAmIEarlyCalculatesAndResets",
+    ],
+)
+write_focused_ui_test_scheme(
     "WalkingMeetingSessionUITests",
     ["App42WalkingMeeting"],
     ["testWalkingMeetingTracksAgendaNotesAndOutcomes"],
