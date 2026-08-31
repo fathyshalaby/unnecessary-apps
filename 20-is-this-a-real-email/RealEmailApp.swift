@@ -91,13 +91,16 @@ struct RealEmailView: View {
     private let accent = CorpPalette.bathroomBlue
 
     var body: some View {
-        DumbShell(
-            eyebrow: "INBOX FORENSICS",
-            title: "Corporate fog detector",
-            subtitle: "A clarity estimate for bloated paragraphs—not truth detection or inbox verification.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent, experience: .workbench) {
+            AppHeader(
+                eyebrow: "INBOX FORENSICS",
+                title: "Corporate fog detector",
+                subtitle: "Clarity estimate for bloated paragraphs—not inbox verification.",
+                accent: accent
+            )
+
+            editorCard
+
             Text("Analysis stays on this device and clears when you leave.")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(CorpPalette.mutedInk)
@@ -106,17 +109,9 @@ struct RealEmailView: View {
                 .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .accessibilityIdentifier("emailSessionBanner")
 
-            editorCard
-
-            DumbAction(
-                title: "Perform email autopsy",
-                accent: accent,
-                systemImage: "stethoscope",
-                action: analyze
-            )
-            .disabled(email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityIdentifier("analyzeEmailButton")
-            .accessibilityHint("Checks the current text against the visible writing rules.")
+            if let analysis {
+                metricsCard(analysis)
+            }
 
             DumbResult(
                 text: result,
@@ -125,10 +120,6 @@ struct RealEmailView: View {
                 reactionStyle: .shake
             )
             .accessibilityIdentifier("emailVerdict")
-
-            if let analysis {
-                metricsCard(analysis)
-            }
 
             Button {
                 clearEvidence()
@@ -149,6 +140,16 @@ struct RealEmailView: View {
                 systemImage: "square.and.arrow.down",
                 accent: accent
             )
+        } bottomBar: {
+            DumbAction(
+                title: "Perform email autopsy",
+                accent: accent,
+                systemImage: "stethoscope",
+                action: analyze
+            )
+            .disabled(email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("analyzeEmailButton")
+            .accessibilityHint("Checks the current text against the visible writing rules.")
         }
         .onAppear {
             if let shared = DumbSharedPayload.consume(for: .realEmail) {
@@ -170,7 +171,7 @@ struct RealEmailView: View {
 
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $email)
-                        .frame(minHeight: 150)
+                        .frame(minHeight: 200)
                         .scrollContentBackground(.hidden)
                         .padding(8)
                         .background(CorpPalette.canvas, in: RoundedRectangle(cornerRadius: 15, style: .continuous))

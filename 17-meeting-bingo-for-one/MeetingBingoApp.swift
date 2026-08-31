@@ -31,61 +31,77 @@ struct MeetingBingoView: View {
     @AppStorage("meetingBingo.currentBoardWon") private var currentBoardWon = false
 
     var body: some View {
-        DumbShell(
-            eyebrow: "CORPORATE WILDLIFE",
-            title: "Meeting bingo",
-            subtitle: "For meetings where the agenda is mostly weather and vibes.",
-            accent: CorpPalette.courtroomNavy,
-            personality: .office,
-            experience: .game
-        ) {
-            gameHeader
-
-            if board.count == 9 {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 9), count: 3), spacing: 9) {
-                    ForEach(board.indices, id: \.self) { index in
-                        squareButton(index: index)
-                    }
-                }
-                .accessibilityElement(children: .contain)
-                .accessibilityLabel("Meeting bingo board")
-                .id(gameRevision)
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 220)
-            }
-
-            DumbResult(
-                text: resultText,
-                accent: CorpPalette.courtroomNavy,
-                systemImage: hasBingo ? "trophy.fill" : "rectangle.grid.2x2.fill",
-                reactionStyle: hasBingo ? .stamp : .bounce
+        ZStack {
+            CorpPalette.canvas.ignoresSafeArea()
+            LinearGradient(
+                colors: [CorpPalette.courtroomNavy.opacity(0.10), CorpPalette.canvas],
+                startPoint: .top,
+                endPoint: .center
             )
-            .accessibilityIdentifier("meetingBingoResult")
+            .ignoresSafeArea()
 
-            Button {
-                newGame()
-            } label: {
-                Label("Deal a new meeting", systemImage: "shuffle")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(CorpPalette.courtroomNavy)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("newMeetingButton")
+            VStack(spacing: 0) {
+                bingoToolbar
+                ScrollView {
+                    VStack(spacing: DumbSpacing.md) {
+                        gameHeader
 
-            Button {
-                showEraseConfirmation = true
-            } label: {
-                Label("Erase the board history", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+                        if board.count == 9 {
+                            LazyVGrid(
+                                columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3),
+                                spacing: 10
+                            ) {
+                                ForEach(board.indices, id: \.self) { index in
+                                    squareButton(index: index)
+                                }
+                            }
+                            .accessibilityElement(children: .contain)
+                            .accessibilityLabel("Meeting bingo board")
+                            .id(gameRevision)
+                        } else {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, minHeight: 280)
+                        }
+
+                        DumbResult(
+                            text: resultText,
+                            accent: CorpPalette.courtroomNavy,
+                            systemImage: hasBingo ? "trophy.fill" : "rectangle.grid.2x2.fill",
+                            reactionStyle: hasBingo ? .stamp : .bounce
+                        )
+                        .accessibilityIdentifier("meetingBingoResult")
+
+                        Button {
+                            newGame()
+                        } label: {
+                            Label("Deal a new meeting", systemImage: "shuffle")
+                                .font(.subheadline.weight(.black))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .foregroundStyle(CorpPalette.courtroomNavy)
+                        .buttonStyle(DumbPressStyle())
+                        .accessibilityIdentifier("newMeetingButton")
+
+                        Button {
+                            showEraseConfirmation = true
+                        } label: {
+                            Label("Erase the board history", systemImage: "trash.fill")
+                                .font(.subheadline.weight(.black))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .foregroundStyle(CorpPalette.courtroomNavy)
+                        .buttonStyle(DumbPressStyle())
+                        .accessibilityIdentifier("eraseBingoDataButton")
+                        .accessibilityHint("Asks for confirmation before resetting the board and completed-game count.")
+                    }
+                    .padding(.horizontal, DumbSpacing.md)
+                    .padding(.bottom, DumbSpacing.xl)
+                }
+                .scrollIndicators(.hidden)
             }
-            .foregroundStyle(CorpPalette.courtroomNavy)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("eraseBingoDataButton")
-            .accessibilityHint("Asks for confirmation before resetting the board and completed-game count.")
         }
+        .tint(CorpPalette.courtroomNavy)
+        .environment(\.dumbExperienceStyle, .game)
         .onAppear(perform: restoreGame)
         .confirmationDialog(
             "Erase the active board and completed-game count?",
@@ -97,6 +113,32 @@ struct MeetingBingoView: View {
         } message: {
             Text("This clears the board and completed-game count. It cannot be undone.")
         }
+    }
+
+    private var bingoToolbar: some View {
+        HStack(alignment: .center, spacing: DumbSpacing.sm) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("CORPORATE WILDLIFE")
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(CorpPalette.courtroomNavy)
+                Text("Meeting bingo")
+                    .font(.system(.title3, design: .rounded).weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .accessibilityAddTraits(.isHeader)
+            }
+            Spacer(minLength: 0)
+            Image("AppMascot", bundle: .main)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 44, height: 44)
+                .padding(4)
+                .background(CorpPalette.courtroomNavy.opacity(0.10), in: Circle())
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, DumbSpacing.md)
+        .padding(.vertical, DumbSpacing.sm)
+        .background(CorpPalette.surface.opacity(0.92))
     }
 
     private var gameHeader: some View {
@@ -159,7 +201,7 @@ struct MeetingBingoView: View {
                     .lineLimit(3)
                     .foregroundStyle(isMarked ? CorpPalette.actionInk : CorpPalette.ink)
             }
-            .frame(maxWidth: .infinity, minHeight: 92)
+            .frame(maxWidth: .infinity, minHeight: 98)
             .padding(8)
             .background(isMarked ? CorpPalette.courtroomNavy : CorpPalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay {

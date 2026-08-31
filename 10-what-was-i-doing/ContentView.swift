@@ -43,22 +43,17 @@ struct WhatWasIDoingView: View {
     private let contexts = ["Opened phone", "Entered a room", "Switched task", "Got interrupted", "Other"]
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MEMORY SERVICES",
-            title: "What was I doing?",
-            subtitle: "A tiny black box for the exact moment your purpose evaporated.",
-            accent: accent,
-            personality: .chaotic
-        ) {
-            counterCard
-
-            DumbAction(
-                title: "I forgot why",
-                accent: accent,
-                systemImage: "questionmark.diamond.fill",
-                action: recordIncident
+        AppCanvas(accent: accent, experience: .journal) {
+            AppHeader(
+                eyebrow: "MEMORY SERVICES",
+                title: "What was I doing?",
+                subtitle: "A tiny black box for when your purpose evaporates.",
+                accent: accent
             )
-            .accessibilityIdentifier("forgotButton")
+
+            counterCard
+            incidentEditor
+            incidentLog
 
             DumbResult(
                 text: lastEvent,
@@ -67,10 +62,6 @@ struct WhatWasIDoingView: View {
                 reactionStyle: .bounce
             )
             .accessibilityIdentifier("memoryLogResult")
-
-            incidentEditor
-
-            incidentLog
 
             Button {
                 showEvidenceActions = true
@@ -84,6 +75,14 @@ struct WhatWasIDoingView: View {
             .disabled(incidents.isEmpty)
             .accessibilityIdentifier("resetEvidenceButton")
             .accessibilityHint("Opens controls to erase today’s incidents or the entire history.")
+        } bottomBar: {
+            DumbAction(
+                title: "I forgot why",
+                accent: accent,
+                systemImage: "questionmark.diamond.fill",
+                action: recordIncident
+            )
+            .accessibilityIdentifier("forgotButton")
         }
         .onAppear(perform: loadIncidents)
         .confirmationDialog(

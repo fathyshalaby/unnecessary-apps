@@ -221,6 +221,131 @@ public enum DumbMetrics {
     public static let minimumTapTarget: CGFloat = 44
 }
 
+/// Scrollable screen wrapper without the DumbShell hero template.
+/// Use for app-specific layouts; keep shared controls via DumbField, DumbAction, etc.
+public struct AppCanvas<Content: View, BottomBar: View>: View {
+    let accent: Color
+    let experience: DumbExperienceStyle?
+    @ViewBuilder let content: Content
+    @ViewBuilder let bottomBar: BottomBar
+    private let showsBottomBar: Bool
+
+    public init(
+        accent: Color,
+        experience: DumbExperienceStyle? = nil,
+        @ViewBuilder content: () -> Content
+    ) where BottomBar == EmptyView {
+        self.accent = accent
+        self.experience = experience
+        self.content = content()
+        self.bottomBar = EmptyView()
+        self.showsBottomBar = false
+    }
+
+    public init(
+        accent: Color,
+        experience: DumbExperienceStyle? = nil,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder bottomBar: () -> BottomBar
+    ) {
+        self.accent = accent
+        self.experience = experience
+        self.content = content()
+        self.bottomBar = bottomBar()
+        self.showsBottomBar = true
+    }
+
+    private var resolvedExperience: DumbExperienceStyle {
+        experience ?? .dossier
+    }
+
+    public var body: some View {
+        ScrollView {
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.top, DumbSpacing.sm)
+                .padding(.bottom, showsBottomBar ? DumbSpacing.xxl : DumbSpacing.xl)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .background(CorpPalette.canvas.ignoresSafeArea())
+        .tint(accent)
+        .environment(\.dumbExperienceStyle, resolvedExperience)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if showsBottomBar {
+                VStack(spacing: 0) {
+                    bottomBar
+                }
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.vertical, DumbSpacing.sm)
+                .background(CorpPalette.canvas.opacity(0.96))
+            }
+        }
+    }
+}
+
+/// Compact title row for custom layouts — map apps, games, tools.
+public struct AppHeader: View {
+    let eyebrow: String
+    let title: String
+    let subtitle: String?
+    let accent: Color
+    let showsMascot: Bool
+
+    public init(
+        eyebrow: String,
+        title: String,
+        subtitle: String? = nil,
+        accent: Color,
+        showsMascot: Bool = true
+    ) {
+        self.eyebrow = eyebrow
+        self.title = title
+        self.subtitle = subtitle
+        self.accent = accent
+        self.showsMascot = showsMascot
+    }
+
+    public var body: some View {
+        HStack(alignment: .center, spacing: DumbSpacing.sm) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(eyebrow)
+                    .font(.caption2.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(accent)
+                Text(title)
+                    .font(.system(.title3, design: .rounded).weight(.black))
+                    .foregroundStyle(CorpPalette.ink)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .accessibilityAddTraits(.isHeader)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(CorpPalette.mutedInk)
+                        .lineLimit(2)
+                }
+            }
+            Spacer(minLength: DumbSpacing.xs)
+            if showsMascot {
+                Image("AppMascot", bundle: .main)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .padding(5)
+                    .background(accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15, style: .continuous)
+                            .stroke(accent.opacity(0.20), lineWidth: 1)
+                    )
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(.bottom, DumbSpacing.sm)
+    }
+}
+
 private enum DumbReactionPhase {
     case rest
     case anticipate

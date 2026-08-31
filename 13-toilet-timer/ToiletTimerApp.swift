@@ -157,23 +157,16 @@ struct ToiletTimerView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "BATHROOM OPERATIONS",
-            title: "Toilet timer",
-            subtitle: "How long is too long? The answer is now bureaucratically quantified.",
-            accent: accent,
-            personality: .dramatic
-        ) {
-            boundaryCard
-            timerCard
-
-            DumbAction(
-                title: isRunning ? "Stop & assess the situation" : "Start stall timer",
-                accent: accent,
-                systemImage: isRunning ? "stopwatch.fill" : "timer",
-                action: toggleTimer
+        AppCanvas(accent: accent, experience: .timer) {
+            AppHeader(
+                eyebrow: "BATHROOM OPERATIONS",
+                title: "Toilet timer",
+                subtitle: "How long is too long? Now bureaucratically quantified.",
+                accent: accent
             )
-            .accessibilityIdentifier("assessBathroomButton")
+
+            timerCard
+            boundaryCard
 
             if !isRunning {
                 manualEstimateCard
@@ -218,6 +211,14 @@ struct ToiletTimerView: View {
                 systemImage: "timer",
                 accent: accent
             )
+        } bottomBar: {
+            DumbAction(
+                title: isRunning ? "Stop & assess the situation" : "Start stall timer",
+                accent: accent,
+                systemImage: isRunning ? "stopwatch.fill" : "timer",
+                action: toggleTimer
+            )
+            .accessibilityIdentifier("assessBathroomButton")
         }
         .dumbNativeEntry(scheme: "app13toilettimer") { action, _ in
             if action == "start", !isRunning {
@@ -268,7 +269,7 @@ struct ToiletTimerView: View {
                         .foregroundStyle(accent)
 
                     Text(formattedDuration(elapsed))
-                        .font(.system(.largeTitle, design: .rounded).weight(.black))
+                        .font(.system(size: 52, weight: .black, design: .rounded))
                         .monospacedDigit()
                         .contentTransition(.numericText())
                         .accessibilityIdentifier("liveTimerReadout")

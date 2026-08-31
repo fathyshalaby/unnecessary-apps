@@ -50,33 +50,16 @@ struct TinyGratitudeView: View {
     private let kinds = ["Tiny comfort", "Someone helped", "Something worked", "I showed up", "Other"]
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MINOR BLESSINGS DEPARTMENT",
-            title: "Tiny gratitude",
-            subtitle: "Big gratitude is exhausting. Small gratitude is manageable.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent, experience: .journal) {
+            AppHeader(
+                eyebrow: "MINOR BLESSINGS DEPARTMENT",
+                title: "Tiny gratitude",
+                subtitle: "Big gratitude is exhausting. Small gratitude is manageable.",
+                accent: accent
+            )
+
             summaryCard
             editorCard
-
-            DumbAction(
-                title: "Archive this miracle",
-                accent: accent,
-                systemImage: "archivebox.fill",
-                action: archiveEntry
-            )
-            .disabled(entry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .accessibilityIdentifier("archiveButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "sun.max.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("gratitudeResult")
-
             archiveCard
 
             Button(action: resurfaceEntry) {
@@ -101,6 +84,23 @@ struct TinyGratitudeView: View {
             .disabled(entries.isEmpty)
             .accessibilityIdentifier("clearArchiveButton")
             .accessibilityHint("Opens controls for resurfacing or erasing saved entries.")
+        } bottomBar: {
+            DumbAction(
+                title: "Archive this miracle",
+                accent: accent,
+                systemImage: "archivebox.fill",
+                action: archiveEntry
+            )
+            .disabled(entry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("archiveButton")
+
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "sun.max.fill",
+                reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("gratitudeResult")
         }
         .onAppear(perform: restoreArchive)
         .confirmationDialog(
