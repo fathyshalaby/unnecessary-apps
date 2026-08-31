@@ -18,6 +18,7 @@ if [[ ! -d "$DEVELOPER_DIR" ]]; then
 fi
 
 echo "== Repo checks =="
+python3 tools/generate_app_manifest.py
 python3 tools/audit_first_wave.py
 python3 tools/validate_store_metadata.py
 python3 tools/generate_xcode_project.py

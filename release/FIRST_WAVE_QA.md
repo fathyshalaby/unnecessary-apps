@@ -59,7 +59,7 @@ The serialized UI suite in `tests/App03DoNotTextThemUITests.swift` includes jour
 ```bash
 xcodebuild test \
   -project UnnecessaryApps.xcodeproj \
-  -scheme UnnecessaryAppsUITests \
+  -scheme App03DoNotTextThemUITests \
   -destination 'platform=iOS Simulator,name=iPhone 16e,OS=latest'
 ```
 
@@ -73,3 +73,7 @@ xcodebuild test \
 ## Out of first wave
 
 Apps 38 and 40 remain on **HOLD**. Do not include them in this cohort.
+
+## All 44 apps
+
+For the full collection pipeline (build, screenshots, demos), see `release/ALL_APPS_QA.md`.

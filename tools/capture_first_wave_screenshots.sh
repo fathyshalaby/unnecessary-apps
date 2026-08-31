@@ -12,6 +12,7 @@ DEVICE_NAME="${SIMULATOR_DEVICE:-iPhone 16e}"
 RAW_DIR="docs/screenshots/first-wave/raw"
 OUT_DIR="release/screenshots/first-wave/iphone-6.9"
 
+python3 tools/generate_app_manifest.py
 python3 tools/generate_xcode_project.py
 mkdir -p "$RAW_DIR" "$OUT_DIR"
 

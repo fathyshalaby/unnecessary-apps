@@ -126,7 +126,7 @@ Use harmless sample text only. Hide the simulator status-bar back label by launc
 **Steps:**
 
 1. Enter pantry: *"Toast, toast, Banana"*
-2. Tap **Spin the tiny wheel** twice.
+2. Tap **Spin the snack** twice.
 3. Show history with two different picks (no immediate repeat).
 
 **End frame:** Latest ruling visible.

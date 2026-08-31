@@ -45,10 +45,14 @@ def main() -> int:
         return result.returncode
 
     print("\nAll first-wave folders present. Full repo audit: no blocking errors.")
-    print("\nMac pipeline:")
-    print("  zsh tools/run_first_wave_mac.sh              # build + UI tests")
-    print("  zsh tools/capture_first_wave_screenshots.sh  # App Store screenshots")
-    print("  zsh tools/record_first_wave_demos.sh         # demo videos")
+    print("\nMac pipeline (all 44 apps):")
+    print("  zsh tools/run_all_apps_mac.sh")
+    print("  zsh tools/capture_all_apps_screenshots.sh")
+    print("  zsh tools/record_all_apps_demos.sh")
+    print("\nMac pipeline (first wave only):")
+    print("  zsh tools/run_first_wave_mac.sh")
+    print("  zsh tools/capture_first_wave_screenshots.sh")
+    print("  zsh tools/record_first_wave_demos.sh")
     return 0
 
 
