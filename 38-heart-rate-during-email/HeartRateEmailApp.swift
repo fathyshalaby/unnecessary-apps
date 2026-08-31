@@ -41,6 +41,13 @@ struct HeartRateEmailView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "heartRateEmail.boundaryDismissed",
+                message: "Self-reported drama only — not a heart monitor or medical tool.",
+                accent: accent,
+                systemImage: "heart.fill"
+            )
+
             DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 14) {
             DumbStatusPill("MANUAL ON PURPOSE", systemImage: "hand.raised.fill", accent: accent)
@@ -92,6 +99,15 @@ struct HeartRateEmailView: View {
 
             DumbResult(text: result, accent: accent, systemImage: "envelope.badge.fill", reactionStyle: .shake)
 
+            if result != Self.emptyResult && !result.hasPrefix("Subject changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Inbox drama score",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHeartRateResultButton"
+                )
+            }
+
         }
         .onAppear {
             restoreHistory()
@@ -134,10 +150,13 @@ struct HeartRateEmailView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No inbox events have been logged yet.", systemImage: "envelope")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyHeartRateHistory")
+                    DumbEmptyInvite(
+                        title: "No inbox drama logged",
+                        message: "Record a subject and self-reported BPM to start the archive.",
+                        systemImage: "envelope",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyHeartRateHistory")
                 } else {
                     List {
                         ForEach(Array(history.prefix(5))) { entry in

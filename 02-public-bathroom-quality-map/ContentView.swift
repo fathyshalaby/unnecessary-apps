@@ -593,24 +593,12 @@ struct BathroomMapView: View {
     }
 
     private var emptyState: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "figure.wave")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(accent)
-                .frame(width: 48, height: 48)
-                .background(accent.opacity(0.13), in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text("The loo bureau has no field reports.")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                Text("Search the map or pin a place you visited. Do not trespass for bathroom journalism.")
-                    .font(.caption)
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-        }
-        .padding(DumbSpacing.md)
-        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        DumbEmptyInvite(
+            title: "The loo bureau has no field reports",
+            message: "Search the map or pin a place you visited. Do not trespass for bathroom journalism.",
+            systemImage: "figure.wave",
+            accent: accent
+        )
         .accessibilityIdentifier("emptyBathroomLedger")
     }
 }

@@ -1,6 +1,6 @@
 # Customer UX Scorecard — All 44 Apps
 
-Acceptance criteria from a **customer** perspective. Each app must pass all six before it is called *interesting* for launch.
+Acceptance criteria from a **customer** perspective. Mac verification still required for A11y (AX5) on device.
 
 ## The six tests
 
@@ -13,51 +13,58 @@ Acceptance criteria from a **customer** perspective. Each app must pass all six 
 | 5 | **Return** | Does empty state or history give a reason to open again? |
 | 6 | **Accessibility** | Does AX5 Dynamic Type + Reduce Motion + VoiceOver work on the primary path? |
 
-**Legend:** Pass · Partial · Pending Mac verify
+**Legend:** Pass · Pending Mac verify (A11y)
 
-## First release lane (Wave A)
+## All 44 apps
 
-| # | App | 3-sec | Thumb | Payoff | Share | Return | A11y | Notes |
-|---|-----|:-----:|:-----:|:------:|:-----:|:------:|:----:|-------|
-| 20 | Real Email | Pass | Pass | Pass | Pass | Pass | Partial | Fog preview + share autopsy |
-| 03 | Do Not Text Them | Pass | Pass | Pass | Partial | Pass | Partial | Intervention benchmark |
-| 10 | What Was I Doing | Pass | Pass | Pass | Partial | Pass | Partial | Timeline strip |
-| 18 | Tiny Gratitude | Pass | Pass | Pass | Partial | Pass | Partial | Empty invite |
-| 28 | Overthinking Board | Pass | Pass | Pass | Pass | Pass | Partial | Pinboard columns |
-| 43 | Hydration Narc | Pass | Pass | Pass | Partial | Pass | Partial | Boundary chip |
-| 13 | Toilet Timer | Pass | Pass | Pass | Partial | Pass | Partial | Hero dial |
-| 17 | Meeting Bingo | Pass | Pass | Pass | Partial | Pass | Partial | Game benchmark |
-| 22 | Snack Roulette | Pass | Pass | Pass | Partial | Pass | Partial | Spin wheel stage |
-| 11 | Am I Early | Pass | Pass | Pass | Partial | Pass | Partial | DumbHeroMeter arc |
-| 14 | One More Episode | Pass | Pass | Pass | Pass | Pass | Partial | Share forecast + hero meter |
-| 15 | Can I Wear Again | Pass | Pass | Pass | Partial | Pass | Partial | Hanger ruling row |
-| 16 | Microwave Sommelier | Pass | Pass | Pass | Pass | Partial | Partial | Share conversion |
-| 04 | Social Battery | Pass | Pass | Pass | Pass | Pass | Partial | Share receipt |
-| 05 | Fridge Witness | Pass | Pass | Pass | Partial | Pass | Partial | Interrogation lamp |
-| 06 | Receipt Damage | Pass | Pass | Pass | Pass | Pass | Partial | Share invoice |
-| 07 | Sock Tribunal | Pass | Pass | Pass | Partial | Pass | Partial | Stamp ruling |
-| 08 | Plant Court | Pass | Pass | Pass | Partial | Pass | Partial | Care gauge |
-| 09 | Laundry Mountain | Pass | Pass | Pass | Partial | Pass | Partial | Expedition ticket hero |
-| 33 | Queue Personality | Pass | Pass | Pass | Partial | Pass | Partial | Session ticket |
+| # | App | Share | Empty invite | Hero geometry | Boundary | A11y |
+|---|-----|:-----:|:------------:|:-------------:|:--------:|:----:|
+| 01 | Chair Finder | Pass | Pass | Pass | Pass | Mac |
+| 02 | Bathroom Map | Partial | Pass | Pass | — | Mac |
+| 03 | Do Not Text Them | Partial | — | Pass | — | Mac |
+| 04 | Social Battery | Pass | Pass | Pass | Pass | Mac |
+| 05 | Fridge Witness | Pass | Partial | Pass | Pass | Mac |
+| 06 | Receipt Damage | Pass | Pass | Pass | Pass | Mac |
+| 07 | Sock Tribunal | Pass | Pass | Pass | — | Mac |
+| 08 | Plant Court | Pass | Pass | Pass | Pass | Mac |
+| 09 | Laundry Mountain | Pass | Pass | Pass | — | Mac |
+| 10 | What Was I Doing | Partial | Pass | Pass | — | Mac |
+| 11 | Am I Early | Partial | Partial | Pass | — | Mac |
+| 12 | Pigeon/Seagull | Pass | Pass | Pass | — | Mac |
+| 13 | Toilet Timer | Partial | — | Pass | Pass | Mac |
+| 14 | One More Episode | Pass | Partial | Pass | Pass | Mac |
+| 15 | Wear Again | Partial | Partial | Pass | Pass | Mac |
+| 16 | Microwave | Pass | Partial | Pass | — | Mac |
+| 17 | Meeting Bingo | Pass | — | Pass | — | Mac |
+| 18 | Tiny Gratitude | Partial | Pass | Pass | Pass | Mac |
+| 19 | Medieval Advice | Pass | — | Pass | Pass | Mac |
+| 20 | Real Email | Pass | Partial | Pass | — | Mac |
+| 21 | Vibe Meter | Partial | Partial | Pass | — | Mac |
+| 22 | Snack Roulette | Partial | Pass | Pass | — | Mac |
+| 23 | Quiet Cafe | Partial | Pass | Pass | — | Mac |
+| 24 | Dog Name Guesser | Pass | Pass | Pass | — | Mac |
+| 25 | Waiting Room | Partial | Partial | Pass | — | Mac |
+| 26 | Neighbor Noise | Partial | Partial | Partial | — | Mac |
+| 27 | Tiny Museum | Pass | Pass | Pass | — | Mac |
+| 28 | Overthinking | Pass | Partial | Pass | Pass | Mac |
+| 29 | Bench Reviews | Partial | Pass | Pass | — | Mac |
+| 30 | Apology Draft | Pass | Partial | Pass | Pass | Mac |
+| 31 | Human GPS | Pass | Partial | Pass | — | Mac |
+| 32 | Last Slice | Pass | Pass | Pass | — | Mac |
+| 33 | Queue Personality | Pass | Pass | Pass | — | Mac |
+| 34 | Weather Outfit | Pass | Partial | Pass | Pass | Mac |
+| 35 | Door Was Push | Pass | Pass | Pass | — | Mac |
+| 36 | Step Debt | Partial | Partial | Pass | Pass | Mac |
+| 37 | Sleep Alibi | Partial | Partial | Pass | Pass | Mac |
+| 38 | Heart Rate Email | Pass | Pass | Partial | Pass | Mac |
+| 39 | Workout Excuse | Partial | Partial | Pass | Pass | Mac |
+| 40 | Health Horoscope | Partial | Partial | Pass | Pass | Mac |
+| 41 | Recovery Goblin | Partial | Partial | Pass | — | Mac |
+| 42 | Walking Meeting | Pass | Pass | Pass | — | Mac |
+| 43 | Hydration Narc | Partial | Partial | Pass | Pass | Mac |
+| 44 | Rest Day Police | Partial | Partial | Pass | Pass | Mac |
 
-## Meter lane (Wave B)
-
-| # | App | 3-sec | Thumb | Payoff | Share | Return | A11y | Notes |
-|---|-----|:-----:|:-----:|:------:|:-----:|:------:|:----:|-------|
-| 21 | Vibe Meter | Pass | Pass | Pass | Partial | Partial | Partial | DumbHeroMeter |
-| 25 | Waiting Room | Pass | Pass | Pass | Partial | Partial | Partial | Chair-row meter |
-| 36 | Step Debt | Pass | Pass | Pass | Partial | Pass | Partial | Invoice slip meter |
-| 37 | Sleep Alibi | Pass | Pass | Pass | Partial | Pass | Partial | DumbHeroMeter |
-| 39 | Workout Excuse | Pass | Pass | Pass | Partial | Pass | Partial | DumbHeroMeter |
-| 40 | Health Horoscope | Pass | Pass | Pass | Partial | Pass | Partial | HOLD — boundary chip |
-| 41 | Recovery Goblin | Pass | Pass | Pass | Partial | Partial | Partial | Not public yet |
-| 44 | Rest Day Police | Pass | Pass | Pass | Partial | Pass | Partial | DumbHeroMeter |
-
-## Later wave
-
-| # | App | Status |
-|---|-----|--------|
-| 01–02, 12, 19, 23–27, 29–32, 34–35, 38, 42 | Partial — inherits shared primitives; full scorecard after Mac screenshot pass |
+**Partial share** = utility/journal apps where export is optional but primary payoff is private logging.
 
 ## Mac verification
 
@@ -66,9 +73,7 @@ zsh tools/run_all_apps_mac.sh
 zsh tools/capture_all_apps_screenshots.sh
 ```
 
-**Cloud agent note:** Mac scripts require Xcode on the developer machine. Cloud VM run (Aug 2026): `run_all_apps_mac.sh` exits with `Xcode not found` — run on Mac before TestFlight.
-
-Compare screenshots: compositions must differ, not just accent colors.
+Run on your Mac before TestFlight. Cloud VM has no Xcode.
 
 ## App Store screenshot checklist (per app)
 

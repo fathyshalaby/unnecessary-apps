@@ -119,7 +119,8 @@ struct TinyMuseumView: View {
                 eyebrow: "THE MUSEUM OF SMALL THINGS",
                 title: "Tiny Personal Museum",
                 subtitle: "Archive ordinary objects before history carelessly forgets them.",
-                accent: accent
+                accent: accent,
+                showsMascot: false
             )
 
             HStack {
@@ -142,6 +143,15 @@ struct TinyMuseumView: View {
                 reactionStyle: .stamp
             )
             .accessibilityIdentifier("museumPlacard")
+
+            if result != "No exhibit has opened. The gift shop is still somehow operational." && !result.hasPrefix("Exhibit changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Museum placard",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMuseumPlacardButton"
+                )
+            }
 
             exhibitCatalog
 
@@ -316,6 +326,23 @@ struct TinyMuseumView: View {
                     }
                     .foregroundStyle(CorpPalette.warningRed)
                     .accessibilityIdentifier("removePendingMuseumPhotoButton")
+                } else {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
+                        .foregroundStyle(accent.opacity(0.45))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 196)
+                        .overlay {
+                            VStack(spacing: 8) {
+                                Image(systemName: "camera.viewfinder")
+                                    .font(.title.weight(.black))
+                                    .foregroundStyle(accent)
+                                Text("Point at an ordinary object")
+                                    .font(.caption.weight(.black))
+                                    .foregroundStyle(CorpPalette.mutedInk)
+                            }
+                        }
+                        .accessibilityIdentifier("museumEmptyFrame")
                 }
 
                 Text(photoStatus)
@@ -343,24 +370,12 @@ struct TinyMuseumView: View {
                 .foregroundStyle(CorpPalette.mutedInk)
 
             if exhibits.isEmpty {
-                DumbCard(accent: accent) {
-                    HStack(spacing: 14) {
-                        Image(systemName: "shippingbox")
-                            .font(.title.bold())
-                            .foregroundStyle(accent)
-                            .frame(width: 54, height: 54)
-                            .background(accent.opacity(0.12), in: Circle())
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("The collection is suspiciously empty.")
-                                .font(.headline.weight(.black))
-                            Text("Archive one ordinary object before civilization moves on.")
-                                .font(.subheadline)
-                                .foregroundStyle(CorpPalette.mutedInk)
-                        }
-                    }
-                }
-                .accessibilityElement(children: .combine)
+                DumbEmptyInvite(
+                    title: "The collection is suspiciously empty",
+                    message: "Archive one ordinary object before civilization moves on.",
+                    systemImage: "shippingbox",
+                    accent: accent
+                )
                 .accessibilityIdentifier("emptyMuseumCatalog")
             } else {
                 ForEach(exhibits) { exhibit in

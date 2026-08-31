@@ -70,6 +70,16 @@ struct LastSliceView: View {
             }
 
             treatyCard
+
+            if treatyText != Self.waitingTreaty {
+                DumbShareVerdict(
+                    text: treatyText,
+                    subject: "Last slice treaty",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSliceTreatyButton"
+                )
+            }
+
             historyCard
 
             Button { showEraseConfirmation = true } label: {
@@ -173,9 +183,13 @@ struct LastSliceView: View {
                     .font(.caption.weight(.semibold)).foregroundStyle(CorpPalette.mutedInk)
 
                 if people.isEmpty {
-                    Label("No eligible people yet.", systemImage: "person.2.slash")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptySliceRoster")
+                    DumbEmptyInvite(
+                        title: "No eligible people yet",
+                        message: "Separate names with commas — at least two people to convene the tribunal.",
+                        systemImage: "person.2.slash",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySliceRoster")
                 } else {
                     participantChips(people)
                 }
@@ -311,9 +325,13 @@ struct LastSliceView: View {
                         .accessibilityIdentifier("sliceHistoryCount").accessibilityValue("\(history.count)")
                 }
                 if history.isEmpty {
-                    Label("No completed ruling yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptySliceHistory")
+                    DumbEmptyInvite(
+                        title: "No completed ruling yet",
+                        message: "Convene a tribunal and ratify a treaty to start the archive.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySliceHistory")
                 } else {
                     ForEach(Array(visibleHistory.enumerated()), id: \.element.id) { index, record in
                         if index > 0 { Divider() }

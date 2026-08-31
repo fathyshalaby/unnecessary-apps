@@ -83,6 +83,15 @@ struct FridgeWitnessView: View {
             )
             .accessibilityIdentifier("fridgeWitnessStatement")
 
+            if statement != Self.emptyStatement && !statement.hasPrefix("Inventory changed") {
+                DumbShareVerdict(
+                    text: statement,
+                    subject: "Fridge witness statement",
+                    accent: accent,
+                    accessibilityIdentifier: "shareFridgeStatementButton"
+                )
+            }
+
         }
         .onAppear(perform: restoreInventory)
         .confirmationDialog(

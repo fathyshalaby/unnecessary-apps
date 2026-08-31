@@ -611,24 +611,12 @@ struct QuietCafeView: View {
     }
 
     private var emptyState: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "ear.badge.waveform")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(accent)
-                .frame(width: 48, height: 48)
-                .background(accent.opacity(0.13), in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text("The quiet committee has no evidence.")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                Text("Find a real café or use the map pin, then rate what it felt like when you visited.")
-                    .font(.caption)
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-        }
-        .padding(DumbSpacing.md)
-        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        DumbEmptyInvite(
+            title: "The quiet committee has no evidence",
+            message: "Find a real café or use the map pin, then rate what it felt like when you visited.",
+            systemImage: "ear.badge.waveform",
+            accent: accent
+        )
         .accessibilityIdentifier("emptyCafeLedger")
     }
 }

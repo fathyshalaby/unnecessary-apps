@@ -18,6 +18,13 @@ struct WeatherOutfitView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "weatherOutfit.boundaryDismissed",
+                message: "Manual temperature only — no live weather data or forecasts.",
+                accent: accent,
+                systemImage: "cloud.sun.fill"
+            )
+
             DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 10) {
             DumbStatusPill(
@@ -48,6 +55,15 @@ struct WeatherOutfitView: View {
             .accessibilityIdentifier("generateOutfitDefenseButton")
 
             DumbResult(text: excuse, accent: accent, systemImage: "cloud.sun.fill", reactionStyle: .bounce)
+
+            if excuse != "No excuse prepared." && !excuse.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: excuse,
+                    subject: "Weather outfit excuse",
+                    accent: accent,
+                    accessibilityIdentifier: "shareOutfitExcuseButton"
+                )
+            }
 
         }
         .onChange(of: outfit) { _, _ in invalidateExcuse() }

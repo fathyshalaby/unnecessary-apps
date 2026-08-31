@@ -76,6 +76,15 @@ struct PigeonView: View {
 
             DumbResult(text: result, accent: accent, systemImage: "binoculars.fill", reactionStyle: .bounce)
 
+            if result != "The bird is withholding evidence." && !result.hasPrefix("Analyzing") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Bird ruling",
+                    accent: accent,
+                    accessibilityIdentifier: "shareBirdRulingButton"
+                )
+            }
+
         }
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }

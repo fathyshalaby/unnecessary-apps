@@ -124,6 +124,15 @@ struct SockTribunalView: View {
             .disabled(cleanName.isEmpty)
             .accessibilityIdentifier("fileSockCaseButton")
 
+            if latestOrder != Self.waitingOrder {
+                DumbShareVerdict(
+                    text: latestOrder,
+                    subject: "Sock tribunal order",
+                    accent: accent,
+                    accessibilityIdentifier: "shareSockOrderButton"
+                )
+            }
+
         }
         .onAppear {
             restoreCases()
@@ -338,10 +347,13 @@ struct SockTribunalView: View {
                 }
 
                 if cases.isEmpty {
-                    Label("No sock has entered evidence.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptySockDocket")
+                    DumbEmptyInvite(
+                        title: "Docket empty",
+                        message: "File a real missing-sock case to convene the court.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySockDocket")
                 } else {
                     ForEach(Array(visibleCases.enumerated()), id: \.element.id) { index, sockCase in
                         if index > 0 { Divider() }

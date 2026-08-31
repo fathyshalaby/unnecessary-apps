@@ -81,6 +81,16 @@ struct QueuePersonalityView: View {
             }
 
             queueTicket
+
+            if latestTicket != Self.waitingTicket {
+                DumbShareVerdict(
+                    text: latestTicket,
+                    subject: "Queue personality ticket",
+                    accent: accent,
+                    accessibilityIdentifier: "shareQueueTicketButton"
+                )
+            }
+
             historyCard
 
             Button { showEraseConfirmation = true } label: {
@@ -332,9 +342,13 @@ struct QueuePersonalityView: View {
                         .accessibilityIdentifier("queueHistoryCount").accessibilityValue("\(history.count)")
                 }
                 if history.isEmpty {
-                    Label("No completed queue session yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyQueueHistory")
+                    DumbEmptyInvite(
+                        title: "No completed queue session yet",
+                        message: "Start a queue session and finish it to collect your personality ticket.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyQueueHistory")
                 } else {
                     ForEach(Array(visibleHistory.enumerated()), id: \.element.id) { index, record in
                         if index > 0 { Divider() }

@@ -25,7 +25,8 @@ struct DogNameGuesserView: View {
                 eyebrow: "CANINE NOMENCLATURE",
                 title: "Dog name guesser",
                 subtitle: "The dog will not confirm anything. That is part of the test.",
-                accent: accent
+                accent: accent,
+                showsMascot: false
             )
 
             if let banner = VisionSupport.deviceBannerMessage {
@@ -85,6 +86,15 @@ struct DogNameGuesserView: View {
             .accessibilityIdentifier("presentDogNameButton")
 
             DumbResult(text: result, accent: accent, systemImage: "person.text.rectangle.fill", reactionStyle: .stamp)
+
+            if result != "The dog is awaiting your accusation." && !result.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Dog name verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareDogNameButton"
+                )
+            }
 
         }
         .onChange(of: fluff) { _, _ in invalidateVerdict() }

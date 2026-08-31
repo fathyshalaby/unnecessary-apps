@@ -56,6 +56,15 @@ struct HumanGPSView: View {
 
             DumbResult(text: direction, accent: accent, systemImage: "figure.walk", reactionStyle: .bounce)
 
+            if direction != Self.emptyDirection && !direction.hasPrefix("Landmark changed") {
+                DumbShareVerdict(
+                    text: direction,
+                    subject: "Human GPS directions",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHumanGPSButton"
+                )
+            }
+
         }
         .onChange(of: landmark) { _, _ in invalidateDirections() }
     }

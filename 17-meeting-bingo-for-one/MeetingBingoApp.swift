@@ -71,6 +71,15 @@ struct MeetingBingoView: View {
                         )
                         .accessibilityIdentifier("meetingBingoResult")
 
+                        if hasBingo {
+                            DumbShareVerdict(
+                                text: resultText,
+                                subject: "Meeting bingo",
+                                accent: CorpPalette.courtroomNavy,
+                                accessibilityIdentifier: "shareMeetingBingoButton"
+                            )
+                        }
+
                         Button {
                             newGame()
                         } label: {

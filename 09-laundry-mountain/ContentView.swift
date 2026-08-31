@@ -121,6 +121,15 @@ struct LaundryMountainView: View {
             .disabled(cleanName.isEmpty)
             .accessibilityIdentifier("saveLaundryBatchButton")
 
+            if latestTicket != Self.waitingTicket {
+                DumbShareVerdict(
+                    text: latestTicket,
+                    subject: "Laundry expedition ticket",
+                    accent: accent,
+                    accessibilityIdentifier: "shareLaundryTicketButton"
+                )
+            }
+
         }
         .onAppear {
             restoreBatches()
@@ -261,9 +270,13 @@ struct LaundryMountainView: View {
                         .accessibilityIdentifier("laundryBatchCount").accessibilityValue("\(batches.count)")
                 }
                 if batches.isEmpty {
-                    Label("No laundry batch is waiting.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyLaundryQueue")
+                    DumbEmptyInvite(
+                        title: "Mountain at rest",
+                        message: "Add a laundry batch to open the expedition ticket.",
+                        systemImage: "mountain.2.fill",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyLaundryQueue")
                 } else {
                     ForEach(Array(visibleBatches.enumerated()), id: \.element.id) { index, batch in
                         if index > 0 { Divider() }
