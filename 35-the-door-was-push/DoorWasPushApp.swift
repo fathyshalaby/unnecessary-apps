@@ -77,6 +77,13 @@ struct DoorWasPushView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "doorWasPush.boundaryDismissed",
+                message: "Personal incident log — not building access records or safety reporting.",
+                accent: accent,
+                systemImage: "door.left.hand.closed"
+            )
+
             filingCard
 
             if editingID != nil {
@@ -109,6 +116,15 @@ struct DoorWasPushView: View {
             )
             .disabled(cleanPlace.isEmpty)
             .accessibilityIdentifier("saveDoorIncidentButton")
+
+            if latestReport != Self.waitingReport {
+                DumbShareVerdict(
+                    text: latestReport,
+                    subject: "Door incident report",
+                    accent: accent,
+                    accessibilityIdentifier: "shareDoorReportButton"
+                )
+            }
 
         }
         .onAppear(perform: restoreState)
@@ -267,9 +283,13 @@ struct DoorWasPushView: View {
                         .accessibilityIdentifier("doorHistoryCount").accessibilityValue("\(incidents.count)")
                 }
                 if incidents.isEmpty {
-                    Label("No real door incident filed yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyDoorHistory")
+                    DumbEmptyInvite(
+                        title: "No door incidents filed",
+                        message: "Report a real push/pull embarrassment to start the witness log.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyDoorHistory")
                 } else {
                     Text(patternSummary).font(.caption.weight(.black)).foregroundStyle(accent).fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("doorPatternSummary")

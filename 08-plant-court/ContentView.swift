@@ -70,7 +70,30 @@ struct PlantCourtView: View {
 
             editorCard
 
+            if !cleanName.isEmpty {
+                DumbHeroMeter(
+                    progress: Double(condition) / 5,
+                    valueLabel: "\(Int(condition))/5",
+                    title: cleanName,
+                    subtitle: "Observed condition — next check \(draftNextCheck.formatted(date: .abbreviated, time: .omitted))",
+                    accent: accent,
+                    systemImage: "leaf.fill",
+                    variant: .arc,
+                    size: 88
+                )
+                .accessibilityIdentifier("plantCareGauge")
+            }
+
             careOrder
+
+            if latestOrder != Self.waitingOrder {
+                DumbShareVerdict(
+                    text: latestOrder,
+                    subject: "Plant court order",
+                    accent: accent,
+                    accessibilityIdentifier: "sharePlantOrderButton"
+                )
+            }
 
             boundaryCard
             summaryCard
@@ -290,10 +313,13 @@ struct PlantCourtView: View {
                 }
 
                 if plants.isEmpty {
-                    Label("No plant has entered evidence.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyPlantDocket")
+                    DumbEmptyInvite(
+                        title: "Bench empty",
+                        message: "Add a real plant to open the care docket.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyPlantDocket")
                 } else {
                     ForEach(Array(visiblePlants.enumerated()), id: \.element.id) { index, plant in
                         if index > 0 { Divider() }

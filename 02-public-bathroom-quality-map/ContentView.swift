@@ -34,6 +34,20 @@ private struct LooReport: Codable, Identifiable, Hashable {
         let queueRelief = 10 - queue
         return Int((Double(cleanliness + privacy + supplies + queueRelief) / 4).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(qualityIndex)/10",
+            "Clean \(cleanliness) · Privacy \(privacy) · Stock \(supplies) · Queue \(queue)/10"
+        ]
+        if changingTableObserved {
+            lines.append("Changing table observed")
+        }
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct LooPlace: Identifiable, Hashable {
@@ -388,6 +402,14 @@ struct BathroomMapView: View {
         .padding(.horizontal, DumbSpacing.md)
         .padding(.top, DumbSpacing.sm)
         .padding(.bottom, DumbSpacing.sm)
+
+        DumbBoundaryChip(
+            storageKey: "bathroomMap.boundaryDismissed",
+            message: "User-filed reports only — not live availability, hours, or official ratings.",
+            accent: accent,
+            systemImage: "map.fill"
+        )
+        .padding(.horizontal, DumbSpacing.md)
     }
 
     private var mapCard: some View {
@@ -593,24 +615,12 @@ struct BathroomMapView: View {
     }
 
     private var emptyState: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "figure.wave")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(accent)
-                .frame(width: 48, height: 48)
-                .background(accent.opacity(0.13), in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text("The loo bureau has no field reports.")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                Text("Search the map or pin a place you visited. Do not trespass for bathroom journalism.")
-                    .font(.caption)
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-        }
-        .padding(DumbSpacing.md)
-        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        DumbEmptyInvite(
+            title: "The loo bureau has no field reports",
+            message: "Search the map or pin a place you visited. Do not trespass for bathroom journalism.",
+            systemImage: "figure.wave",
+            accent: accent
+        )
         .accessibilityIdentifier("emptyBathroomLedger")
     }
 }
@@ -684,6 +694,11 @@ private struct LooReportCard: View {
                 Spacer()
                 Button("Show", action: onShow)
                     .font(.caption.weight(.black))
+                ShareLink(item: report.shareText, subject: Text("Bathroom field report"), message: Text(report.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareBathroomReportButton")
                 Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {

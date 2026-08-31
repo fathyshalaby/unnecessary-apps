@@ -47,6 +47,13 @@ struct AmIEarlyView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "amIEarly.boundaryDismissed",
+                message: "Self-reported arrival times only — not calendar sync or GPS.",
+                accent: accent,
+                systemImage: "clock.fill"
+            )
+
             summaryCard
             arrivalEditor
             historyCard
@@ -89,6 +96,15 @@ struct AmIEarlyView: View {
                 reactionStyle: isActiveVerdict ? .stamp : .bounce
             )
             .accessibilityIdentifier("punctualityResult")
+
+            if result != Self.emptyResult && !result.hasPrefix("Arrival changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Punctuality verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "sharePunctualityButton"
+                )
+            }
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: minutes) { _, _ in invalidateVerdict() }
@@ -126,42 +142,16 @@ struct AmIEarlyView: View {
     }
 
     private var offsetGauge: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .stroke(accent.opacity(0.16), lineWidth: 8)
-                Circle()
-                    .trim(from: 0, to: offsetGaugeProgress)
-                    .stroke(accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                VStack(spacing: 2) {
-                    Text(offsetGaugeLabel)
-                        .font(.caption.weight(.black))
-                        .foregroundStyle(accent)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.7)
-                }
-                .padding(8)
-            }
-            .frame(width: 72, height: 72)
-            .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("CURRENT OFFSET")
-                    .font(.caption2.weight(.black))
-                    .tracking(1.1)
-                    .foregroundStyle(accent)
-                Text(offsetDescription)
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("Late ← on time → early")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
+        DumbHeroMeter(
+            progress: offsetGaugeProgress,
+            valueLabel: offsetDescription,
+            title: "Current offset",
+            subtitle: "Late ← on time → early",
+            accent: accent,
+            systemImage: "clock.fill",
+            variant: .arc,
+            size: 96
+        )
     }
 
     private var offsetGaugeProgress: CGFloat {
@@ -246,10 +236,13 @@ struct AmIEarlyView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No arrivals have testified yet.", systemImage: "clock.badge.questionmark")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyPunctualityHistory")
+                    DumbEmptyInvite(
+                        title: "No arrivals on file",
+                        message: "Issue a punctuality verdict after your next appointment.",
+                        systemImage: "clock.badge.questionmark",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyPunctualityHistory")
                 } else {
                     ForEach(visibleHistory) { record in
                         VStack(alignment: .leading, spacing: 6) {

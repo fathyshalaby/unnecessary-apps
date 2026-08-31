@@ -71,6 +71,15 @@ struct ReceiptDamageView: View {
 
             receiptPaper
 
+            if report != Self.emptyReport && !report.hasPrefix("Purchase changed") {
+                DumbShareVerdict(
+                    text: report,
+                    subject: "Emotional invoice",
+                    accent: accent,
+                    accessibilityIdentifier: "shareReceiptButton"
+                )
+            }
+
             boundaryCard
             summaryCard
 
@@ -357,10 +366,13 @@ struct ReceiptDamageView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No purchase has entered evidence.", systemImage: "receipt")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyPurchaseHistory")
+                    DumbEmptyInvite(
+                        title: "Ledger empty",
+                        message: "Issue your first emotional invoice to begin the damage log.",
+                        systemImage: "receipt",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyPurchaseHistory")
                 } else {
                     ForEach(visibleHistory) { purchase in
                         VStack(alignment: .leading, spacing: 6) {

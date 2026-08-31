@@ -83,6 +83,15 @@ struct FridgeWitnessView: View {
             )
             .accessibilityIdentifier("fridgeWitnessStatement")
 
+            if statement != Self.emptyStatement && !statement.hasPrefix("Inventory changed") {
+                DumbShareVerdict(
+                    text: statement,
+                    subject: "Fridge witness statement",
+                    accent: accent,
+                    accessibilityIdentifier: "shareFridgeStatementButton"
+                )
+            }
+
         }
         .onAppear(perform: restoreInventory)
         .confirmationDialog(
@@ -144,12 +153,20 @@ struct FridgeWitnessView: View {
     }
 
     private var evidenceEditor: some View {
-        DumbCard(accent: accent) {
+        DumbCard(accent: accent, isSelected: !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("FILE REAL EVIDENCE")
-                    .font(.caption2.weight(.black))
-                    .tracking(1.2)
-                    .foregroundStyle(CorpPalette.mutedInk)
+                HStack(spacing: 10) {
+                    Text("FILE REAL EVIDENCE")
+                        .font(.caption2.weight(.black))
+                        .tracking(1.2)
+                        .foregroundStyle(CorpPalette.mutedInk)
+                    Spacer()
+                    Image(systemName: itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "lightbulb" : "lightbulb.max.fill")
+                        .font(.title3.weight(.black))
+                        .foregroundStyle(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? accent.opacity(0.35) : CorpPalette.sunshine)
+                        .symbolEffect(.pulse, isActive: !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .accessibilityHidden(true)
+                }
                 DumbField("Food or container name", maxLength: 100, text: $itemName)
                 DumbSlider(
                     title: "Quantity",
@@ -202,10 +219,13 @@ struct FridgeWitnessView: View {
                 }
 
                 if items.isEmpty {
-                    Label("No fictional cucumber. Add what is really there.", systemImage: "refrigerator")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyFridgeInventory")
+                    DumbEmptyInvite(
+                        title: "The fridge is empty",
+                        message: "Add what is really there — no fictional cucumbers.",
+                        systemImage: "refrigerator",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyFridgeInventory")
                 } else {
                     ForEach(sortedItems) { item in
                         VStack(alignment: .leading, spacing: 7) {

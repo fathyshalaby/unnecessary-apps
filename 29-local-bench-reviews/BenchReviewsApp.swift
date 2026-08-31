@@ -39,6 +39,18 @@ private struct BenchReview: Codable, Identifiable, Hashable {
     var score: Int {
         Int((Double(comfort + shade + view) / 3).rounded())
     }
+
+    var shareText: String {
+        var lines = [
+            "\(name) — \(score)/10",
+            "Comfort \(comfort) · Shade \(shade) · View \(view)",
+            pigeonClaimed ? "Pigeon jurisdiction" : "Armrest unclaimed"
+        ]
+        if !note.isEmpty {
+            lines.append(note)
+        }
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct BenchDraft: Identifiable {
@@ -235,6 +247,14 @@ struct BenchReviewsView: View {
             CorpPalette.canvas.ignoresSafeArea()
             VStack(spacing: 0) {
                 brandHeader
+                DumbBoundaryChip(
+                    storageKey: "benchReviews.boundaryDismissed",
+                    message: "Benches you sat on — not city-wide discovery or live occupancy.",
+                    accent: accent,
+                    systemImage: "chair.lounge.fill"
+                )
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.bottom, DumbSpacing.sm)
                 mapCard
                 reviewLedger
             }
@@ -464,24 +484,12 @@ struct BenchReviewsView: View {
     }
 
     private var emptyState: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "chair.lounge")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(accent)
-                .frame(width: 48, height: 48)
-                .background(accent.opacity(0.13), in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text("The park desk is suspiciously empty.")
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(CorpPalette.ink)
-                Text("Pan the map, put the crosshair on a bench, and file the first unnecessary review.")
-                    .font(.caption)
-                    .foregroundStyle(CorpPalette.mutedInk)
-            }
-        }
-        .padding(DumbSpacing.md)
-        .background(CorpPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(CorpPalette.ink.opacity(0.06), lineWidth: 1))
+        DumbEmptyInvite(
+            title: "The park desk is suspiciously empty",
+            message: "Pan the map, put the crosshair on a bench, and file the first unnecessary review.",
+            systemImage: "chair.lounge",
+            accent: accent
+        )
         .accessibilityIdentifier("emptyBenchLedger")
     }
 }
@@ -555,6 +563,11 @@ private struct BenchReviewCard: View {
                 Spacer()
                 Button("Show on map", action: onSelect)
                     .font(.caption.weight(.black))
+                ShareLink(item: review.shareText, subject: Text("Bench field report"), message: Text(review.shareText)) {
+                    Text("Share")
+                        .font(.caption.weight(.black))
+                }
+                .accessibilityIdentifier("shareBenchReviewButton")
                 Button("Edit", action: onEdit)
                     .font(.caption.weight(.black))
                 Button(role: .destructive, action: onDelete) {

@@ -68,6 +68,16 @@ struct SocialBatteryReceiptView: View {
             socialReceiptPaper
             .accessibilityIdentifier("socialBatteryResult")
 
+            if receipt != Self.emptyReceipt && !receipt.hasPrefix("Event changed") {
+                DumbShareVerdict(
+                    text: receipt,
+                    subject: "Social battery receipt",
+                    accent: accent,
+                    systemImage: "square.and.arrow.up",
+                    accessibilityIdentifier: "shareSocialReceiptButton"
+                )
+            }
+
             Button(action: resetCurrentReceipt) {
             Label("Void current receipt", systemImage: "arrow.counterclockwise")
             .font(.subheadline.weight(.black))
@@ -200,10 +210,13 @@ struct SocialBatteryReceiptView: View {
                 }
 
                 if history.isEmpty {
-                    Label("No social event has submitted expenses.", systemImage: "receipt")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptySocialBatteryHistory")
+                    DumbEmptyInvite(
+                        title: "No receipts filed yet",
+                        message: "After your next event, print a receipt to start the archive.",
+                        systemImage: "receipt",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptySocialBatteryHistory")
                 } else {
                     ForEach(visibleHistory) { record in
                         VStack(alignment: .leading, spacing: 6) {

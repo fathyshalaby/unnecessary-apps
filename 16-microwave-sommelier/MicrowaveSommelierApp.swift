@@ -65,6 +65,13 @@ struct MicrowaveView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "microwaveSommelier.boundaryDismissed",
+                message: "Math for microwave timing — not food safety or cooking advice.",
+                accent: accent,
+                systemImage: "microwave.fill"
+            )
+
             formulaCard
             conversionEditor
 
@@ -101,6 +108,15 @@ struct MicrowaveView: View {
             )
             .disabled(totalPackageSeconds == 0)
             .accessibilityIdentifier("pairHeatButton")
+
+            if result != Self.emptyResult && !result.hasPrefix("Inputs changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Microwave conversion",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMicrowaveButton"
+                )
+            }
 
             DumbResult(
             text: result,
@@ -229,10 +245,13 @@ struct MicrowaveView: View {
                 }
 
                 if history.isEmpty {
-                    Label("The conversion cellar is empty.", systemImage: "wineglass")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
-                        .accessibilityIdentifier("emptyMicrowaveHistory")
+                    DumbEmptyInvite(
+                        title: "The cellar is empty",
+                        message: "Convert a microwave pairing to start the archive.",
+                        systemImage: "wineglass",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyMicrowaveHistory")
                 } else {
                     ForEach(visibleHistory) { conversion in
                         VStack(alignment: .leading, spacing: 6) {

@@ -29,6 +29,13 @@ struct PigeonView: View {
                 showsMascot: false
             )
 
+            DumbBoundaryChip(
+                storageKey: "pigeonOrSeagull.boundaryDismissed",
+                message: "Photo-based field ID for laughs — not wildlife expertise or safety advice.",
+                accent: accent,
+                systemImage: "camera.fill"
+            )
+
             if let banner = VisionSupport.deviceBannerMessage {
             Text(banner)
             .font(.caption.weight(.bold))
@@ -75,6 +82,15 @@ struct PigeonView: View {
             .accessibilityIdentifier("identifyBirdButton")
 
             DumbResult(text: result, accent: accent, systemImage: "binoculars.fill", reactionStyle: .bounce)
+
+            if result != "The bird is withholding evidence." && !result.hasPrefix("Analyzing") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Bird ruling",
+                    accent: accent,
+                    accessibilityIdentifier: "shareBirdRulingButton"
+                )
+            }
 
         }
         .onChange(of: selectedPhoto) { _, item in

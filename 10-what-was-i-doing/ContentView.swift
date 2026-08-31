@@ -51,7 +51,15 @@ struct WhatWasIDoingView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "whatWasIDoing.boundaryDismissed",
+                message: "Private incident log — not screen-time tracking or productivity scoring.",
+                accent: accent,
+                systemImage: "brain.head.profile"
+            )
+
             counterCard
+            timelineStrip
             incidentEditor
             incidentLog
 
@@ -62,6 +70,15 @@ struct WhatWasIDoingView: View {
                 reactionStyle: .bounce
             )
             .accessibilityIdentifier("memoryLogResult")
+
+            if !incidents.isEmpty && lastEvent != "No incidents recorded. Suspiciously focused." {
+                DumbShareVerdict(
+                    text: lastEvent,
+                    subject: "Memory incident log",
+                    accent: accent,
+                    accessibilityIdentifier: "shareMemoryLogButton"
+                )
+            }
 
             Button {
                 showEvidenceActions = true
@@ -178,6 +195,32 @@ struct WhatWasIDoingView: View {
         .accessibilityValue("\(todayCount)")
     }
 
+    private var timelineStrip: some View {
+        Group {
+            if !recentIncidents.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(recentIncidents.prefix(6)) { incident in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(incident.context)
+                                    .font(.caption.weight(.black))
+                                    .foregroundStyle(CorpPalette.ink)
+                                    .lineLimit(1)
+                                Text(incident.date.formatted(date: .omitted, time: .shortened))
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(CorpPalette.mutedInk)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
+                    }
+                }
+                .accessibilityIdentifier("memoryTimelineStrip")
+            }
+        }
+    }
+
     private var incidentLog: some View {
         DumbCard(accent: accent) {
             VStack(alignment: .leading, spacing: 12) {
@@ -195,9 +238,12 @@ struct WhatWasIDoingView: View {
                 }
 
                 if recentIncidents.isEmpty {
-                    Label("The log is beautifully empty.", systemImage: "sparkles")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No lapses logged",
+                        message: "When your brain leaves the room, tap below and file what you remember.",
+                        systemImage: "brain.head.profile",
+                        accent: accent
+                    )
                 } else {
                     ForEach(recentIncidents) { incident in
                         VStack(alignment: .leading, spacing: 7) {

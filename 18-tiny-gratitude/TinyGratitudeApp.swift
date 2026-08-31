@@ -58,6 +58,13 @@ struct TinyGratitudeView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "tinyGratitude.boundaryDismissed",
+                message: "Private journal only — not therapy, mindfulness coaching, or social sharing.",
+                accent: accent,
+                systemImage: "sun.max.fill"
+            )
+
             summaryCard
             editorCard
             archiveCard
@@ -101,6 +108,15 @@ struct TinyGratitudeView: View {
                 reactionStyle: .stamp
             )
             .accessibilityIdentifier("gratitudeResult")
+
+            if result != "No tiny blessing recorded." {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Tiny gratitude win",
+                    accent: accent,
+                    accessibilityIdentifier: "shareGratitudeButton"
+                )
+            }
         }
         .onAppear(perform: restoreArchive)
         .confirmationDialog(
@@ -194,9 +210,12 @@ struct TinyGratitudeView: View {
                 }
 
                 if entries.isEmpty {
-                    Label("Nothing microscopic yet.", systemImage: "sun.horizon.fill")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "Archive waiting",
+                        message: "One tiny win is enough. Type it below and file the miracle.",
+                        systemImage: "sun.max.fill",
+                        accent: accent
+                    )
                 } else {
                     ForEach(visibleEntries) { savedEntry in
                         VStack(alignment: .leading, spacing: 7) {

@@ -23,6 +23,13 @@ struct HumanGPSView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "humanGPS.boundaryDismissed",
+                message: "Generates walking directions from landmarks — not live location sharing.",
+                accent: accent,
+                systemImage: "location.fill"
+            )
+
             DumbCard(accent: accent, isSelected: !landmark.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
             VStack(alignment: .leading, spacing: 8) {
             DumbField("Nearby landmark", maxLength: 120, text: $landmark)
@@ -55,6 +62,15 @@ struct HumanGPSView: View {
             .accessibilityIdentifier("generateDirectionsButton")
 
             DumbResult(text: direction, accent: accent, systemImage: "figure.walk", reactionStyle: .bounce)
+
+            if direction != Self.emptyDirection && !direction.hasPrefix("Landmark changed") {
+                DumbShareVerdict(
+                    text: direction,
+                    subject: "Human GPS directions",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHumanGPSButton"
+                )
+            }
 
         }
         .onChange(of: landmark) { _, _ in invalidateDirections() }

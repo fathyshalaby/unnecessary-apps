@@ -34,6 +34,13 @@ struct ApologyDraftView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "apologyDraft.boundaryDismissed",
+                message: "Drafts a message — does not send it or repair relationships for you.",
+                accent: accent,
+                systemImage: "envelope.fill"
+            )
+
             DumbCard(accent: accent, isSelected: !crime.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
                 VStack(alignment: .leading, spacing: 14) {
                     DumbField(
@@ -81,14 +88,12 @@ struct ApologyDraftView: View {
                 .accessibilityIdentifier("copyDraftButton")
 
                 if hasGeneratedDraft {
-                    ShareLink(item: draft, subject: Text("Apology draft"), message: Text(draft)) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                            .font(.subheadline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(accent)
-                    .buttonStyle(DumbPressStyle())
-                    .accessibilityIdentifier("shareApologyButton")
+                    DumbShareVerdict(
+                        text: draft,
+                        subject: "Apology draft",
+                        accent: accent,
+                        accessibilityIdentifier: "shareApologyButton"
+                    )
                 }
 
                 Button {

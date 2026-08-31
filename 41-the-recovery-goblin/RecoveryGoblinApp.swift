@@ -42,6 +42,24 @@ struct RecoveryGoblinView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "recoveryGoblin.boundaryDismissed",
+                message: "Fictional recovery chat — not medical, training, or coaching advice.",
+                accent: accent,
+                systemImage: "leaf.fill"
+            )
+
+            DumbHeroMeter(
+                progress: (tiredness + soreness) / 20,
+                valueLabel: "\(Int(tiredness + soreness))/20",
+                title: "Recovery load",
+                subtitle: "Tired \(Int(tiredness)) · sore \(Int(soreness))",
+                accent: accent,
+                systemImage: "leaf.fill",
+                variant: .arc
+            )
+            .accessibilityIdentifier("recoveryGoblinHeroMeter")
+
             healthConnectionCard
             checkInCard
 
@@ -67,6 +85,15 @@ struct RecoveryGoblinView: View {
 
             DumbResult(text: result, accent: accent, systemImage: "leaf.fill", reactionStyle: .bounce)
             .accessibilityIdentifier("recoveryGoblinResult")
+
+            if result != "The goblin is hiding behind the foam roller." && !result.hasPrefix("Your check-in changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Recovery goblin reply",
+                    accent: accent,
+                    accessibilityIdentifier: "shareRecoveryGoblinButton"
+                )
+            }
 
         }
         .onAppear {

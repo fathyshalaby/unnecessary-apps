@@ -71,6 +71,13 @@ struct ChairFinderView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "chairFinder.boundaryDismissed",
+                message: "Ranks chairs you observed nearby — not city-wide discovery or live maps.",
+                accent: accent,
+                systemImage: "chair.lounge.fill"
+            )
+
             HStack {
             DumbStatusPill("OFFICIAL CHAIR FILE", systemImage: "doc.text.fill", accent: accent)
             Spacer()
@@ -147,6 +154,15 @@ struct ChairFinderView: View {
             )
             .disabled(candidates.isEmpty)
             .accessibilityIdentifier("inspectChairButton")
+
+            if !storedWinnerID.isEmpty && !verdict.hasPrefix("Evidence changed") {
+                DumbShareVerdict(
+                    text: verdict,
+                    subject: "Chair ranking verdict",
+                    accent: accent,
+                    accessibilityIdentifier: "shareChairVerdictButton"
+                )
+            }
 
             DumbResult(
             text: verdict,
@@ -233,24 +249,12 @@ struct ChairFinderView: View {
             }
 
             if candidates.isEmpty {
-                DumbCard(accent: accent) {
-                    HStack(spacing: 14) {
-                        Image(systemName: "chair.lounge")
-                            .font(.title.bold())
-                            .foregroundStyle(accent)
-                            .frame(width: 54, height: 54)
-                            .background(accent.opacity(0.12), in: Circle())
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("No furniture testimony yet.")
-                                .font(.headline.weight(.black))
-                            Text("Look around, nickname a real chair, and rate what your body can verify.")
-                                .font(.subheadline)
-                                .foregroundStyle(CorpPalette.mutedInk)
-                        }
-                    }
-                }
-                .accessibilityElement(children: .combine)
+                DumbEmptyInvite(
+                    title: "No furniture testimony yet",
+                    message: "Look around, nickname a real chair, and rate what your body can verify.",
+                    systemImage: "chair.lounge",
+                    accent: accent
+                )
                 .accessibilityIdentifier("emptyChairLedger")
             } else {
                 ForEach(candidates) { candidate in

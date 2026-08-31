@@ -115,6 +115,16 @@ struct WalkingMeetingView: View {
             }
 
             fieldBrief
+
+            if latestBrief != Self.waitingBrief {
+                DumbShareVerdict(
+                    text: latestBrief,
+                    subject: "Walking meeting brief",
+                    accent: accent,
+                    accessibilityIdentifier: "shareWalkingBriefButton"
+                )
+            }
+
             historyCard
 
             Button { showEraseConfirmation = true } label: {
@@ -385,9 +395,13 @@ struct WalkingMeetingView: View {
                         .accessibilityIdentifier("walkingHistoryCount").accessibilityValue("\(history.count)")
                 }
                 if history.isEmpty {
-                    Label("No completed walking meeting yet.", systemImage: "tray")
-                        .font(.subheadline.weight(.bold)).foregroundStyle(CorpPalette.mutedInk)
-                        .accessibilityIdentifier("emptyWalkingHistory")
+                    DumbEmptyInvite(
+                        title: "No walks completed yet",
+                        message: "Plan a walking meeting and finish it to log the field brief.",
+                        systemImage: "tray",
+                        accent: accent
+                    )
+                    .accessibilityIdentifier("emptyWalkingHistory")
                 } else {
                     ForEach(Array(visibleHistory.enumerated()), id: \.element.id) { index, record in
                         if index > 0 { Divider() }

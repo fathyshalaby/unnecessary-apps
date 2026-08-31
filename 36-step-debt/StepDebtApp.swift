@@ -179,7 +179,22 @@ struct StepDebtView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "stepDebt.boundaryDismissed",
+                message: "Entertainment only—not medical or fitness advice. Apple Health and Maps are optional.",
+                accent: accent,
+                systemImage: "figure.walk"
+            )
+
             progressCard
+
+            Button("Change step target") {
+                withAnimation(reduceMotion ? nil : DumbMotion.quick) { manualEditorVisible = true }
+            }
+            .font(.caption.weight(.black))
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("stepDebtChangeGoalButton")
 
             modelStatusView
 
@@ -248,6 +263,15 @@ struct StepDebtView: View {
             reactionStyle: .stamp
             )
             .accessibilityIdentifier("stepDebtResult")
+
+            if result != "The step accountant is asleep." && !result.hasPrefix("Steps changed") {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Step debt invoice",
+                    accent: accent,
+                    accessibilityIdentifier: "shareStepDebtButton"
+                )
+            }
 
         }
         .dumbNativeEntry(scheme: "app36stepdebt") { action, _ in
@@ -371,57 +395,16 @@ struct StepDebtView: View {
     }
 
     private var progressCard: some View {
-        DumbCard(accent: accent, isSelected: effectiveSteps >= goal) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(effectiveSteps >= goal ? "DEBT CLEARED" : "CURRENT BALANCE")
-                            .font(.caption2.weight(.black))
-                            .tracking(1.1)
-                            .foregroundStyle(accent)
-                        Text(effectiveSteps >= goal ? "Paid in footsteps." : "\(remainingSteps) steps due")
-                            .font(.title2.weight(.black))
-                            .foregroundStyle(CorpPalette.ink)
-                    }
-                    Spacer()
-                    Text("\(Int(effectiveSteps.rounded()))")
-                        .font(.system(.title, design: .rounded).weight(.black))
-                        .foregroundStyle(accent)
-                        .contentTransition(.numericText())
-                    Text("steps")
-                        .font(.caption.weight(.black))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
-
-                ProgressView(value: progress)
-                    .tint(accent)
-                    .scaleEffect(x: 1, y: 1.7, anchor: .center)
-                    .accessibilityLabel("Step progress")
-                    .accessibilityValue("\(Int(progress * 100)) percent of target")
-
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "target")
-                        .foregroundStyle(accent)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Target: \(Int(goal.rounded())) steps")
-                            .font(.subheadline.weight(.black))
-                            .foregroundStyle(CorpPalette.ink)
-                        Text(goalSource)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(CorpPalette.mutedInk)
-                    }
-                    Spacer(minLength: 0)
-                }
-
-                Button("Change target") {
-                    withAnimation(reduceMotion ? nil : DumbMotion.quick) { manualEditorVisible = true }
-                }
-                .font(.caption.weight(.black))
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .accessibilityIdentifier("stepDebtChangeGoalButton")
-            }
-        }
+        DumbHeroMeter(
+            progress: Double(progress),
+            valueLabel: effectiveSteps >= goal ? "Paid in footsteps" : "\(remainingSteps) steps due",
+            title: "Step invoice",
+            subtitle: "\(Int(effectiveSteps.rounded())) of \(goal) steps toward today’s target",
+            accent: accent,
+            systemImage: "figure.walk",
+            variant: .invoice,
+            size: 96
+        )
         .accessibilityIdentifier("stepDebtProgressCard")
     }
 

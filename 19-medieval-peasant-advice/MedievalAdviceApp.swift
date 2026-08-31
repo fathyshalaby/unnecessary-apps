@@ -30,6 +30,13 @@ struct MedievalAdviceView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "medievalAdvice.boundaryDismissed",
+                message: "Fictional peasant wisdom — not professional, medical, or life advice.",
+                accent: accent,
+                systemImage: "person.fill.questionmark"
+            )
+
             oracleDesk
 
             Text(modelStatus)
@@ -68,6 +75,15 @@ struct MedievalAdviceView: View {
 
             DumbResult(text: answer, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
             .accessibilityIdentifier("peasantAnswer")
+
+            if answer != "The peasant is sharpening a stick." && !answer.hasPrefix("The question changed") {
+                DumbShareVerdict(
+                    text: answer,
+                    subject: "Peasant advice",
+                    accent: accent,
+                    accessibilityIdentifier: "sharePeasantAdviceButton"
+                )
+            }
 
         }
         .onChange(of: question) { _, _ in invalidateAnswer() }

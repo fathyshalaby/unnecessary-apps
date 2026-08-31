@@ -57,6 +57,13 @@ struct HydrationNarcView: View {
                 accent: accent
             )
 
+            DumbBoundaryChip(
+                storageKey: "hydrationNarc.boundaryDismissed",
+                message: "Reflection and logging only—not medical guidance. Apple Health import is optional read-only.",
+                accent: accent,
+                systemImage: "drop.fill"
+            )
+
             progressCard
 
             DumbSlider(
@@ -85,6 +92,15 @@ struct HydrationNarcView: View {
                 reactionStyle: .bounce
             )
             .accessibilityIdentifier("hydrationResult")
+
+            if result != Self.emptyResult {
+                DumbShareVerdict(
+                    text: result,
+                    subject: "Hydration ledger update",
+                    accent: accent,
+                    accessibilityIdentifier: "shareHydrationButton"
+                )
+            }
 
             healthConnectionCard
             notificationCard
@@ -304,9 +320,12 @@ struct HydrationNarcView: View {
                 }
 
                 if history.isEmpty {
-                    Label("Yesterday has filed no paperwork.", systemImage: "calendar")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(CorpPalette.ink)
+                    DumbEmptyInvite(
+                        title: "No ledger days yet",
+                        message: "Log servings today — yesterday’s summary appears here tomorrow.",
+                        systemImage: "calendar",
+                        accent: accent
+                    )
                 } else {
                     ForEach(history) { day in
                         HStack {
