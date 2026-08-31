@@ -2,9 +2,11 @@
 
 ## Direction
 
-The collection now has a deliberately playful visual system for unofficial problems: warm candy-paper, ink-black rounded typography, high-energy accent colors, soft white cards, chunky pill buttons, and character-led moments. The interaction target is closer to Duolingo or Dumb Ways to Die: one obvious thing to do, a funny consequence, and a mascot with a job.
+Each app should feel like its own tiny product — not a recolored form. Shared **controls** live in DumbKit; **layout** is per app. See `docs/CUSTOM_APP_DESIGN.md` for the full migration plan.
 
-The parent brand is the **Unnecessary Apps Corp** civic seal: a chair, laurel, tiny pigeon, and red flag. Each app gets its own deadpan mascot mark, while the shared shell keeps the collection recognizable.
+The playful system still applies: warm canvas, ink-black type, accent colors, mascots with a job, and one obvious primary action. Map apps (02, 23, 29), Meeting Bingo, and Do Not Text Them already break the old `DumbShell` hero template.
+
+The parent brand is the **Unnecessary Apps Corp** civic seal: a chair, laurel, tiny pigeon, and red flag. Each app gets its own deadpan mascot mark.
 
 ## What is working
 
@@ -13,7 +15,8 @@ The parent brand is the **Unnecessary Apps Corp** civic seal: a chair, laurel, t
 - One chunky primary action creates a simple game-like loop.
 - Soft-depth cards and small status pills keep the interface friendly rather than administrative.
 - The deadpan corporate voice remains in short labels such as `NONSENSE DEPT.` and `OFFICIAL RESULT`.
-- Apps 11–44 use the refreshed `shared/DumbKit.swift` shell; Chair Finder is the first custom screen rebuilt against the new system.
+- Apps 11–44 use shared DumbKit controls; **41 still use the optional `DumbShell` template** — migration to custom layouts is in progress (see `docs/CUSTOM_APP_DESIGN.md`).
+- Map apps (02, 23, 29), Meeting Bingo, and Do Not Text Them use **custom layouts** without the hero template.
 
 ## Asset system
 
