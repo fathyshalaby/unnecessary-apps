@@ -58,32 +58,17 @@ struct OverthinkingBoardView: View {
     private let warningAccent = CorpPalette.emergencyRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PERSONAL INVESTIGATIONS",
-            title: "Overthinking evidence board",
-            subtitle: "Not therapy. Just a corkboard with better typography.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent, experience: .journal) {
+            AppHeader(
+                eyebrow: "PERSONAL INVESTIGATIONS",
+                title: "Overthinking evidence board",
+                subtitle: "Not therapy. Just a corkboard with better typography.",
+                accent: accent
+            )
+
             safetyCard
             boardEditor
-
-            DumbAction(
-                title: "Issue a provisional conclusion",
-                accent: accent,
-                systemImage: "magnifyingglass",
-                action: issueConclusion
-            )
-            .disabled(cleanWorry.isEmpty)
-            .accessibilityIdentifier("issueConclusionButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "pin.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("overthinkingResult")
+            caseArchive
 
             Button(action: clearCurrentBoard) {
                 Label("Clear current board", systemImage: "rectangle.portrait.and.arrow.right")
@@ -95,8 +80,6 @@ struct OverthinkingBoardView: View {
             .disabled(!hasCurrentBoard)
             .accessibilityIdentifier("clearOverthinkingButton")
             .accessibilityHint("Clears the current draft without deleting archived cases.")
-
-            caseArchive
 
             Button {
                 showArchiveActions = true
@@ -116,6 +99,23 @@ struct OverthinkingBoardView: View {
                 systemImage: "square.and.arrow.down",
                 accent: accent
             )
+        } bottomBar: {
+            DumbAction(
+                title: "Issue a provisional conclusion",
+                accent: accent,
+                systemImage: "magnifyingglass",
+                action: issueConclusion
+            )
+            .disabled(cleanWorry.isEmpty)
+            .accessibilityIdentifier("issueConclusionButton")
+
+            DumbResult(
+                text: result,
+                accent: accent,
+                systemImage: "pin.fill",
+                reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("overthinkingResult")
         }
         .onAppear {
             restoreCases()

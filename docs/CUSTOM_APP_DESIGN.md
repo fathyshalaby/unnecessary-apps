@@ -4,7 +4,7 @@ The collection does **not** need every app inside the same `DumbShell` template.
 
 ## The template problem
 
-**41 of 44 apps** currently use `DumbShell`, which forces the same structure:
+**31 of 44 apps** still use `DumbShell`, which forces the same structure:
 
 1. Cream canvas background  
 2. Large hero block: eyebrow → mascot → `.largeTitle` → subtitle → department label  
@@ -18,10 +18,18 @@ That reads as one product with 44 skins, not 44 tiny apps. `DumbExperienceStyle`
 | App | Layout model |
 |-----|----------------|
 | **02 Bathroom Map**, **23 Quiet Café**, **29 Bench Reviews** | Map-first: compact `brandHeader` + full-width map + desk sheet. No `DumbShell`. |
-| **17 Meeting Bingo** (updated) | Game-first: thin toolbar + board grid dominates the screen. |
-| **03 Do Not Text Them** (updated) | Intervention-first: red wash + draft editor hero, no oversized title block. |
+| **03 Do Not Text Them** | Intervention-first: red wash + draft editor hero, no oversized title block. |
+| **17 Meeting Bingo** | Game-first: thin toolbar + board grid dominates the screen. |
+| **20 Real Email?** | Workbench: editor-first + sticky autopsy CTA in bottom bar. |
+| **10 What Was I Doing?** | Ledger: context picker + sticky “I forgot why” action. |
+| **18 Tiny Gratitude** | Ledger: kind picker + sticky archive CTA. |
+| **28 Overthinking Board** | Workbench: evidence sections + sticky conclusion CTA. |
+| **43 Hydration Narc** | Meter: progress ring + sticky “Log one serving”. |
+| **13 Toilet Timer** | Intervention: large timer readout + sticky start/stop. |
+| **22 Snack Roulette** | Game: result prominent + sticky spin button. |
+| **11 Am I Early?** | Meter: punctuality summary + sticky verdict CTA. |
 
-These are the reference pattern for the rest of the collection.
+**First wave (10 apps) is fully off `DumbShell`.** These are the reference pattern for the rest of the collection.
 
 ## Keep vs drop
 
@@ -67,7 +75,7 @@ Do not assign the same archetype + hero joke twice in one release wave.
 
 ## Migration order
 
-1. **First wave (10)** — highest App Store visibility  
+1. ~~**First wave (10)**~~ — **done** (all 10 off `DumbShell`)  
 2. **Map + camera cluster (02, 12, 23, 24, 27, 29)** — already non-template or capture-heavy  
 3. **Games + timers (13, 22, 25, 33)** — board/timer should own the screen  
 4. **Remaining utility shells** — replace `DumbShell` with `AppCanvas` + archetype layout  

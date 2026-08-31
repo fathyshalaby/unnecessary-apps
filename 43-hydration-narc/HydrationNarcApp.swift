@@ -49,14 +49,14 @@ struct HydrationNarcView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "BOTTLE OVERSIGHT",
-            title: "Hydration narc",
-            subtitle: "A manual one-tap water ledger with optional Apple Health import and one daily nudge.",
-            accent: accent,
-            personality: .office,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "BOTTLE OVERSIGHT",
+                title: "Hydration narc",
+                subtitle: "One-tap ledger with optional Health import and a daily nudge.",
+                accent: accent
+            )
+
             progressCard
 
             DumbSlider(
@@ -67,15 +67,6 @@ struct HydrationNarcView: View {
                 accent: accent
             )
             .accessibilityIdentifier("hydrationGoalSlider")
-
-            DumbAction(
-                title: "Log one serving",
-                accent: accent,
-                systemImage: "drop.fill",
-                action: logOneServing
-            )
-            .disabled(servings >= 24)
-            .accessibilityIdentifier("logGlassButton")
 
             Button(action: undoOneServing) {
                 Label("Undo last serving", systemImage: "minus.circle.fill")
@@ -118,6 +109,15 @@ struct HydrationNarcView: View {
                 systemImage: "drop.fill",
                 accent: accent
             )
+        } bottomBar: {
+            DumbAction(
+                title: "Log one serving",
+                accent: accent,
+                systemImage: "drop.fill",
+                action: logOneServing
+            )
+            .disabled(servings >= 24)
+            .accessibilityIdentifier("logGlassButton")
         }
         .dumbNativeEntry(scheme: "app43hydrationnarc") { action, _ in
             if action == "log" {

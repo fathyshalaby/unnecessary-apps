@@ -39,16 +39,41 @@ struct AmIEarlyView: View {
     private let accent = CorpPalette.parkGreen
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PUNCTUALITY SERVICES",
-            title: "Am I early?",
-            subtitle: "A social question disguised as a signed number.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent, experience: .meter) {
+            AppHeader(
+                eyebrow: "PUNCTUALITY SERVICES",
+                title: "Am I early?",
+                subtitle: "A social question disguised as a signed number.",
+                accent: accent
+            )
+
             summaryCard
             arrivalEditor
+            historyCard
 
+            Button(action: resetCurrentReport) {
+                Label("Reset current report", systemImage: "arrow.counterclockwise")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(!hasCurrentReport)
+            .accessibilityIdentifier("resetPunctualityButton")
+            .accessibilityHint("Resets the current occasion and offset without deleting filed history.")
+
+            Button {
+                showEraseConfirmation = true
+            } label: {
+                Label("Erase every arrival", systemImage: "trash.fill")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(history.isEmpty && !hasCurrentReport)
+            .accessibilityIdentifier("erasePunctualityDataButton")
+        } bottomBar: {
             DumbAction(
                 title: "Issue & file punctuality verdict",
                 accent: accent,
@@ -63,32 +88,7 @@ struct AmIEarlyView: View {
                 systemImage: "clock.fill",
                 reactionStyle: isActiveVerdict ? .stamp : .bounce
             )
-                .accessibilityIdentifier("punctualityResult")
-
-            Button(action: resetCurrentReport) {
-                Label("Reset current report", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(!hasCurrentReport)
-            .accessibilityIdentifier("resetPunctualityButton")
-            .accessibilityHint("Resets the current occasion and offset without deleting filed history.")
-
-            historyCard
-
-            Button {
-                showEraseConfirmation = true
-            } label: {
-                Label("Erase every arrival", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .disabled(history.isEmpty && !hasCurrentReport)
-            .accessibilityIdentifier("erasePunctualityDataButton")
+            .accessibilityIdentifier("punctualityResult")
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: minutes) { _, _ in invalidateVerdict() }
