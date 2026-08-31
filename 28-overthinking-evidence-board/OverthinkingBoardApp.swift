@@ -121,10 +121,15 @@ struct OverthinkingBoardView: View {
             restoreCases()
             if let shared = DumbSharedPayload.consume(for: .overthinking) {
                 worry = shared
-                evidenceSectionsExpanded = false
+                evidenceSectionsExpanded = true
             }
         }
-        .onChange(of: worry) { _, _ in invalidateConclusion() }
+        .onChange(of: worry) { _, newValue in
+            if !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                evidenceSectionsExpanded = true
+            }
+            invalidateConclusion()
+        }
         .onChange(of: evidenceFor) { _, _ in invalidateConclusion() }
         .onChange(of: evidenceAgainst) { _, _ in invalidateConclusion() }
         .onChange(of: alternative) { _, _ in invalidateConclusion() }
