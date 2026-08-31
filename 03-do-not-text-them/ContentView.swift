@@ -67,6 +67,35 @@ struct DoNotTextThemView: View {
                             .transition(.scale(scale: 0.96).combined(with: .opacity))
                     }
 
+                    Button {
+                        deleteEvidence()
+                    } label: {
+                        Label("Delete evidence", systemImage: "trash.fill")
+                            .font(.subheadline.weight(.black))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .foregroundStyle(CorpPalette.emergencyRed)
+                    .buttonStyle(DumbPressStyle())
+                    .disabled(message.isEmpty && remaining == 0)
+                    .accessibilityIdentifier("deleteEvidenceButton")
+
+                    rescueStats
+
+                    DumbNativeTip(
+                        "Siri & Shortcuts",
+                        detail: "Say “Start intervention in Do Not Text Them,” add the Shortcuts action, or Handoff a draft from another device.",
+                        systemImage: "hand.raised.fill",
+                        accent: CorpPalette.emergencyRed
+                    )
+                }
+                .padding(.horizontal, DumbSpacing.md)
+                .padding(.top, DumbSpacing.sm)
+                .padding(.bottom, DumbSpacing.xxl)
+            }
+            .scrollIndicators(.hidden)
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                VStack(spacing: DumbSpacing.sm) {
                     DumbAction(
                         title: remaining > 0 ? "Breathe. \(remaining)s" : "Start the cool-off",
                         accent: CorpPalette.emergencyRed,
@@ -83,41 +112,11 @@ struct DoNotTextThemView: View {
                         systemImage: "hand.raised.fill",
                         reactionStyle: .shake
                     )
-
-                    Button {
-                        deleteEvidence()
-                    } label: {
-                        Label("Delete evidence", systemImage: "trash.fill")
-                            .font(.subheadline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(CorpPalette.emergencyRed)
-                    .buttonStyle(DumbPressStyle())
-                    .disabled(message.isEmpty && remaining == 0)
-                    .accessibilityIdentifier("deleteEvidenceButton")
-
-                    rescueStats
-
-                    DumbCharacterStage(
-                        accent: CorpPalette.emergencyRed,
-                        title: remaining > 0 ? "Intervention in progress" : "Dignity protection officer",
-                        caption: mascotCaption,
-                        reactionTrigger: interventionRevision,
-                        reactionStyle: .shake
-                    )
-
-                    DumbNativeTip(
-                        "Siri & Shortcuts",
-                        detail: "Say “Start intervention in Do Not Text Them,” add the Shortcuts action, or Handoff a draft from another device.",
-                        systemImage: "hand.raised.fill",
-                        accent: CorpPalette.emergencyRed
-                    )
                 }
                 .padding(.horizontal, DumbSpacing.md)
                 .padding(.vertical, DumbSpacing.sm)
+                .background(CorpPalette.canvas.opacity(0.96))
             }
-            .scrollIndicators(.hidden)
-            .scrollDismissesKeyboard(.interactively)
         }
         .tint(CorpPalette.emergencyRed)
         .environment(\.dumbExperienceStyle, .timer)

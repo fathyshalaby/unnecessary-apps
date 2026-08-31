@@ -50,17 +50,15 @@ struct FridgeWitnessView: View {
             boundaryCard
             summaryCard
             evidenceEditor
-            .isEmpty)
-            .accessibilityIdentifier("fileFridgeEvidenceButton")
 
             inventoryCard
 
             Button {
-            showEraseConfirmation = true
+                showEraseConfirmation = true
             } label: {
-            Label("Erase the inventory", systemImage: "trash.fill")
-            .font(.subheadline.weight(.black))
-            .frame(maxWidth: .infinity, minHeight: 44)
+                Label("Erase the inventory", systemImage: "trash.fill")
+                    .font(.subheadline.weight(.black))
+                    .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -69,18 +67,19 @@ struct FridgeWitnessView: View {
 
         } bottomBar: {
             DumbAction(
-            title: "File fridge evidence",
-            accent: accent,
-            systemImage: "archivebox.fill",
-            action: addItem
+                title: "File fridge evidence",
+                accent: accent,
+                systemImage: "archivebox.fill",
+                action: addItem
             )
-            .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines)
+            .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityIdentifier("fileFridgeEvidenceButton")
 
             DumbResult(
-            text: statement,
-            accent: accent,
-            systemImage: "quote.bubble.fill",
-            reactionStyle: .shake
+                text: statement,
+                accent: accent,
+                systemImage: "quote.bubble.fill",
+                reactionStyle: .shake
             )
             .accessibilityIdentifier("fridgeWitnessStatement")
 

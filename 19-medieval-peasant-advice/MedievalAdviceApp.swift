@@ -70,6 +70,13 @@ struct MedievalAdviceView: View {
             .accessibilityIdentifier("peasantAnswer")
 
         }
+        .onChange(of: question) { _, _ in invalidateAnswer() }
+    }
+
+    private func invalidateAnswer() {
+        guard answer != "The peasant is sharpening a stick." else { return }
+        answer = "The question changed. Ask the peasant again."
+        modelStatus = "The village needs a fresh question."
     }
 
     private var oracleDesk: some View {
