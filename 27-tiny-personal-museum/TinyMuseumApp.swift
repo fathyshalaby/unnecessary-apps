@@ -114,19 +114,12 @@ struct TinyMuseumView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "THE MUSEUM OF SMALL THINGS",
-            title: "Tiny Personal Museum",
-            subtitle: "Archive ordinary objects before history carelessly forgets them.",
-            accent: accent,
-            personality: .optimistic
-        ) {
-            DumbCharacterStage(
-                accent: accent,
-                title: "Chief curator of tiny importance",
-                caption: curatorCaption,
-                reactionTrigger: curatorRevision,
-                reactionStyle: .stamp
+        AppCanvas(accent: accent, experience: .gallery) {
+            AppHeader(
+                eyebrow: "THE MUSEUM OF SMALL THINGS",
+                title: "Tiny Personal Museum",
+                subtitle: "Archive ordinary objects before history carelessly forgets them.",
+                accent: accent
             )
 
             HStack {

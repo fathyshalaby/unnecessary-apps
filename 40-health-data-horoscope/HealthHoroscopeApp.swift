@@ -49,40 +49,42 @@ struct HealthHoroscopeView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "TOTALLY FICTIONAL WELLNESS ASTROLOGY",
-            title: "Health data horoscope",
-            subtitle: "Your numbers get a constellation. The planets stay out of medicine.",
-            accent: accent,
-            personality: .chaotic,
-            experience: .oracle
-        ) {
+        AppCanvas(accent: accent, experience: .oracle) {
+            AppHeader(
+                eyebrow: "TOTALLY FICTIONAL WELLNESS ASTROLOGY",
+                title: "Health data horoscope",
+                subtitle: "Your numbers get a constellation. The planets stay out of medicine.",
+                accent: accent
+            )
+
             disclaimerCard
             healthConnectionCard
             cosmicReadoutCard
-
-            DumbAction(
-                title: "Consult the planets",
-                accent: accent,
-                systemImage: "sparkles",
-                action: consultPlanets
-            )
-            .accessibilityIdentifier("consultHealthHoroscopeButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "moon.stars.fill", reactionStyle: .bounce)
-                .accessibilityIdentifier("healthHoroscopeResult")
 
             notificationCard
             manualInputsCard
 
             Button(action: reset) {
-                Label("Reset the constellation", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the constellation", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetHealthHoroscopeButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Consult the planets",
+            accent: accent,
+            systemImage: "sparkles",
+            action: consultPlanets
+            )
+            .accessibilityIdentifier("consultHealthHoroscopeButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "moon.stars.fill", reactionStyle: .bounce)
+            .accessibilityIdentifier("healthHoroscopeResult")
+
         }
         .onAppear {
             loadNudgeDate()

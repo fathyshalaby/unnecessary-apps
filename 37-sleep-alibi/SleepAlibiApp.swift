@@ -39,39 +39,41 @@ struct SleepAlibiView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "REST DEFENSE COUNSEL",
-            title: "Sleep alibi",
-            subtitle: "A tiny courtroom for the morning after.",
-            accent: accent,
-            personality: .dramatic,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "REST DEFENSE COUNSEL",
+                title: "Sleep alibi",
+                subtitle: "A tiny courtroom for the morning after.",
+                accent: accent
+            )
+
             healthConnectionCard
             evidenceCard
-
-            DumbAction(
-                title: "Present my alibi",
-                accent: accent,
-                systemImage: "building.columns.fill",
-                action: generateAlibi
-            )
-            .accessibilityIdentifier("generateSleepAlibiButton")
-
-            DumbResult(text: alibi, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
-                .accessibilityIdentifier("sleepAlibiResult")
 
             notificationCard
             manualFallbackCard
 
             Button(action: reset) {
-                Label("Reset the testimony", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the testimony", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetSleepAlibiButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Present my alibi",
+            accent: accent,
+            systemImage: "building.columns.fill",
+            action: generateAlibi
+            )
+            .accessibilityIdentifier("generateSleepAlibiButton")
+
+            DumbResult(text: alibi, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
+            .accessibilityIdentifier("sleepAlibiResult")
+
         }
         .onAppear {
             loadNudgeDate()

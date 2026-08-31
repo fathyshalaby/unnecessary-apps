@@ -44,40 +44,42 @@ struct WorkoutExcuseView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "EXCUSE FORENSICS",
-            title: "Workout excuse detector",
-            subtitle: "A playful cross-examination of the sentence you told yourself.",
-            accent: accent,
-            personality: .chaotic,
-            experience: .meter
-        ) {
+        AppCanvas(accent: accent, experience: .meter) {
+            AppHeader(
+                eyebrow: "EXCUSE FORENSICS",
+                title: "Workout excuse detector",
+                subtitle: "A playful cross-examination of the sentence you told yourself.",
+                accent: accent
+            )
+
             caseCard
             healthConnectionCard
             evidenceCard
-
-            DumbAction(
-                title: "Run the detector",
-                accent: accent,
-                systemImage: "magnifyingglass",
-                action: runDetector
-            )
-            .accessibilityIdentifier("runWorkoutExcuseButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "doc.text.magnifyingglass", reactionStyle: .shake)
-                .accessibilityIdentifier("workoutExcuseResult")
 
             notificationCard
             manualMovementCard
 
             Button(action: reset) {
-                Label("Reset the case", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the case", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetWorkoutExcuseButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Run the detector",
+            accent: accent,
+            systemImage: "magnifyingglass",
+            action: runDetector
+            )
+            .accessibilityIdentifier("runWorkoutExcuseButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "doc.text.magnifyingglass", reactionStyle: .shake)
+            .accessibilityIdentifier("workoutExcuseResult")
+
         }
         .onAppear {
             loadNudgeDate()

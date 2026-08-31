@@ -15,44 +15,47 @@ struct HumanGPSView: View {
     private let accent = CorpPalette.bathroomBlue
 
     var body: some View {
-        DumbShell(
-            eyebrow: "OUTSIDE COORDINATION",
-            title: "Human GPS",
-            subtitle: "Because “I'm outside” is not a coordinate.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "OUTSIDE COORDINATION",
+                title: "Human GPS",
+                subtitle: "Because “I'm outside” is not a coordinate.",
+                accent: accent
+            )
+
             DumbCard(accent: accent, isSelected: !landmark.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
-                VStack(alignment: .leading, spacing: 8) {
-                    DumbField("Nearby landmark", maxLength: 120, text: $landmark)
-                    Text("Describe what you can see. Human directions are strongly encouraged.")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
+            VStack(alignment: .leading, spacing: 8) {
+            DumbField("Nearby landmark", maxLength: 120, text: $landmark)
+            Text("Describe what you can see. Human directions are strongly encouraged.")
+            .font(.caption.weight(.bold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
             }
             .accessibilityIdentifier("humanGPSInput")
 
+            Button {
+            landmark = ""
+            direction = Self.emptyDirection
+            } label: {
+            Label("Reset the coordinate", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("resetHumanGPSButton")
+
+        } bottomBar: {
             DumbAction(
-                title: "Generate instructions",
-                accent: accent,
-                systemImage: "location.north.fill",
-                action: generateInstructions
+            title: "Generate instructions",
+            accent: accent,
+            systemImage: "location.north.fill",
+            action: generateInstructions
             )
             .accessibilityIdentifier("generateDirectionsButton")
 
             DumbResult(text: direction, accent: accent, systemImage: "figure.walk", reactionStyle: .bounce)
 
-            Button {
-                landmark = ""
-                direction = Self.emptyDirection
-            } label: {
-                Label("Reset the coordinate", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("resetHumanGPSButton")
         }
     }
 

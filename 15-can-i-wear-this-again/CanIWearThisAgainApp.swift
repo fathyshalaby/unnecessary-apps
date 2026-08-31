@@ -60,51 +60,36 @@ struct OutfitView: View {
     private let accent = CorpPalette.coral
 
     var body: some View {
-        DumbShell(
-            eyebrow: "WARDROBE COMPLIANCE",
-            title: "Wear it again?",
-            subtitle: "Your rules, your evidence, your suspiciously formal closet ruling.",
-            accent: accent,
-            personality: .optimistic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "WARDROBE COMPLIANCE",
+                title: "Wear it again?",
+                subtitle: "Your rules, your evidence, your suspiciously formal closet ruling.",
+                accent: accent
+            )
+
             boundaryCard
             summaryCard
             rulingEditor
 
-            DumbAction(
-                title: "Issue & file closet ruling",
-                accent: accent,
-                systemImage: "tshirt.fill",
-                action: issueRuling
-            )
-            .accessibilityIdentifier("askClosetButton")
-
             if result != Self.emptyResult, let banner = rulingBanner {
-                DumbCard(accent: accent, isSelected: true) {
-                    HStack(spacing: 12) {
-                        Image(systemName: banner.approved ? "checkmark.seal.fill" : "washer.fill")
-                            .font(.title2.weight(.black))
-                            .foregroundStyle(banner.approved ? accent : CorpPalette.warningRed)
-                        Text(banner.title)
-                            .font(.system(.title3, design: .rounded).weight(.black))
-                            .foregroundStyle(CorpPalette.ink)
-                    }
-                }
-                .accessibilityIdentifier("closetRulingBanner")
+            DumbCard(accent: accent, isSelected: true) {
+            HStack(spacing: 12) {
+            Image(systemName: banner.approved ? "checkmark.seal.fill" : "washer.fill")
+            .font(.title2.weight(.black))
+            .foregroundStyle(banner.approved ? accent : CorpPalette.warningRed)
+            Text(banner.title)
+            .font(.system(.title3, design: .rounded).weight(.black))
+            .foregroundStyle(CorpPalette.ink)
+            }
+            }
+            .accessibilityIdentifier("closetRulingBanner")
             }
 
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "checkmark.seal.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("closetRulingResult")
-
             Button(action: resetCurrentRuling) {
-                Label("Reset current evidence", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset current evidence", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -115,16 +100,34 @@ struct OutfitView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every wardrobe ruling", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every wardrobe ruling", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentRuling)
             .accessibilityIdentifier("eraseWardrobeDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Issue & file closet ruling",
+            accent: accent,
+            systemImage: "tshirt.fill",
+            action: issueRuling
+            )
+            .accessibilityIdentifier("askClosetButton")
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "checkmark.seal.fill",
+            reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("closetRulingResult")
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: daysSinceWear) { _, _ in invalidateRuling() }

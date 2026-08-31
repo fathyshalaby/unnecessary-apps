@@ -57,37 +57,21 @@ struct MicrowaveView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "CULINARY HEAT SCIENCE",
-            title: "Microwave sommelier",
-            subtitle: "Translate package timing between wattages, with unnecessary ceremony.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "CULINARY HEAT SCIENCE",
+                title: "Microwave sommelier",
+                subtitle: "Translate package timing between wattages, with unnecessary ceremony.",
+                accent: accent
+            )
+
             formulaCard
             conversionEditor
 
-            DumbAction(
-                title: "Convert & file the pairing",
-                accent: accent,
-                systemImage: "microwave.fill",
-                action: convertHeat
-            )
-            .disabled(totalPackageSeconds == 0)
-            .accessibilityIdentifier("pairHeatButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "timer",
-                reactionStyle: .bounce
-            )
-            .accessibilityIdentifier("microwaveConversionResult")
-
             Button(action: resetCurrentConversion) {
-                Label("Reset current pairing", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset current pairing", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -97,16 +81,35 @@ struct MicrowaveView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every conversion", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every conversion", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentConversion)
             .accessibilityIdentifier("eraseMicrowaveDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Convert & file the pairing",
+            accent: accent,
+            systemImage: "microwave.fill",
+            action: convertHeat
+            )
+            .disabled(totalPackageSeconds == 0)
+            .accessibilityIdentifier("pairHeatButton")
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "timer",
+            reactionStyle: .bounce
+            )
+            .accessibilityIdentifier("microwaveConversionResult")
+
         }
         .onAppear {
             restoreHistory()

@@ -51,42 +51,47 @@ struct LastSliceView: View {
     private let gold = CorpPalette.sunshine
 
     var body: some View {
-        DumbShell(
-            eyebrow: "SHARED FOOD DIPLOMACY",
-            title: "Who gets the last one?",
-            subtitle: "A tiny fairness protocol for snacks, seats, chores, and other fragile alliances.",
-            accent: accent,
-            personality: .dramatic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "SHARED FOOD DIPLOMACY",
+                title: "Who gets the last one?",
+                subtitle: "A tiny fairness protocol for snacks, seats, chores, and other fragile alliances.",
+                accent: accent
+            )
+
             fairnessRule
             rulingSummary
 
             if let activeRuling {
-                tribunalCard(activeRuling)
+            tribunalCard(activeRuling)
             } else {
-                rosterCard
-                DumbAction(
-                    title: "Convene fair tribunal",
-                    accent: accent,
-                    systemImage: "scale.3d",
-                    action: startRuling
-                )
-                .disabled(cleanItem.isEmpty || people.count < 2)
-                .accessibilityIdentifier("resolveSliceButton")
+            rosterCard
+
             }
 
             treatyCard
             historyCard
 
             Button { showEraseConfirmation = true } label: {
-                Label("Erase complete diplomacy archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase complete diplomacy archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(activeRuling == nil && history.isEmpty && !hasDraft && treatyText == Self.waitingTreaty)
             .accessibilityIdentifier("eraseSliceArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Convene fair tribunal",
+            accent: accent,
+            systemImage: "scale.3d",
+            action: startRuling
+            )
+            .disabled(cleanItem.isEmpty || people.count < 2)
+            .accessibilityIdentifier("resolveSliceButton")
+
         }
         .onAppear(perform: restoreState)
         .confirmationDialog("Erase active ruling and all diplomacy history?", isPresented: $showEraseConfirmation, titleVisibility: .visible) {

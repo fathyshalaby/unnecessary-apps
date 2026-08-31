@@ -20,58 +20,62 @@ struct PigeonView: View {
     private let accent = CorpPalette.bathroomBlue
 
     var body: some View {
-        DumbShell(
-            eyebrow: "ORNITHOLOGICAL EMERGENCY",
-            title: "Pigeon or seagull?",
-            subtitle: "Please describe the creature. Do not approach it.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent, experience: .camera) {
+            AppHeader(
+                eyebrow: "ORNITHOLOGICAL EMERGENCY",
+                title: "Pigeon or seagull?",
+                subtitle: "Please describe the creature. Do not approach it.",
+                accent: accent,
+                showsMascot: false
+            )
+
             if let banner = VisionSupport.deviceBannerMessage {
-                Text(banner)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(CorpPalette.mutedInk)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
-                    .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .accessibilityIdentifier("visionDeviceBanner")
+            Text(banner)
+            .font(.caption.weight(.bold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .accessibilityIdentifier("visionDeviceBanner")
             }
 
             scannerStage
 
             DumbCard(accent: accent, isSelected: nearWater || looksAngry || wingsOperational) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        DumbStatusPill("FIELD SCANNER", systemImage: "scope", accent: accent)
-                        Spacer()
-                        Text(visionRuling == nil ? "READY" : "RULING FOUND")
-                            .font(.caption2.weight(.black).monospaced())
-                            .foregroundStyle(visionRuling == nil ? CorpPalette.mutedInk : accent)
-                    }
-                    Toggle("Near a body of water", isOn: $nearWater)
-                    Toggle("Looks like it owes you money", isOn: $looksAngry)
-                    Toggle("Wings look aggressively operational", isOn: $wingsOperational)
-                    Text("Use the checklist only when the bird refuses to pose.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                        .padding(.top, 8)
-                }
+            VStack(alignment: .leading, spacing: 4) {
+            HStack {
+            DumbStatusPill("FIELD SCANNER", systemImage: "scope", accent: accent)
+            Spacer()
+            Text(visionRuling == nil ? "READY" : "RULING FOUND")
+            .font(.caption2.weight(.black).monospaced())
+            .foregroundStyle(visionRuling == nil ? CorpPalette.mutedInk : accent)
+            }
+            Toggle("Near a body of water", isOn: $nearWater)
+            Toggle("Looks like it owes you money", isOn: $looksAngry)
+            Toggle("Wings look aggressively operational", isOn: $wingsOperational)
+            Text("Use the checklist only when the bird refuses to pose.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .padding(.top, 8)
+            }
             }
             .accessibilityIdentifier("birdObservationInputs")
 
-            DumbAction(title: "Identify bird", accent: accent, systemImage: "bird.fill", action: identify)
-                .accessibilityIdentifier("identifyBirdButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "binoculars.fill", reactionStyle: .bounce)
-
             Button(action: reset) {
-                Label("Reset the evidence", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the evidence", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetBirdGuessButton")
+
+        } bottomBar: {
+            DumbAction(title: "Identify bird", accent: accent, systemImage: "bird.fill", action: identify)
+            .accessibilityIdentifier("identifyBirdButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "binoculars.fill", reactionStyle: .bounce)
+
         }
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
@@ -109,7 +113,7 @@ struct PigeonView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 196)
+                            .frame(height: 240)
                             .clipped()
                             .accessibilityLabel("Selected bird photo")
                     } else {

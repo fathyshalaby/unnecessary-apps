@@ -22,50 +22,53 @@ struct MedievalAdviceView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "VILLAGE CONSULTANCY",
-            title: "Ask the peasant",
-            subtitle: "He has no qualifications but strong opinions.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "VILLAGE CONSULTANCY",
+                title: "Ask the peasant",
+                subtitle: "He has no qualifications but strong opinions.",
+                accent: accent
+            )
+
             oracleDesk
 
+            Text(modelStatus)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("modelStatus")
+
+            Button {
+            question = ""
+            answer = "The peasant is sharpening a stick."
+            isGenerating = false
+            activeGenerationID = nil
+            fallbackTask?.cancel()
+            fallbackTask = nil
+            modelStatus = "The village is ready."
+            } label: {
+            Label("Send the peasant home", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("resetPeasantButton")
+
+        } bottomBar: {
             DumbAction(
-                title: isGenerating ? "Consulting the peasant…" : "Seek village wisdom",
-                accent: accent,
-                systemImage: "person.fill.questionmark",
-                isLoading: isGenerating,
-                action: seekWisdom
+            title: isGenerating ? "Consulting the peasant…" : "Seek village wisdom",
+            accent: accent,
+            systemImage: "person.fill.questionmark",
+            isLoading: isGenerating,
+            action: seekWisdom
             )
             .disabled(isGenerating)
             .accessibilityIdentifier("seekWisdomButton")
 
             DumbResult(text: answer, accent: accent, systemImage: "quote.bubble.fill", reactionStyle: .stamp)
-                .accessibilityIdentifier("peasantAnswer")
+            .accessibilityIdentifier("peasantAnswer")
 
-            Text(modelStatus)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(CorpPalette.mutedInk)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier("modelStatus")
-
-            Button {
-                question = ""
-                answer = "The peasant is sharpening a stick."
-                isGenerating = false
-                activeGenerationID = nil
-                fallbackTask?.cancel()
-                fallbackTask = nil
-                modelStatus = "The village is ready."
-            } label: {
-                Label("Send the peasant home", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .foregroundStyle(accent)
-            .buttonStyle(DumbPressStyle())
-            .accessibilityIdentifier("resetPeasantButton")
         }
     }
 

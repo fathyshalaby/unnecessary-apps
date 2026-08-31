@@ -59,23 +59,15 @@ struct ReceiptDamageView: View {
     private let accent = CorpPalette.warningRed
 
     var body: some View {
-        DumbShell(
-            eyebrow: "RECEIPT DAMAGE",
-            title: "How bad was it?",
-            subtitle: "A cost-per-use reflection wearing a tiny courtroom wig.",
-            accent: accent,
-            personality: .dramatic
-        ) {
-            purchaseEditor
-
-            DumbAction(
-                title: "Issue & file emotional invoice",
-                accent: accent,
-                systemImage: "gavel.fill",
-                action: issueReport
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "RECEIPT DAMAGE",
+                title: "How bad was it?",
+                subtitle: "A cost-per-use reflection wearing a tiny courtroom wig.",
+                accent: accent
             )
-            .disabled(parsedAmountCents == nil)
-            .accessibilityIdentifier("issueReportButton")
+
+            purchaseEditor
 
             receiptPaper
 
@@ -83,9 +75,9 @@ struct ReceiptDamageView: View {
             summaryCard
 
             Button(action: resetCurrentReceipt) {
-                Label("Expunge current receipt", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Expunge current receipt", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -96,16 +88,27 @@ struct ReceiptDamageView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase the receipt ledger", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase the receipt ledger", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentReceipt)
             .accessibilityIdentifier("erasePurchaseDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Issue & file emotional invoice",
+            accent: accent,
+            systemImage: "gavel.fill",
+            action: issueReport
+            )
+            .disabled(parsedAmountCents == nil)
+            .accessibilityIdentifier("issueReportButton")
+
         }
         .onAppear {
             restoreHistory()

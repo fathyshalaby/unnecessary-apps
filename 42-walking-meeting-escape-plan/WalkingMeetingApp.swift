@@ -96,42 +96,47 @@ struct WalkingMeetingView: View {
     private let yellow = CorpPalette.sunshine
 
     var body: some View {
-        DumbShell(
-            eyebrow: "WALKING MEETING FIELD UNIT",
-            title: "Take this meeting outside.",
-            subtitle: "Time a real walk, keep the agenda moving, and return with an actual decision.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "WALKING MEETING FIELD UNIT",
+                title: "Take this meeting outside.",
+                subtitle: "Time a real walk, keep the agenda moving, and return with an actual decision.",
+                accent: accent
+            )
+
             boundaryCard
             lifetimeSummary
 
             if let activeMeeting {
-                activeCard(activeMeeting)
+            activeCard(activeMeeting)
             } else {
-                planningCard
-                DumbAction(
-                    title: "Start walking meeting",
-                    accent: accent,
-                    systemImage: "figure.walk.motion",
-                    action: startMeeting
-                )
-                .disabled(cleanTitle.isEmpty || cleanObjective.isEmpty)
-                .accessibilityIdentifier("startWalkingMeetingButton")
+            planningCard
+
             }
 
             fieldBrief
             historyCard
 
             Button { showEraseConfirmation = true } label: {
-                Label("Erase complete walking archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase complete walking archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(activeMeeting == nil && history.isEmpty && !hasDraft && latestBrief == Self.waitingBrief)
             .accessibilityIdentifier("eraseWalkingArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Start walking meeting",
+            accent: accent,
+            systemImage: "figure.walk.motion",
+            action: startMeeting
+            )
+            .disabled(cleanTitle.isEmpty || cleanObjective.isEmpty)
+            .accessibilityIdentifier("startWalkingMeetingButton")
+
         }
         .onAppear { restoreState(); refreshNotificationStatus() }
         .onChange(of: reminderEnabled) { _, enabled in

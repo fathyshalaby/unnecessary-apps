@@ -39,47 +39,51 @@ struct FridgeWitnessView: View {
     private let accent = CorpPalette.parkGreen
 
     var body: some View {
-        DumbShell(
-            eyebrow: "CASE FILE 0042",
-            title: "The fridge is a witness.",
-            subtitle: "An inventory for the food you actually put there.",
-            accent: accent,
-            personality: .office
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "CASE FILE 0042",
+                title: "The fridge is a witness.",
+                subtitle: "An inventory for the food you actually put there.",
+                accent: accent
+            )
+
             boundaryCard
             summaryCard
             evidenceEditor
-
-            DumbAction(
-                title: "File fridge evidence",
-                accent: accent,
-                systemImage: "archivebox.fill",
-                action: addItem
-            )
-            .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .isEmpty)
             .accessibilityIdentifier("fileFridgeEvidenceButton")
-
-            DumbResult(
-                text: statement,
-                accent: accent,
-                systemImage: "quote.bubble.fill",
-                reactionStyle: .shake
-            )
-            .accessibilityIdentifier("fridgeWitnessStatement")
 
             inventoryCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase the inventory", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase the inventory", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(items.isEmpty && statement == Self.emptyStatement)
             .accessibilityIdentifier("eraseFridgeDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "File fridge evidence",
+            accent: accent,
+            systemImage: "archivebox.fill",
+            action: addItem
+            )
+            .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            DumbResult(
+            text: statement,
+            accent: accent,
+            systemImage: "quote.bubble.fill",
+            reactionStyle: .shake
+            )
+            .accessibilityIdentifier("fridgeWitnessStatement")
+
         }
         .onAppear(perform: restoreInventory)
         .confirmationDialog(

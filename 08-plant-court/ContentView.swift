@@ -60,23 +60,15 @@ struct PlantCourtView: View {
     private let gold = CorpPalette.verdictGold
 
     var body: some View {
-        DumbShell(
-            eyebrow: "PLANT COURT",
-            title: "The care docket",
-            subtitle: "A watering log with a ridiculous judicial branch.",
-            accent: accent,
-            personality: .optimistic
-        ) {
-            editorCard
-
-            DumbAction(
-                title: editingID == nil ? "Add plant to docket" : "Save amended plant record",
-                accent: accent,
-                systemImage: editingID == nil ? "leaf.fill" : "square.and.pencil",
-                action: savePlant
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "PLANT COURT",
+                title: "The care docket",
+                subtitle: "A watering log with a ridiculous judicial branch.",
+                accent: accent
             )
-            .disabled(cleanName.isEmpty)
-            .accessibilityIdentifier("savePlantRecordButton")
+
+            editorCard
 
             careOrder
 
@@ -84,29 +76,40 @@ struct PlantCourtView: View {
             summaryCard
 
             if hasDraft || editingID != nil {
-                Button(action: clearDraft) {
-                    Label(editingID == nil ? "Clear filing desk" : "Cancel amendment", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline.weight(.black))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .foregroundStyle(accent)
-                .buttonStyle(DumbPressStyle())
-                .accessibilityIdentifier("clearPlantDraftButton")
+            Button(action: clearDraft) {
+            Label(editingID == nil ? "Clear filing desk" : "Cancel amendment", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .accessibilityIdentifier("clearPlantDraftButton")
             }
 
             plantDocket
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Expunge complete plant archive", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Expunge complete plant archive", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(CorpPalette.warningRed)
             .buttonStyle(DumbPressStyle())
             .disabled(plants.isEmpty && !hasDraft && latestOrder == Self.waitingOrder)
             .accessibilityIdentifier("erasePlantArchiveButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: editingID == nil ? "Add plant to docket" : "Save amended plant record",
+            accent: accent,
+            systemImage: editingID == nil ? "leaf.fill" : "square.and.pencil",
+            action: savePlant
+            )
+            .disabled(cleanName.isEmpty)
+            .accessibilityIdentifier("savePlantRecordButton")
+
         }
         .onAppear {
             restorePlants()

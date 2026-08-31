@@ -171,82 +171,84 @@ struct StepDebtView: View {
     }
 
     var body: some View {
-        DumbShell(
-            eyebrow: "MOVEMENT ACCOUNTING",
-            title: "Step debt",
-            subtitle: "A fictional invoice for a walk you may or may not owe.",
-            accent: accent,
-            personality: .office,
-            experience: .wellness
-        ) {
+        AppCanvas(accent: accent, experience: .wellness) {
+            AppHeader(
+                eyebrow: "MOVEMENT ACCOUNTING",
+                title: "Step debt",
+                subtitle: "A fictional invoice for a walk you may or may not owe.",
+                accent: accent
+            )
+
             progressCard
-
-            DumbAction(
-                title: "Stamp today’s invoice",
-                accent: accent,
-                systemImage: "figure.walk",
-                action: calculateDebt
-            )
-            .accessibilityIdentifier("calculateStepDebtButton")
-
-            DumbResult(
-                text: result,
-                accent: accent,
-                systemImage: "creditcard.fill",
-                reactionStyle: .stamp
-            )
-            .accessibilityIdentifier("stepDebtResult")
 
             modelStatusView
 
             DumbDisclosureSection(
-                "Apple Health connection",
-                systemImage: "heart.text.square.fill",
-                isExpanded: $healthSectionExpanded,
-                accent: accent
+            "Apple Health connection",
+            systemImage: "heart.text.square.fill",
+            isExpanded: $healthSectionExpanded,
+            accent: accent
             ) {
-                healthConnectionContent
+            healthConnectionContent
             }
             .accessibilityIdentifier("stepDebtHealthCard")
 
             DumbDisclosureSection(
-                "Optional closing walk",
-                systemImage: "map.fill",
-                isExpanded: $routeSectionExpanded,
-                accent: accent
+            "Optional closing walk",
+            systemImage: "map.fill",
+            isExpanded: $routeSectionExpanded,
+            accent: accent
             ) {
-                routeContent
+            routeContent
             }
             .accessibilityIdentifier("stepDebtRouteCard")
 
             DumbDisclosureSection(
-                "Reminders and manual entry",
-                systemImage: "slider.horizontal.3",
-                isExpanded: $settingsSectionExpanded,
-                accent: accent
+            "Reminders and manual entry",
+            systemImage: "slider.horizontal.3",
+            isExpanded: $settingsSectionExpanded,
+            accent: accent
             ) {
-                VStack(spacing: 12) {
-                    notificationContent
-                    manualFallbackContent
-                }
+            VStack(spacing: 12) {
+            notificationContent
+            manualFallbackContent
+            }
             }
             .accessibilityIdentifier("stepDebtInput")
 
             Button(action: reset) {
-                Label("Reset the ledger", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the ledger", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetStepDebtButton")
 
             DumbNativeTip(
-                "Siri & Apple Maps",
-                detail: "Say “Stamp my step debt,” then hand off to Apple Maps when you want a real walking route.",
-                systemImage: "figure.walk",
-                accent: accent
+            "Siri & Apple Maps",
+            detail: "Say “Stamp my step debt,” then hand off to Apple Maps when you want a real walking route.",
+            systemImage: "figure.walk",
+            accent: accent
             )
+
+        } bottomBar: {
+            DumbAction(
+            title: "Stamp today’s invoice",
+            accent: accent,
+            systemImage: "figure.walk",
+            action: calculateDebt
+            )
+            .accessibilityIdentifier("calculateStepDebtButton")
+
+            DumbResult(
+            text: result,
+            accent: accent,
+            systemImage: "creditcard.fill",
+            reactionStyle: .stamp
+            )
+            .accessibilityIdentifier("stepDebtResult")
+
         }
         .dumbNativeEntry(scheme: "app36stepdebt") { action, _ in
             if action == "stamp" {

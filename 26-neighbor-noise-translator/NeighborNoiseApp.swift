@@ -75,64 +75,67 @@ struct NeighborNoiseView: View {
     private let accent = CorpPalette.sky
 
     var body: some View {
-        DumbShell(
-            eyebrow: "DOMESTIC ACOUSTICS",
-            title: "Neighbor noise translator",
-            subtitle: "Turn an unexplained thud into a category.",
-            accent: accent,
-            personality: .chaotic
-        ) {
+        AppCanvas(accent: accent) {
+            AppHeader(
+                eyebrow: "DOMESTIC ACOUSTICS",
+                title: "Neighbor noise translator",
+                subtitle: "Turn an unexplained thud into a category.",
+                accent: accent
+            )
+
             DumbCard(accent: accent) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Button {
-                        listenToWall()
-                    } label: {
-                        Label(isListening ? "Listening to the wall…" : "Listen for two seconds", systemImage: "waveform")
-                            .font(.headline.weight(.black))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .foregroundStyle(accent)
-                    .buttonStyle(DumbPressStyle())
-                    .disabled(isListening)
-                    .accessibilityIdentifier("listenNeighborNoiseButton")
+            VStack(alignment: .leading, spacing: 12) {
+            Button {
+            listenToWall()
+            } label: {
+            Label(isListening ? "Listening to the wall…" : "Listen for two seconds", systemImage: "waveform")
+            .font(.headline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .foregroundStyle(accent)
+            .buttonStyle(DumbPressStyle())
+            .disabled(isListening)
+            .accessibilityIdentifier("listenNeighborNoiseButton")
 
-                    if isListening {
-                        Text("\(listenRemaining)s remaining")
-                            .font(.caption.weight(.black))
-                            .foregroundStyle(accent)
-                            .monospacedDigit()
-                            .accessibilityIdentifier("listenRemainingLabel")
-                    }
+            if isListening {
+            Text("\(listenRemaining)s remaining")
+            .font(.caption.weight(.black))
+            .foregroundStyle(accent)
+            .monospacedDigit()
+            .accessibilityIdentifier("listenRemainingLabel")
+            }
 
-                    ProgressView(value: noiseLevel)
-                        .tint(accent)
-                        .accessibilityLabel("Noise level")
+            ProgressView(value: noiseLevel)
+            .tint(accent)
+            .accessibilityLabel("Noise level")
 
-                    Text(microphoneStatus)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
+            Text(microphoneStatus)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
 
-                    DumbField("Describe the sound", axis: .vertical, maxLength: 240, text: $noise)
-                    Text("Prefer not to listen? Describe the suspicious thud yourself.")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(CorpPalette.mutedInk)
-                }
+            DumbField("Describe the sound", axis: .vertical, maxLength: 240, text: $noise)
+            Text("Prefer not to listen? Describe the suspicious thud yourself.")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(CorpPalette.mutedInk)
+            }
             }
             .accessibilityIdentifier("neighborNoiseInput")
 
-            DumbAction(title: "Translate noise", accent: accent, systemImage: "ear.fill", action: translate)
-                .accessibilityIdentifier("translateNeighborNoiseButton")
-
-            DumbResult(text: result, accent: accent, systemImage: "waveform", reactionStyle: .shake)
-
             Button(action: reset) {
-                Label("Reset the wall", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Reset the wall", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .accessibilityIdentifier("resetNeighborNoiseButton")
+
+        } bottomBar: {
+            DumbAction(title: "Translate noise", accent: accent, systemImage: "ear.fill", action: translate)
+            .accessibilityIdentifier("translateNeighborNoiseButton")
+
+            DumbResult(text: result, accent: accent, systemImage: "waveform", reactionStyle: .shake)
+
         }
     }
 

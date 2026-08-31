@@ -53,33 +53,25 @@ struct SocialBatteryReceiptView: View {
     private let accent = CorpPalette.violet
 
     var body: some View {
-        DumbShell(
-            eyebrow: "SOCIAL BATTERY",
-            title: "Thank you for socializing.",
-            subtitle: "A receipt for the social energy you actually felt—not a personality prediction.",
-            accent: accent,
-            personality: .dramatic,
-            experience: .receipt
-        ) {
+        AppCanvas(accent: accent, experience: .receipt) {
+            AppHeader(
+                eyebrow: "SOCIAL BATTERY",
+                title: "Thank you for socializing.",
+                subtitle: "A receipt for the social energy you actually felt—not a personality prediction.",
+                accent: accent
+            )
+
             boundaryCard
             summaryCard
             receiptEditor
 
-            DumbAction(
-                title: "Print & file emotional receipt",
-                accent: accent,
-                systemImage: "receipt.fill",
-                action: makeReceipt
-            )
-            .accessibilityIdentifier("printReceiptButton")
-
             socialReceiptPaper
-                .accessibilityIdentifier("socialBatteryResult")
+            .accessibilityIdentifier("socialBatteryResult")
 
             Button(action: resetCurrentReceipt) {
-                Label("Void current receipt", systemImage: "arrow.counterclockwise")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Void current receipt", systemImage: "arrow.counterclockwise")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
@@ -90,16 +82,26 @@ struct SocialBatteryReceiptView: View {
             historyCard
 
             Button {
-                showEraseConfirmation = true
+            showEraseConfirmation = true
             } label: {
-                Label("Erase every receipt", systemImage: "trash.fill")
-                    .font(.subheadline.weight(.black))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Label("Erase every receipt", systemImage: "trash.fill")
+            .font(.subheadline.weight(.black))
+            .frame(maxWidth: .infinity, minHeight: 44)
             }
             .foregroundStyle(accent)
             .buttonStyle(DumbPressStyle())
             .disabled(history.isEmpty && !hasCurrentReceipt)
             .accessibilityIdentifier("eraseSocialBatteryDataButton")
+
+        } bottomBar: {
+            DumbAction(
+            title: "Print & file emotional receipt",
+            accent: accent,
+            systemImage: "receipt.fill",
+            action: makeReceipt
+            )
+            .accessibilityIdentifier("printReceiptButton")
+
         }
         .onAppear(perform: restoreHistory)
         .onChange(of: eventName) { _, _ in invalidateReceipt() }
